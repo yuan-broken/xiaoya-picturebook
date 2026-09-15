@@ -773,10 +773,15 @@ function levelLabel(level) {
   return '免费版';
 }
 
+function maskPhone(phone) {
+  if (!phone || phone.length < 7) return phone || '--';
+  return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4);
+}
+
 async function loadAccountInfo() {
   const localUser = TokenUtil.getUser() || {};
   let name = localUser.nickname || localUser.username || '--';
-  let phone = '--';
+  let phone = localUser.phone ? maskPhone(localUser.phone) : '--';
   let level = localUser.memberLevel || 'free';
   let expire = '--';
   try {

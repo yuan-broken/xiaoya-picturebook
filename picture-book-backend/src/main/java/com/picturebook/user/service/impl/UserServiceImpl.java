@@ -71,6 +71,7 @@ public class UserServiceImpl implements UserService {
         result.put("familyId", family.getFamilyId());
         result.put("nickname", family.getNickname());
         result.put("memberLevel", family.getMemberLevel());
+        result.put("phone", family.getPhone());
         result.put("token", token);
         return result;
     }

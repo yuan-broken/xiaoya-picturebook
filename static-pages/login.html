@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
 <head>
   <meta charset="utf-8"/>
@@ -193,6 +193,7 @@ async function doLogin(event) {
         familyId: res.data.familyId,
         username: username,
         nickname: res.data.nickname,
+        phone: res.data.phone || '',
         memberLevel: res.data.memberLevel,
         role: 'parent'
       });
