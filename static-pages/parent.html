@@ -1085,10 +1085,13 @@ function manageChildData() {
   loadChildData();
 }
 
+var _childDataCache = [];
+
 async function loadChildData() {
   try {
     const res = await apiGet('/api/user/children');
     if (res.code === 200 && res.data && res.data.length) {
+      _childDataCache = res.data;
       document.getElementById('childDataList').innerHTML = res.data.map(function(c) {
         var cid = c.childId || c.id || 0;
         var name = c.nickname || c.childName || '小读者';
@@ -1155,8 +1158,48 @@ async function submitAddChild() {
 }
 
 function exportChildData(profileId) {
-  toast('正在导出孩子 #' + profileId + ' 的全部数据为PDF...');
-  setTimeout(function(){ toast('导出完成，请查看下载'); }, 1500);
+  var child = _childDataCache.find(function(c) { return (c.childId || c.id) === profileId; });
+  if (!child) {
+    toast('未找到该孩子的数据');
+    return;
+  }
+  var name = child.nickname || child.childName || '小读者';
+  var username = child.username || '未设置';
+  var ageGroup = child.ageGroup || 'preschool';
+  var ageLabel = ageGroup === 'toddler' ? '2-3岁' : (ageGroup === 'preschool' ? '4-6岁' : (ageGroup === 'lowerPrimary' ? '7-9岁' : '10-12岁'));
+  var today = new Date();
+  var dateStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+
+  // 构建可读文本报告
+  var lines = [];
+  lines.push('===== 小芽绘本 · 孩子成长数据导出 =====');
+  lines.push('导出时间：' + dateStr);
+  lines.push('');
+  lines.push('【基本信息】');
+  lines.push('昵称：' + name);
+  lines.push('登录账号：' + username);
+  lines.push('年龄段：' + ageLabel);
+  lines.push('阅读等级：' + (child.readingLevel || 1));
+  lines.push('兴趣爱好：' + (child.interests || '—'));
+  lines.push('出生日期：' + (child.birthDate || '—'));
+  lines.push('档案ID：#' + profileId);
+  lines.push('');
+  lines.push('【原始数据 JSON】');
+  lines.push(JSON.stringify(child, null, 2));
+  lines.push('');
+  lines.push('===== 导出结束 · 小芽绘本 =====');
+
+  var text = lines.join('\n');
+  var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '小芽绘本_' + name + '_成长数据_' + dateStr + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast(name + ' 的成长数据已导出');
 }
 
 async function deleteChildData(profileId, name) {
