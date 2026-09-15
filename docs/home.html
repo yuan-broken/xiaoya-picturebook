@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>小芽绘本 · AI伴读</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<script src="api.js?v=8"></script>
+</head>
+<body class="m-0 min-h-screen bg-[#f7f3ec] text-[#24312e]">
+<div class="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden bg-[#fbfaf7] shadow-[0_12px_60px_rgba(61,48,29,.08)]">
+<aside class="hidden w-[248px] shrink-0 border-r border-[#ebe5db] bg-[#f5f1e9] px-5 py-7 lg:block">
+<a class="flex items-center gap-3 px-2" href="home.html">
+<span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ef765e] text-white"><iconify-icon icon="lucide:book-open-check" width="22"></iconify-icon></span>
+<span><strong class="block text-lg leading-5 tracking-tight">小芽绘本</strong><small class="text-[11px] text-[#83908b]">AI 伴读成长空间</small></span>
+</a>
+<div class="mt-12 px-3 text-[11px] font-semibold tracking-[.18em] text-[#a09c91]">我的空间</div>
+<nav class="mt-3 space-y-1 text-sm">
+<a class="flex items-center gap-3 rounded-xl bg-white px-3 py-3 font-semibold text-[#ef765e] shadow-sm" href="home.html"><iconify-icon icon="lucide:layout-dashboard" width="18"></iconify-icon>今日首页</a>
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="library.html"><iconify-icon icon="lucide:library" width="18"></iconify-icon>绘本库</a>
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="studio.html"><iconify-icon icon="lucide:sparkles" width="18"></iconify-icon>互动故事营<span class="ml-auto rounded-full bg-[#dff2e9] px-2 py-0.5 text-[10px] text-[#3b9273]">AI</span></a>
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="reader.html"><iconify-icon icon="lucide:headphones" width="18"></iconify-icon>最近伴读</a>
+</nav>
+<div class="mt-12 rounded-2xl bg-[#e3f1ec] p-4">
+<div class="flex items-center justify-between"><span class="text-xs font-semibold text-[#3d7868]">本周成长</span><iconify-icon class="text-[#68a68f]" icon="lucide:leaf" width="18"></iconify-icon></div>
+<div class="mt-3 text-2xl font-bold text-[#2d6658]">4<span class="ml-1 text-sm font-normal">/ 5 天</span></div>
+<div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white"><div class="h-full w-4/5 rounded-full bg-[#66a990]"></div></div>
+<p class="mt-3 text-[11px] leading-5 text-[#668a7e]">再读 1 天，解锁本周成长徽章</p>
+</div>
+<div class="mt-8 border-t border-[#e5dfd5] pt-6"><a class="flex items-center gap-3 px-2 text-sm text-[#68746f]" href="parent.html"><span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#f8c7a1] font-bold text-[#824c34]" data-family-avatar>家</span><span class="flex-1"><span data-family-name>家长</span><small class="block text-[11px] text-[#a09c91]" data-family-meta>免费版</small></span><iconify-icon icon="lucide:chevron-right" width="16"></iconify-icon></a><button id="logoutBtn" class="mt-3 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs text-[#9aa29d] hover:bg-white hover:text-[#ef765e]" style="display:none" onclick="doLogout()"><iconify-icon icon="lucide:log-out" width="14"></iconify-icon>退出登录</button></div>
+</aside>
+<main class="flex-1 overflow-y-auto">
+<header class="flex h-[76px] items-center justify-between border-b border-[#eee9e1] bg-[#fbfaf7] px-6 md:px-10"><div class="flex items-center gap-3 lg:hidden"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ef765e] text-white"><iconify-icon icon="lucide:book-open-check" width="19"></iconify-icon></span><b>小芽绘本</b></div><div class="hidden items-center gap-2 text-sm text-[#7e8881] md:flex" data-greeting><iconify-icon class="text-[#edaa4f]" icon="lucide:sun" width="18"></iconify-icon>早上好，今天也一起读一点吧</div><div class="flex items-center gap-3"><button class="flex h-9 w-9 items-center justify-center rounded-full text-[#78827e] hover:bg-[#f3eee6]"><iconify-icon icon="lucide:bell" width="18"></iconify-icon></button><button class="rounded-xl bg-[#ef765e] px-4 py-2 text-xs font-bold text-white shadow-[0_5px_12px_rgba(239,118,94,.22)]" data-upgrade-btn onclick="showUpgrade()">升级会员</button></div></header>
+<div class="px-6 py-8 md:px-10 md:py-10">
+<section class="relative overflow-hidden rounded-[28px] bg-[#f8dfc6] px-7 py-8 md:px-10 md:py-10"><div class="relative z-10 max-w-[520px]"><span class="rounded-full bg-white/70 px-3 py-1 text-[11px] font-bold text-[#b76347]">今日 · 亲子共读建议</span><h1 class="mt-4 text-3xl font-bold leading-tight tracking-[-.03em] text-[#523c32] md:text-4xl">让每一次翻页，<br/>都变成孩子的奇妙对话。</h1><p class="mt-4 max-w-[420px] text-sm leading-6 text-[#806658]">AI 小芽会记住孩子的兴趣，用声音、表情和提问，陪他读懂故事，也读懂自己。</p><div class="mt-7 flex flex-wrap gap-3"><a class="inline-flex items-center gap-2 rounded-xl bg-[#ef765e] px-5 py-3 text-sm font-bold text-white shadow-md" href="reader.html" data-recent-href>继续上次伴读 <iconify-icon icon="lucide:arrow-right" width="16"></iconify-icon></a><a class="inline-flex items-center gap-2 rounded-xl bg-white/80 px-5 py-3 text-sm font-semibold text-[#805543]" href="studio.html">去创造角色 <iconify-icon icon="lucide:sparkles" width="16"></iconify-icon></a></div></div><div class="absolute -right-2 bottom-0 hidden h-full w-[43%] md:block"><div class="absolute right-16 top-10 h-36 w-36 rounded-full bg-[#f4bd88]"></div><div class="absolute right-24 top-20 h-44 w-32 rounded-[48%] bg-[#fff1dc] rotate-[-12deg]"></div><div class="absolute right-16 bottom-[-22px] h-48 w-48 rounded-full bg-[#e99a73]"></div><div class="absolute right-28 bottom-14 flex h-28 w-28 items-center justify-center rounded-[45%] bg-[#6eb099] text-6xl shadow-lg">🦊</div></div></section>
+<div class="mt-8 grid gap-5 md:grid-cols-3"><div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><div class="flex items-center justify-between"><span class="text-xs font-semibold text-[#88918b]">连续伴读</span><span class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#fff0d9] text-[#df9c45]"><iconify-icon icon="lucide:flame" width="16"></iconify-icon></span></div><div class="mt-3 text-2xl font-bold" data-growth-streak>12 <small class="text-xs font-normal text-[#8d9690]">天</small></div><p class="mt-1 text-xs text-[#a0a7a2]">比上周多坚持 3 天</p></div><div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><div class="flex items-center justify-between"><span class="text-xs font-semibold text-[#88918b]">本月阅读</span><span class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#e4f3ed] text-[#4e9b7c]"><iconify-icon icon="lucide:clock-3" width="16"></iconify-icon></span></div><div class="mt-3 text-2xl font-bold" data-growth-minutes>186 <small class="text-xs font-normal text-[#8d9690]">分钟</small></div><p class="mt-1 text-xs text-[#a0a7a2]">已超过 78% 的同龄小朋友</p></div><div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><div class="flex items-center justify-between"><span class="text-xs font-semibold text-[#88918b]">小芽发现</span><span class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#fbe4e0] text-[#ef765e]"><iconify-icon icon="lucide:heart" width="16"></iconify-icon></span></div><div class="mt-3 text-2xl font-bold" data-growth-interests>8 <small class="text-xs font-normal text-[#8d9690]">个新兴趣</small></div><p class="mt-1 text-xs text-[#a0a7a2]" data-growth-interests-recent>最近喜欢：森林、勇气</p></div></div>
+<section class="mt-10"><div class="flex items-end justify-between"><div><span class="text-xs font-bold tracking-[.18em] text-[#ef765e]" data-recommend-title>为你推荐</span><h2 class="mt-2 text-2xl font-bold tracking-tight">今晚读什么？</h2></div><a class="flex items-center gap-1 text-xs font-semibold text-[#ef765e]" href="library.html">查看全部 <iconify-icon icon="lucide:arrow-up-right" width="15"></iconify-icon></a></div><div class="mt-5 grid gap-5 md:grid-cols-3" id="recommendBooks"><a class="group overflow-hidden rounded-2xl border border-[#eee9e1] bg-white" href="reader.html?bookId=1001"><div class="flex h-36 items-end justify-between bg-[#c7e7de] px-5"><span class="mb-4 rounded-lg bg-white/75 px-2 py-1 text-[10px] font-bold text-[#397768]">勇气主题</span><span class="text-7xl transition group-hover:scale-110">🐻</span></div><div class="p-4"><h3 class="font-bold">小熊和最勇敢的风</h3><p class="mt-1 text-xs text-[#8d9690]">5-7岁 · 互动问答 · 8分钟</p></div></a><a class="group overflow-hidden rounded-2xl border border-[#eee9e1] bg-white" href="reader.html?bookId=1002"><div class="flex h-36 items-end justify-between bg-[#f8d6a5] px-5"><span class="mb-4 rounded-lg bg-white/75 px-2 py-1 text-[10px] font-bold text-[#a76632]">情绪认知</span><span class="text-7xl transition group-hover:scale-110">🐋</span></div><div class="p-4"><h3 class="font-bold">云朵鲸鱼的心情</h3><p class="mt-1 text-xs text-[#8d9690]">3-5岁 · 语音伴读 · 6分钟</p></div></a><a class="group overflow-hidden rounded-2xl border border-[#eee9e1] bg-white" href="reader.html?bookId=1003"><div class="flex h-36 items-end justify-between bg-[#d9d1ee] px-5"><span class="mb-4 rounded-lg bg-white/75 px-2 py-1 text-[10px] font-bold text-[#6b5b91]">想象力</span><span class="text-7xl transition group-hover:scale-110">🚀</span></div><div class="p-4"><h3 class="font-bold">月亮邮差的礼物</h3><p class="mt-1 text-xs text-[#8d9690]">7-9岁 · 角色对话 · 10分钟</p></div></a></div></section>
+<section class="mt-10 grid gap-5 md:grid-cols-[1.2fr_.8fr]"><div class="rounded-2xl bg-[#e8f3ed] p-6 md:p-7"><div class="flex items-start justify-between"><div><span class="text-xs font-bold text-[#4c9578]">AI 互动故事营</span><h2 class="mt-2 text-xl font-bold">把孩子的想法，变成一本新绘本</h2><p class="mt-2 text-sm leading-6 text-[#678b7d]">选一个角色，告诉小芽你想去哪里，三分钟生成专属故事。</p></div><span class="text-4xl">🌱</span></div><a class="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#4f9b7b] px-4 py-2.5 text-xs font-bold text-white" href="studio.html">开始创作 <iconify-icon icon="lucide:wand-sparkles" width="15"></iconify-icon></a></div><div class="rounded-2xl border border-[#eee9e1] bg-white p-6"><div class="flex items-center gap-2"><iconify-icon class="text-[#ef765e]" icon="lucide:graduation-cap" width="18"></iconify-icon><span class="text-sm font-bold">老师工作台</span></div><p class="mt-3 text-xs leading-5 text-[#8b948f]">为班级创建共读任务，查看每个孩子的阅读兴趣与表达记录。</p><button class="mt-4 text-xs font-bold text-[#ef765e]" onclick="showUpgrade()">了解班级版 →</button></div></section>
+</div>
+</main>
+</div>
+<div class="hidden fixed inset-0 z-20 items-center justify-center bg-[#24312e]/30 p-5" id="upgrade" onclick="if(event.target===this)hideUpgrade()"><div class="w-full max-w-[420px] rounded-3xl bg-white p-7 shadow-2xl"><div class="flex justify-between"><span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff0e9] text-[#ef765e]"><iconify-icon icon="lucide:crown" width="23"></iconify-icon></span><button class="text-[#9aa19d]" onclick="hideUpgrade()"><iconify-icon icon="lucide:x" width="19"></iconify-icon></button></div><h2 class="mt-5 text-2xl font-bold">给孩子更多故事可能</h2><p class="mt-2 text-sm leading-6 text-[#7c8781]">家庭版解锁 3 个孩子档案、无限 AI 互动和全量中外绘本。</p><div class="mt-5 rounded-2xl bg-[#f8f4ec] p-4"><div class="flex justify-between text-sm font-bold"><span>家庭成长版</span><span class="text-[#ef765e]">¥ 198 / 年</span></div><p class="mt-2 text-xs text-[#8d9690]">平均每天不到 0.55 元 · 可随时取消</p></div><button class="mt-5 w-full rounded-xl bg-[#ef765e] py-3 text-sm font-bold text-white" id="btnStartTrial" onclick="doStartTrial()">先试用 7 天</button><p class="mt-3 text-center text-[11px] text-[#a0a7a2]">试用期不扣费，到期自动停用</p></div></div>
+<div class="fixed bottom-5 right-5 z-30 hidden rounded-xl bg-[#24312e] px-4 py-2.5 text-sm text-white shadow-lg" id="toast"></div>
+<script>
+// ============================================================
+// M01-首页与导航：API 调用与数据渲染
+// 约定：复用 api.js（UserApi.home / UserApi.startTrial 等）
+// 现状：api.js 由 Agent-5 维护，未就绪前在本文件内联 fetch 兜底
+// TODO: Agent-5 提供 api.js 后切换为 UserApi.home() / UserApi.startTrial()
+// ============================================================
+
+// 使用 api.js 的 API 对象统一管理 Token 和请求
+async function request(method, url, body){
+  const fn = method === 'GET' ? API.get : (method === 'POST' ? API.post : (method === 'PUT' ? API.put : API.del));
+  const res = await fn(url, body);
+  if (!res) return null;
+  if (res.code === 401) {
+    console.warn('[home] 未登录或登录态失效，使用本地默认数据');
+    return null;
+  }
+  if (res.code !== 200 && res.code !== 0) {
+    throw new Error(res.msg || '请求失败');
+  }
+  return res.data !== undefined ? res.data : res;
+}
+
+// 显示 Toast
+let toastTimer = null;
+function showToast(msg, type){
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  el.style.background = type === 'error' ? '#b94a48' : '#24312e';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), 2400);
+}
+
+// 会员升级：跳转到独立的升级页面
+function showUpgrade(){
+  window.location.href = 'upgrade.html';
+}
+function hideUpgrade(){
+  // 兼容旧调用，不再使用弹窗
+}
+
+// 退出登录
+async function doLogout() {
+  // 调后端 logout（失败也继续清理本地）
+  try {
+    await API.post('/api/auth/logout', {});
+  } catch (e) { /* ignore */ }
+  // 清理本地 token 和用户信息
+  API.clearAuth();
+  // 跳转到登录页
+  window.location.href = 'login.html';
+}
+async function doStartTrial(){
+  const btn = document.getElementById('btnStartTrial');
+  if (btn) { btn.disabled = true; btn.textContent = '开通中...'; }
+  try {
+    // 调用 POST /api/user/trial 开通 7 天试用
+    const data = await request('POST', '/api/user/trial', {});
+    if (data && data.orderId) {
+      showToast('试用开通成功！有效期至 ' + (data.endAt || '').slice(0, 10));
+      hideUpgrade();
+      // 刷新首页数据
+      loadHomeData();
+    } else {
+      showToast('已开通试用，去体验全部绘本吧');
+      hideUpgrade();
+    }
+  } catch (e) {
+    showToast(e.message || '开通失败，请稍后再试', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '先试用 7 天'; }
+  }
+}
+
+// 默认本地数据（API 未就绪或未登录时使用，保证页面可访问）
+const DEFAULT_HOME = {
+  family: { nickname: '家长', parentName: '家长', avatar: '家', memberLevel: 'free', memberStatus: '0' },
+  growth: { streakDays: 12, monthMinutes: 186, newInterests: 8, recentInterests: '森林、勇气' },
+  recentTask: { taskId: null, bookTitle: '小熊和最勇敢的风', cover: '🐻' },
+  recommendedBooks: [
+    { bookId: 1001, title: '小熊和最勇敢的风', cover: '🐻', theme: '勇气主题', ageGroup: '5-7岁', duration: '8分钟', themeColor: '#c7e7de' },
+    { bookId: 1002, title: '云朵鲸鱼的心情', cover: '🐋', theme: '情绪认知', ageGroup: '3-5岁', duration: '6分钟', themeColor: '#f8d6a5' },
+    { bookId: 1003, title: '月亮邮差的礼物', cover: '🚀', theme: '想象力', ageGroup: '7-9岁', duration: '10分钟', themeColor: '#d9d1ee' }
+  ],
+  member: { level: 'free', status: '0' }
+};
+
+async function loadHomeData(){
+  let data = DEFAULT_HOME;
+  try {
+    // 调用 GET /api/user/home
+    const remote = await request('GET', '/api/user/home');
+    if (remote && (remote.family || remote.growth || remote.recommendedBooks)) {
+      // 用远端覆盖默认值，缺失字段保留默认
+      data = Object.assign({}, DEFAULT_HOME, remote);
+      data.growth = Object.assign({}, DEFAULT_HOME.growth, remote.growth || {});
+      data.recentTask = Object.assign({}, DEFAULT_HOME.recentTask, remote.recentTask || {});
+      data.member = Object.assign({}, DEFAULT_HOME.member, remote.member || {});
+      data.recommendedBooks = (remote.recommendedBooks && remote.recommendedBooks.length)
+        ? remote.recommendedBooks : DEFAULT_HOME.recommendedBooks;
+      data.family = Object.assign({}, DEFAULT_HOME.family, remote.family || {});
+    }
+  } catch (e) {
+    console.warn('[home] 加载首页数据失败，使用默认数据:', e.message);
+  }
+  renderHome(data);
+}
+
+function renderHome(data){
+  // 1. 家长信息（侧边栏底部 + 顶部问候）
+  // 优先使用 localStorage 中登录用户的名字，避免被 API 返回的旧数据覆盖
+  var loginUser = API.getUser() || {};
+  var hasLoginUser = loginUser.nickname || loginUser.username;
+  var token = API.getToken();
+  // 账号安全：未登录时不展示家长伪个人信息，跳过本字段更新（由 applyRoleUI 设置"未登录"）
+  if (hasLoginUser || token) {
+    const family = data.family || {};
+    const displayName = hasLoginUser ? (loginUser.nickname || loginUser.username) : (family.nickname || family.parentName || '家长');
+    const avatarText = hasLoginUser ? displayName.slice(0, 1) : ((family.avatar && family.avatar.length === 1) ? family.avatar : (family.nickname || '家').slice(0, 1));
+    document.querySelectorAll('[data-family-avatar]').forEach(el => el.textContent = avatarText);
+    document.querySelectorAll('[data-family-name]').forEach(el => el.textContent = displayName);
+  }
+  // 顶部问候语时段切分
+  const hour = new Date().getHours();
+  const greeting = hour < 11 ? '早上好' : (hour < 13 ? '中午好' : (hour < 18 ? '下午好' : '晚上好'));
+  document.querySelectorAll('[data-greeting]').forEach(el => el.textContent = greeting + '，今天也一起读一点吧');
+
+  // 2. 成长数据卡
+  const growth = data.growth || {};
+  document.querySelectorAll('[data-growth-streak]').forEach(el => el.innerHTML = (growth.streakDays || 0) + ' <small class="text-xs font-normal text-[#8d9690]">天</small>');
+  document.querySelectorAll('[data-growth-minutes]').forEach(el => el.innerHTML = (growth.monthMinutes || 0) + ' <small class="text-xs font-normal text-[#8d9690]">分钟</small>');
+  document.querySelectorAll('[data-growth-interests]').forEach(el => el.innerHTML = (growth.newInterests || 0) + ' <small class="text-xs font-normal text-[#8d9690]">个新兴趣</small>');
+  document.querySelectorAll('[data-growth-interests-recent]').forEach(el => el.textContent = '最近喜欢：' + (growth.recentInterests || '—'));
+
+  // 3. 最近一次伴读任务（Hero 区"继续上次伴读"按钮跳转目标）
+  const recent = data.recentTask || {};
+  // 按钮跳转：有 taskId 则跳 reader.html?taskId=，否则跳 reader.html
+  document.querySelectorAll('[data-recent-href]').forEach(el => {
+    el.setAttribute('href', recent.taskId ? ('reader.html?taskId=' + recent.taskId) : 'reader.html');
+  });
+
+  // 4. 今日推荐绘本（3 张卡片）
+  const bookGrid = document.getElementById('recommendBooks');
+  if (bookGrid) {
+    const books = data.recommendedBooks || [];
+    bookGrid.innerHTML = books.map(b => `
+      <a class="group overflow-hidden rounded-2xl border border-[#eee9e1] bg-white" href="reader.html?bookId=${b.bookId || ''}">
+        <div class="flex h-36 items-end justify-between px-5" style="background:${b.themeColor || '#c7e7de'}">
+          <span class="mb-4 rounded-lg bg-white/75 px-2 py-1 text-[10px] font-bold text-[#397768]">${b.theme || ''}</span>
+          <span class="text-7xl transition group-hover:scale-110">${b.cover || '📖'}</span>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold">${b.title || ''}</h3>
+          <p class="mt-1 text-xs text-[#8d9690]">${b.ageGroup || ''} · ${b.duration || ''}</p>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  // 5. 会员状态：若已开通成长版，则隐藏"升级会员"按钮
+  const member = data.member || {};
+  const upgradeBtn = document.querySelector('[data-upgrade-btn]');
+  if (upgradeBtn && (member.level === 'growth' || member.status === '1')) {
+    upgradeBtn.textContent = '已开通会员';
+    upgradeBtn.classList.add('opacity-60');
+    upgradeBtn.setAttribute('onclick', '');
+  }
+}
+
+// 根据登录角色切换首页 UI（家长/孩子/未登录 三态分流）
+function applyRoleUI(){
+  var user = API.getUser() || {};
+  var token = API.getToken();
+  var isChild = user.role === 'child';
+  var isParent = user.role === 'parent' || (!user.role && token);
+  var upgradeBtn = document.querySelector('[data-upgrade-btn]');
+
+  if (isParent && token) {
+    // 家长已登录：显示退出登录按钮
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.style.display = 'flex';
+    // 用登录用户信息更新侧边栏家长名字和头像
+    var parentName = user.nickname || user.username || '家长';
+    document.querySelectorAll('[data-family-name]').forEach(function(el) {
+      el.textContent = parentName;
+    });
+    document.querySelectorAll('[data-family-avatar]').forEach(function(el) {
+      el.textContent = parentName.slice(0, 1);
+    });
+    // 更新会员等级描述
+    var meta = document.querySelector('[data-family-meta]');
+    if (meta) {
+      var level = user.memberLevel || 'free';
+      meta.textContent = (level === 'growth' ? '成长版' : '免费版') + ' · 已登录';
+    }
+    // 更新推荐标题 "为你推荐" → "为 [家长名] 推荐"
+    document.querySelectorAll('[data-recommend-title]').forEach(function(el) {
+      el.textContent = '为' + parentName + '推荐';
+    });
+  }
+
+  if (isChild) {
+    // 孩子模式：隐藏家长专属功能
+    if (upgradeBtn) upgradeBtn.style.display = 'none';
+    // 隐藏退出登录按钮
+    var childLogoutBtn = document.getElementById('logoutBtn');
+    if (childLogoutBtn) childLogoutBtn.style.display = 'none';
+    // 隐藏老师工作台模块
+    document.querySelectorAll('button').forEach(function(btn) {
+      if (btn.textContent.indexOf('了解班级版') > -1) {
+        var panel = btn.closest('div.rounded-2xl');
+        if (panel) panel.style.display = 'none';
+      }
+    });
+    // 修改推荐标题 "为XX推荐" → "为 [孩子名] 推荐"
+    document.querySelectorAll('[data-recommend-title]').forEach(function(el) {
+      el.textContent = '为' + (user.nickname || user.username || '小朋友') + '推荐';
+    });
+    // 侧边栏底部家长信息替换为孩子
+    document.querySelectorAll('[data-family-name]').forEach(function(el) {
+      el.textContent = user.nickname || user.username || '小朋友';
+    });
+    document.querySelectorAll('[data-family-avatar]').forEach(function(el) {
+      el.textContent = (user.nickname || user.username || '小').slice(0, 1);
+    });
+  } else if (!isParent) {
+    // 未登录：把升级按钮改为家长登录入口
+    if (upgradeBtn) {
+      upgradeBtn.textContent = '家长登录';
+      upgradeBtn.setAttribute('onclick', "window.location.href='login.html'");
+      upgradeBtn.removeAttribute('data-upgrade-btn');
+    }
+    // 隐藏退出登录按钮
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.classList.add('hidden');
+    // 账号安全：未登录时不展示任何家长伪个人信息（姓名/头像/会员等级），
+    // 将侧边栏底部家长信息块改造为"未登录"提示 + 跳转 login.html，避免进入 parent.html 个人中心
+    var parentEntry = document.querySelector('aside a[href="parent.html"]');
+    if (parentEntry) {
+      parentEntry.setAttribute('href', 'login.html');
+      var parentAvatar = parentEntry.querySelector('[data-family-avatar]');
+      if (parentAvatar) parentAvatar.textContent = '客';
+      var parentName = parentEntry.querySelector('[data-family-name]');
+      if (parentName) parentName.textContent = '未登录';
+      var parentMeta = parentEntry.querySelector('[data-family-meta]');
+      if (parentMeta) parentMeta.textContent = '点击登录账户';
+    }
+    // 在 Hero 区添加孩子登录入口
+    var hero = document.querySelector('section.relative .flex.flex-wrap.gap-3');
+    if (hero && !document.getElementById('childEntry')) {
+      var a = document.createElement('a');
+      a.id = 'childEntry';
+      a.className = 'inline-flex items-center gap-2 rounded-xl bg-[#4f9b7b] px-5 py-3 text-sm font-bold text-white shadow-md';
+      a.href = 'child-login.html';
+      a.innerHTML = '孩子登录 <iconify-icon icon="lucide:smile" width="16"></iconify-icon>';
+      hero.appendChild(a);
+    }
+  }
+}
+
+// 页面加载完成后拉取数据
+window.addEventListener('DOMContentLoaded', () => {
+  applyRoleUI();
+  loadHomeData();
+});
+</script>
+</body>
+</html>

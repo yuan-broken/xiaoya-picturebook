@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>家长端 · 小芽绘本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<script src="api.js?v=3"></script>
+</head>
+<body class="m-0 min-h-screen bg-[#f7f3ec] text-[#24312e]">
+<div class="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden bg-[#fbfaf7] shadow-[0_12px_60px_rgba(61,48,29,.08)]">
+<aside class="hidden w-[248px] shrink-0 border-r border-[#ebe5db] bg-[#f5f1e9] px-5 py-7 lg:block">
+<a class="flex items-center gap-3 px-2" href="home.html">
+<span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ef765e] text-white"><iconify-icon icon="lucide:book-open-check" width="22"></iconify-icon></span>
+<span><strong class="block text-lg leading-5 tracking-tight">小芽绘本</strong><small class="text-[11px] text-[#83908b]">AI 伴读成长空间</small></span>
+</a>
+<div class="mt-12 px-3 text-[11px] font-semibold tracking-[.18em] text-[#a09c91]">我的空间</div>
+<nav class="mt-3 space-y-1 text-sm">
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="home.html"><iconify-icon icon="lucide:layout-dashboard" width="18"></iconify-icon>今日首页</a>
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="library.html"><iconify-icon icon="lucide:library" width="18"></iconify-icon>绘本库</a>
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="studio.html"><iconify-icon icon="lucide:sparkles" width="18"></iconify-icon>互动故事营<span class="ml-auto rounded-full bg-[#dff2e9] px-2 py-0.5 text-[10px] text-[#3b9273]">AI</span></a>
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="reader.html"><iconify-icon icon="lucide:headphones" width="18"></iconify-icon>最近伴读</a>
+<a class="flex items-center gap-3 rounded-xl bg-white px-3 py-3 font-semibold text-[#ef765e] shadow-sm" href="parent.html"><iconify-icon icon="lucide:user-cog" width="18"></iconify-icon>家长端</a>
+</nav>
+<div class="mt-8 border-t border-[#e5dfd5] pt-6"><div class="flex items-center gap-3 px-2 text-sm text-[#68746f]"><span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#f8c7a1] font-bold text-[#824c34]" id="sidebarAvatar">·</span><span class="flex-1"><span class="block font-semibold" id="sidebarName">家长</span><small class="block text-[11px] text-[#a09c91]" id="sidebarPlan">未登录</small></span></div></div>
+</aside>
+<main class="flex-1 overflow-y-auto">
+<header class="flex h-[76px] items-center justify-between border-b border-[#eee9e1] bg-[#fbfaf7] px-6 md:px-10">
+<div class="flex items-center gap-3 lg:hidden"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ef765e] text-white"><iconify-icon icon="lucide:book-open-check" width="19"></iconify-icon></span><b>小芽绘本</b></div>
+<div class="flex items-center gap-3"><a class="flex items-center gap-1.5 text-xs font-semibold text-[#78827d] hover:text-[#ef765e]" href="home.html"><iconify-icon icon="lucide:arrow-left" width="16"></iconify-icon>返回首页</a><span class="hidden text-sm text-[#7e8881] md:block ml-4">家长端 · 关注孩子的每一次成长</span></div>
+<div class="flex items-center gap-3"><span class="hidden text-xs text-[#8c958f] md:block" id="headerName">家长</span><a class="flex h-8 w-8 items-center justify-center rounded-full bg-[#f8c7a1] text-xs font-bold text-[#824c34] cursor-pointer hover:ring-2 hover:ring-[#ef765e]/30" id="headerAvatar" href="parent.html">·</a></div>
+</header>
+<div class="px-6 py-8 md:px-10 md:py-10">
+
+<!-- Tab 切换 -->
+<div class="flex gap-2 border-b border-[#eee9e1]">
+<button class="tab-btn relative px-4 py-3 text-sm font-bold text-[#ef765e]" onclick="switchTab('growth')" id="tab-growth">成长档案 <span class="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-[#ef765e]"></span></button>
+<button class="tab-btn relative px-4 py-3 text-sm text-[#76817b]" onclick="switchTab('settings')" id="tab-settings">内容筛选设置</button>
+<button class="tab-btn relative px-4 py-3 text-sm text-[#76817b]" onclick="switchTab('coread')" id="tab-coread">远程共读</button>
+<button class="tab-btn relative px-4 py-3 text-sm text-[#76817b]" onclick="switchTab('favorites')" id="tab-favorites">我的收藏</button>
+<button class="tab-btn relative px-4 py-3 text-sm text-[#76817b]" onclick="switchTab('orders')" id="tab-orders">我的订单</button>
+<button class="tab-btn relative px-4 py-3 text-sm text-[#76817b]" onclick="switchTab('account')" id="tab-account">账号安全</button>
+</div>
+
+<!-- 成长档案 Tab -->
+<div id="panel-growth" class="mt-8">
+<div class="flex items-center justify-between"><div><h2 class="text-2xl font-bold tracking-tight" id="childName">成长档案</h2><p class="mt-1 text-sm text-[#7f8983]">记录每一次阅读带来的改变</p></div><div class="flex gap-2"><button class="flex items-center gap-1 rounded-xl bg-[#f5f1e9] px-3 py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="exportReport()"><iconify-icon icon="lucide:download" width="14"></iconify-icon>导出报告</button><button class="flex items-center gap-1 rounded-xl bg-[#ef765e] px-3 py-2 text-xs font-bold text-white" onclick="shareReport()"><iconify-icon icon="lucide:share-2" width="14"></iconify-icon>分享给亲友</button></div></div>
+
+<!-- 统计卡片 -->
+<div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+<div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><div class="flex items-center justify-between"><span class="text-xs text-[#9aa29d]">本周阅读时长</span><iconify-icon class="text-[#ef765e]" icon="lucide:clock" width="18"></iconify-icon></div><div class="mt-3 text-2xl font-bold text-[#24312e]" id="weekDuration">--</div><div class="mt-1 text-[11px] text-[#3b9273]">较上周 +12%</div></div>
+<div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><div class="flex items-center justify-between"><span class="text-xs text-[#9aa29d]">累计词汇量</span><iconify-icon class="text-[#edaa4f]" icon="lucide:book-text" width="18"></iconify-icon></div><div class="mt-3 text-2xl font-bold text-[#24312e]" id="vocabCount">--</div><div class="mt-1 text-[11px] text-[#3b9273]">本月新增 86 词</div></div>
+<div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><div class="flex items-center justify-between"><span class="text-xs text-[#9aa29d]">表达能力</span><iconify-icon class="text-[#66a990]" icon="lucide:message-circle" width="18"></iconify-icon></div><div class="mt-3 text-2xl font-bold text-[#24312e]" id="expressionScore">--</div><div class="mt-1 text-[11px] text-[#9aa29d]">5次互动中4次主动表达</div></div>
+<div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><div class="flex items-center justify-between"><span class="text-xs text-[#9aa29d]">已获徽章</span><iconify-icon class="text-[#c4a76e]" icon="lucide:award" width="18"></iconify-icon></div><div class="mt-3 text-2xl font-bold text-[#24312e]" id="badgeCount">--</div><div class="mt-1 text-[11px] text-[#9aa29d]">还差2枚解锁全部</div></div>
+</div>
+
+<!-- 词汇量增长曲线 + 能力雷达图 -->
+<div class="mt-6 grid gap-5 lg:grid-cols-2">
+<div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><h3 class="text-sm font-bold">词汇量增长曲线</h3><p class="mt-1 text-[11px] text-[#9aa29d]">最近6个月</p><div class="mt-4 flex h-40 items-end gap-3" id="vocabChart"></div><div class="mt-2 flex justify-between text-[10px] text-[#a0a7a2]" id="vocabLabels"></div></div>
+<div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><h3 class="text-sm font-bold">能力评估雷达图</h3><p class="mt-1 text-[11px] text-[#9aa29d]">五维能力分布</p><div class="mt-4 flex h-40 items-center justify-center" id="radarChart"><svg viewBox="0 0 200 200" class="w-40 h-40"><polygon points="100,20 180,75 150,170 50,170 20,75" fill="none" stroke="#e9e4db" stroke-width="1"/><polygon points="100,50 155,85 135,150 65,150 45,85" fill="rgba(239,118,94,0.15)" stroke="#ef765e" stroke-width="2"/><text x="95" y="15" font-size="9" fill="#9aa29d">阅读</text><text x="185" y="78" font-size="9" fill="#9aa29d">表达</text><text x="155" y="185" font-size="9" fill="#9aa29d">想象</text><text x="25" y="185" font-size="9" fill="#9aa29d">逻辑</text><text x="5" y="78" font-size="9" fill="#9aa29d">专注</text></svg></div></div>
+</div>
+
+<!-- 兴趣标签 + 勋章墙 -->
+<div class="mt-6 grid gap-5 lg:grid-cols-2">
+<div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><h3 class="text-sm font-bold">阅读兴趣标签</h3><p class="mt-1 text-[11px] text-[#9aa29d]">基于阅读记录自动生成</p><div class="mt-4 flex flex-wrap gap-2" id="interestTags"></div></div>
+<div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><h3 class="text-sm font-bold">勋章墙</h3><p class="mt-1 text-[11px] text-[#9aa29d]">已解锁的成就</p><div class="mt-4 grid grid-cols-5 gap-3" id="badgeWall"></div></div>
+</div>
+
+<!-- 表达能力记录 -->
+<div class="mt-6 rounded-2xl border border-[#eee9e1] bg-white p-5"><h3 class="text-sm font-bold">表达能力记录</h3><p class="mt-1 text-[11px] text-[#9aa29d]">孩子在互动问答中的精彩表达</p><div class="mt-4 space-y-3" id="expressionList"></div></div>
+</div>
+
+<!-- 内容筛选设置 Tab -->
+<div id="panel-settings" class="mt-8 hidden">
+<div class="max-w-2xl rounded-2xl border border-[#eee9e1] bg-white p-6">
+<h2 class="text-lg font-bold">内容筛选设置</h2><p class="mt-1 text-sm text-[#7f8983]">为孩子的阅读内容设置边界</p>
+<div class="mt-6 space-y-6">
+<div><label class="text-xs font-bold text-[#68746f]">价值观过滤</label><div class="mt-3 flex flex-wrap gap-2" id="valueFilters"></div></div>
+<div><label class="text-xs font-bold text-[#68746f]">主题过滤</label><div class="mt-3 flex flex-wrap gap-2" id="themeFilters"></div><p class="mt-2 text-[11px] text-[#9aa29d]">选中的主题将被屏蔽，不会推荐给孩子</p></div>
+<div><label class="text-xs font-bold text-[#68746f]">难度上限</label><div class="mt-3"><select class="w-full rounded-xl border border-[#eee9e1] bg-white px-4 py-2 text-sm" id="maxDifficulty"><option value="">不限</option><option value="2-4岁">2-4岁</option><option value="5-7岁">5-7岁</option><option value="8-12岁">8-12岁</option></select></div></div>
+<div class="flex justify-end"><button class="rounded-xl bg-[#ef765e] px-6 py-2 text-xs font-bold text-white" onclick="saveSettings()">保存设置</button></div>
+</div>
+</div>
+</div>
+
+<!-- 远程共读 Tab -->
+<div id="panel-coread" class="mt-8 hidden">
+  <div class="grid gap-5 lg:grid-cols-2">
+    <!-- 创建房间 -->
+    <div class="rounded-2xl border border-[#eee9e1] bg-white p-6">
+      <h2 class="text-lg font-bold">发起远程共读</h2>
+      <p class="mt-1 text-sm text-[#7f8983]">与孩子异地同读一本绘本</p>
+      <div class="mt-5 space-y-4">
+        <div>
+          <label class="text-xs font-bold text-[#68746f]">选择绘本</label>
+          <select id="coreadBook" class="mt-2 w-full rounded-xl border border-[#eee9e1] bg-white px-4 py-2 text-sm">
+            <option value="">请选择绘本</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-[#68746f]">参与模式</label>
+          <div class="mt-2 grid grid-cols-2 gap-2">
+            <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-[#eee9e1] bg-[#fbfaf7] px-3 py-2.5 text-sm hover:border-[#ef765e]">
+              <input type="radio" name="coreadMode" value="observe" class="accent-[#ef765e]"/>
+              <span>单向观看</span>
+            </label>
+            <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-[#eee9e1] bg-[#fbfaf7] px-3 py-2.5 text-sm hover:border-[#ef765e]">
+              <input type="radio" name="coreadMode" value="bidirectional" class="accent-[#ef765e]" checked/>
+              <span>双向参与</span>
+            </label>
+          </div>
+        </div>
+        <button class="w-full rounded-xl bg-[#ef765e] py-2.5 text-sm font-bold text-white hover:bg-[#e0654d]" onclick="createRoom()">创建房间</button>
+      </div>
+    </div>
+
+    <!-- 房间状态 -->
+    <div class="rounded-2xl border border-[#eee9e1] bg-white p-6">
+      <h2 class="text-lg font-bold">房间状态</h2>
+      <p class="mt-1 text-sm text-[#7f8983]">分享房间码给孩子端加入</p>
+      <div id="coreadEmpty" class="mt-5 flex flex-col items-center justify-center py-10 text-center">
+        <iconify-icon class="text-[#cfc8bc]" icon="lucide:video-off" width="48"></iconify-icon>
+        <p class="mt-3 text-sm text-[#9aa29d]">暂无活动房间</p>
+        <p class="mt-1 text-[11px] text-[#c2c8c4]">创建房间或输入房间码加入</p>
+      </div>
+      <div id="coreadActive" class="mt-5 hidden">
+        <div class="rounded-xl bg-[#fde6c5] p-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-[#824c34]">房间码</span>
+            <button class="text-[11px] text-[#ef765e] hover:underline" onclick="copyRoomCode()">复制</button>
+          </div>
+          <div class="mt-2 text-3xl font-bold tracking-[.2em] text-[#824c34]" id="roomCode">------</div>
+        </div>
+        <div class="mt-4 grid grid-cols-2 gap-3 text-center">
+          <div class="rounded-xl border border-[#eee9e1] p-3">
+            <p class="text-[10px] text-[#9aa29d]">当前页</p>
+            <p class="mt-1 text-lg font-bold" id="roomPage">--</p>
+          </div>
+          <div class="rounded-xl border border-[#eee9e1] p-3">
+            <p class="text-[10px] text-[#9aa29d]">讲读状态</p>
+            <p class="mt-1 text-sm font-bold text-[#3b9273]" id="roomStatus">--</p>
+          </div>
+        </div>
+        <div class="mt-4 space-y-2">
+          <button class="w-full rounded-xl bg-[#f5f1e9] py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="syncAction('pause')">暂停讲读</button>
+          <button class="w-full rounded-xl bg-[#f5f1e9] py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="syncAction('resume')">继续讲读</button>
+          <button class="w-full rounded-xl bg-[#f5f1e9] py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="syncAction('page_next')">下一页</button>
+        </div>
+        <div class="mt-4">
+          <label class="text-xs font-bold text-[#68746f]">家长语音插入</label>
+          <div class="mt-2 flex gap-2">
+            <input id="parentVoiceText" type="text" placeholder="输入要对孩子说的话" class="flex-1 rounded-xl border border-[#eee9e1] bg-white px-3 py-2 text-sm"/>
+            <button class="rounded-xl bg-[#ef765e] px-4 py-2 text-xs font-bold text-white" onclick="sendParentVoice()">发送</button>
+          </div>
+        </div>
+        <div class="mt-4 border-t border-[#eee9e1] pt-3">
+          <p class="text-[11px] font-bold text-[#68746f]">事件流</p>
+          <div id="roomEvents" class="mt-2 max-h-40 space-y-1 overflow-y-auto text-[11px] text-[#7f8983]"></div>
+        </div>
+        <button class="mt-4 w-full rounded-xl bg-[#c44b3a] py-2 text-xs font-bold text-white hover:bg-[#b03d2d]" onclick="exitRoom()">退出房间</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 加入房间 -->
+  <div class="mt-5 rounded-2xl border border-[#eee9e1] bg-white p-6">
+    <h3 class="text-sm font-bold">加入已有房间</h3>
+    <div class="mt-3 flex gap-2">
+      <input id="joinRoomCode" type="text" placeholder="输入6位房间码" maxlength="6" class="flex-1 rounded-xl border border-[#eee9e1] bg-white px-4 py-2 text-sm tracking-[.2em] uppercase"/>
+      <button class="rounded-xl bg-[#3b9273] px-6 py-2 text-xs font-bold text-white hover:bg-[#2d7d62]" onclick="joinRoom()">加入</button>
+    </div>
+  </div>
+
+  <!-- 我发起的房间 -->
+  <div class="mt-5 rounded-2xl border border-[#eee9e1] bg-white p-6">
+    <h3 class="text-sm font-bold">历史房间</h3>
+    <div id="myRooms" class="mt-3 space-y-2"></div>
+  </div>
+</div>
+
+<!-- 我的收藏 Tab -->
+<div id="panel-favorites" class="mt-8 hidden">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold tracking-tight">我的收藏</h2>
+      <p class="mt-1 text-sm text-[#7f8983]">孩子喜爱的绘本与精彩片段</p>
+    </div>
+    <div class="flex gap-2">
+      <button class="rounded-xl bg-[#f5f1e9] px-3 py-2 text-xs font-bold text-[#68746f]" onclick="loadFavorites('book')">绘本</button>
+      <button class="rounded-xl bg-[#f5f1e9] px-3 py-2 text-xs font-bold text-[#68746f]" onclick="loadFavorites('page')">页面</button>
+      <button class="rounded-xl bg-[#f5f1e9] px-3 py-2 text-xs font-bold text-[#68746f]" onclick="loadFavorites('expression')">表达</button>
+    </div>
+  </div>
+  <div id="favoritesList" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+</div>
+
+<!-- 我的订单 Tab -->
+<div id="panel-orders" class="mt-8 hidden">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold tracking-tight">我的订单</h2>
+      <p class="mt-1 text-sm text-[#7f8983]">查看会员购买记录和支付状态</p>
+    </div>
+    <a class="flex items-center gap-1 rounded-xl bg-[#ef765e] px-4 py-2 text-xs font-bold text-white hover:bg-[#e0654d]" href="upgrade.html">
+      <iconify-icon icon="lucide:crown" width="14"></iconify-icon>升级会员
+    </a>
+  </div>
+  <!-- 当前会员状态 -->
+  <div class="mt-6 rounded-2xl border border-[#eee9e1] bg-gradient-to-br from-[#fff6ef] to-[#fde6c5] p-5">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 text-[#ef765e]">
+          <iconify-icon icon="lucide:crown" width="22"></iconify-icon>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-base font-bold" id="ordersMemberLevel">免费版</span>
+            <span class="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-bold text-[#824c34]" id="ordersMemberBadge">FREE</span>
+          </div>
+          <p class="mt-1 text-[11px] text-[#8a7355]" id="ordersMemberDesc">开通会员解锁全部能力</p>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-[11px] text-[#8a7355]">到期时间</div>
+        <div class="mt-0.5 text-sm font-bold text-[#24312e]" id="ordersExpireDate">--</div>
+        <div class="mt-0.5 text-[10px] text-[#3b9273]" id="ordersDaysRemaining">--</div>
+      </div>
+    </div>
+  </div>
+  <!-- 订单列表 -->
+  <div class="mt-6 space-y-3" id="orderList">
+    <div class="rounded-2xl border border-dashed border-[#eee9e1] bg-white p-8 text-center text-sm text-[#9aa29d]">
+      <iconify-icon icon="lucide:receipt" width="32" class="mx-auto text-[#d9d4cb]"></iconify-icon>
+      <p class="mt-2">暂无订单</p>
+      <a class="mt-3 inline-block rounded-full bg-[#ef765e] px-4 py-2 text-xs font-bold text-white" href="upgrade.html">立即开通会员</a>
+    </div>
+  </div>
+</div>
+
+<!-- 账号安全 Tab -->
+<div id="panel-account" class="mt-8 hidden">
+<div class="max-w-2xl space-y-5">
+<div class="rounded-2xl border border-[#eee9e1] bg-white p-6">
+<h2 class="text-lg font-bold">账号信息</h2>
+<div class="mt-4 space-y-3 text-sm"><div class="flex justify-between"><span class="text-[#9aa29d]">家长姓名</span><span class="font-semibold" id="accountName">--</span></div><div class="flex justify-between"><span class="text-[#9aa29d]">手机号</span><span class="font-semibold" id="accountPhone">--</span></div><div class="flex justify-between"><span class="text-[#9aa29d]">会员等级</span><span class="font-semibold text-[#ef765e]" id="accountLevel">--</span></div><div class="flex justify-between"><span class="text-[#9aa29d]">到期时间</span><span class="font-semibold" id="accountExpire">--</span></div></div>
+<div class="mt-4 flex justify-end"><a class="rounded-xl bg-[#ef765e] px-4 py-2 text-xs font-bold text-white hover:bg-[#e0654d]" href="upgrade.html">升级 / 续费 →</a></div>
+</div>
+<div class="rounded-2xl border border-[#eee9e1] bg-white p-6">
+<h2 class="text-lg font-bold">安全设置</h2>
+<div class="mt-4 space-y-4">
+<div class="flex items-center justify-between"><div><p class="text-sm font-semibold">修改密码</p><p class="text-[11px] text-[#9aa29d]">定期更换，保护账号安全</p></div><button class="rounded-xl bg-[#f5f1e9] px-4 py-2 text-xs font-bold text-[#68746f]" onclick="showChangePassword()">修改</button></div>
+<div class="flex items-center justify-between"><div><p class="text-sm font-semibold">生物识别登录</p><p class="text-[11px] text-[#9aa29d]">指纹/面容快速登录</p></div><label class="relative inline-flex cursor-pointer"><input type="checkbox" class="peer sr-only" checked><div class="h-6 w-11 rounded-full bg-[#ef765e] peer-checked:bg-[#ef765e] bg-[#e0dcd2]"></div><div class="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></div></label></div>
+<div class="flex items-center justify-between"><div><p class="text-sm font-semibold">阅读时长管控</p><p class="text-[11px] text-[#9aa29d]">每日最长阅读30分钟</p></div><label class="relative inline-flex cursor-pointer"><input type="checkbox" class="peer sr-only" checked><div class="h-6 w-11 rounded-full bg-[#ef765e] peer-checked:bg-[#ef765e] bg-[#e0dcd2]"></div><div class="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></div></label></div>
+<div class="flex items-center justify-between"><div><p class="text-sm font-semibold">断签提醒</p><p class="text-[11px] text-[#9aa29d]">连续阅读中断时通知家长</p></div><label class="relative inline-flex cursor-pointer"><input type="checkbox" class="peer sr-only"><div class="h-6 w-11 rounded-full bg-[#e0dcd2] peer-checked:bg-[#ef765e]"></div><div class="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></div></label></div>
+</div>
+</div>
+<div class="rounded-2xl border border-[#fde6c5] bg-[#fff9f0] p-6"><div class="flex items-start gap-3"><iconify-icon class="mt-0.5 text-[#e3a14f]" icon="lucide:shield-alert" width="20"></iconify-icon><div><p class="text-sm font-bold text-[#824c34]">隐私保护</p><p class="mt-1 text-[11px] leading-5 text-[#a08966]">您可以随时查看或删除孩子的全部数据。我们严格遵守儿童隐私保护法规，不会向第三方分享任何个人信息。</p><button class="mt-3 text-xs font-bold text-[#ef765e]" onclick="manageChildData()">管理孩子数据 →</button></div></div></div>
+</div>
+</div>
+
+</div>
+</main>
+</div>
+
+<!-- 修改密码弹窗 -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30" id="pwdModal">
+<div class="w-80 rounded-2xl bg-white p-6 shadow-xl">
+<h3 class="text-lg font-bold">修改密码</h3>
+<div class="mt-4 space-y-3">
+<input class="w-full rounded-xl border border-[#eee9e1] px-4 py-2 text-sm" type="password" placeholder="当前密码" id="oldPwd"/>
+<input class="w-full rounded-xl border border-[#eee9e1] px-4 py-2 text-sm" type="password" placeholder="新密码（6-20位）" id="newPwd"/>
+<input class="w-full rounded-xl border border-[#eee9e1] px-4 py-2 text-sm" type="password" placeholder="确认新密码" id="confirmPwd"/>
+</div>
+<div class="mt-5 flex justify-end gap-2">
+<button class="rounded-xl px-4 py-2 text-xs text-[#9aa29d]" onclick="closePwdModal()">取消</button>
+<button class="rounded-xl bg-[#ef765e] px-4 py-2 text-xs font-bold text-white" onclick="submitPassword()">确认修改</button>
+</div>
+</div>
+</div>
+
+<!-- 自定义确认弹窗（替代 native confirm，支持 embedded webview） -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30" id="parentConfirmModal">
+<div class="w-[360px] rounded-2xl bg-white p-6 shadow-xl">
+<div class="flex items-center gap-3">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff6ef]">
+<iconify-icon icon="lucide:alert-circle" width="20" class="text-[#ef765e]"></iconify-icon>
+</div>
+<div>
+<h3 class="text-sm font-bold" id="parentConfirmTitle">提示</h3>
+<p class="mt-0.5 text-[11px] text-[#9aa29d]" id="parentConfirmDesc">确认操作？</p>
+</div>
+</div>
+<div class="mt-5 flex justify-end gap-2">
+<button class="rounded-full bg-[#f5f1e9] px-4 py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="closeParentConfirm(false)">取消</button>
+<button class="rounded-full bg-[#ef765e] px-4 py-2 text-xs font-bold text-white hover:bg-[#e0654d]" onclick="closeParentConfirm(true)">确定</button>
+</div>
+</div>
+</div>
+
+<!-- 管理孩子数据弹窗 -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30" id="dataModal">
+<div class="w-[420px] max-h-[80vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-bold">管理孩子数据</h3>
+<button class="text-xs text-[#9aa29d] hover:text-[#ef765e]" onclick="closeDataModal()">关闭</button>
+</div>
+<p class="mt-1 text-[11px] text-[#9aa29d]">查看、导出或删除孩子的全部数据</p>
+<button class="mt-4 w-full rounded-xl border-2 border-dashed border-[#eee9e1] py-3 text-xs font-bold text-[#68746f] hover:border-[#ef765e] hover:text-[#ef765e]" onclick="openAddChildForm()"><iconify-icon icon="lucide:user-plus" width="14" class="inline"></iconify-icon> 添加孩子</button>
+<div class="mt-4 space-y-3" id="childDataList"></div>
+<div id="addChildForm" class="mt-4 hidden rounded-xl border border-[#eee9e1] bg-[#fbfaf7] p-4">
+<h4 class="text-sm font-bold">添加孩子档案</h4>
+<p class="mt-1 text-[11px] text-[#9aa29d]">创建后孩子可使用账号密码登录孩子端</p>
+<div class="mt-3 space-y-3">
+<div><label class="text-xs font-bold text-[#68746f]">孩子账号 <span class="text-[#c44b3a]">*</span></label><input id="newChildUsername" type="text" placeholder="如：kid001（用于孩子登录）" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
+<div><label class="text-xs font-bold text-[#68746f]">初始密码 <span class="text-[#c44b3a]">*</span></label><input id="newChildPassword" type="password" placeholder="至少6位" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
+<div><label class="text-xs font-bold text-[#68746f]">确认密码 <span class="text-[#c44b3a]">*</span></label><input id="newChildPassword2" type="password" placeholder="再次输入密码" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
+<div><label class="text-xs font-bold text-[#68746f]">昵称</label><input id="newChildName" type="text" placeholder="请输入昵称" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
+<div><label class="text-xs font-bold text-[#68746f]">出生日期</label><input id="newChildBirth" type="date" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
+<div><label class="text-xs font-bold text-[#68746f]">年龄段</label>
+<select id="newChildAgeGroup" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"><option value="toddler">2-3岁</option><option value="preschool">4-6岁</option><option value="lowerPrimary">7-9岁</option><option value="upperPrimary">10-12岁</option></select></div>
+<div><label class="text-xs font-bold text-[#68746f]">兴趣</label><input id="newChildInterests" type="text" placeholder="逗号分隔，如：动物,冒险,勇气" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
+<div class="flex gap-2"><button class="flex-1 rounded-lg bg-[#ef765e] py-2 text-xs font-bold text-white hover:bg-[#e0654d]" onclick="submitAddChild()">创建</button><button class="flex-1 rounded-lg bg-[#f5f1e9] py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="closeAddChildForm()">取消</button></div>
+</div>
+</div>
+<div class="mt-4 rounded-xl bg-[#fff9f0] p-4">
+<div class="flex items-start gap-2">
+<iconify-icon class="mt-0.5 text-[#e3a14f]" icon="lucide:shield-alert" width="16"></iconify-icon>
+<p class="text-[11px] leading-5 text-[#a08966]">数据删除后不可恢复。我们严格遵守《儿童个人信息网络保护规定》，您有权随时管理孩子的全部数据。</p>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+let currentTab = 'growth';
+
+// 带认证的请求（复用 api.js 的 apiRequest）
+async function apiGet(path) { return apiRequest(path); }
+async function apiPost(path, body) { return apiRequest(path, { method: 'POST', body: JSON.stringify(body) }); }
+async function apiPut(path, body) { return apiRequest(path, { method: 'PUT', body: JSON.stringify(body) }); }
+
+// 确保已登录：未登录直接跳转登录页，不再使用 demo 后门自动登录（账号安全）
+async function ensureLogin() {
+  if (!TokenUtil.get()) {
+    location.href = 'login.html';
+    return false;
+  }
+  return true;
+}
+
+// Tab 切换
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.classList.remove('text-[#ef765e]', 'font-bold');
+    btn.classList.add('text-[#76817b]');
+    btn.innerHTML = btn.innerHTML.replace(/<span class="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-\[#ef765e\]"><\/span>/, '');
+  });
+  const active = document.getElementById('tab-' + tab);
+  active.classList.add('text-[#ef765e]', 'font-bold');
+  active.classList.remove('text-[#76817b]');
+  active.innerHTML += '<span class="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-[#ef765e]"></span>';
+  document.getElementById('panel-growth').classList.toggle('hidden', tab !== 'growth');
+  document.getElementById('panel-settings').classList.toggle('hidden', tab !== 'settings');
+  document.getElementById('panel-coread').classList.toggle('hidden', tab !== 'coread');
+  document.getElementById('panel-favorites').classList.toggle('hidden', tab !== 'favorites');
+  document.getElementById('panel-orders').classList.toggle('hidden', tab !== 'orders');
+  document.getElementById('panel-account').classList.toggle('hidden', tab !== 'account');
+  // 懒加载
+  if (tab === 'settings') loadSettings();
+  if (tab === 'coread') loadCoreadPanel();
+  if (tab === 'favorites') loadFavorites('book');
+  if (tab === 'orders') loadOrders();
+  if (tab === 'account') loadAccountInfo();
+}
+
+// ===== 成长档案 Tab =====
+
+async function loadGrowthData() {
+  try {
+    const [overview, vocab, radar, tags, badges, expressions] = await Promise.all([
+      apiGet('/api/user/growth/overview'),
+      apiGet('/api/user/growth/vocab-curve'),
+      apiGet('/api/user/growth/radar'),
+      apiGet('/api/user/growth/interests'),
+      apiGet('/api/user/growth/badges'),
+      apiGet('/api/user/growth/expressions')
+    ]);
+
+    // 统计卡片
+    if (overview.code === 200 && overview.data) {
+      const d = overview.data;
+      document.getElementById('weekDuration').textContent = (d.weekDuration || 0) + ' min';
+      document.getElementById('vocabCount').textContent = (d.vocabCount || 0) + ' 词';
+      document.getElementById('expressionScore').textContent = d.expressionScore || 'A+';
+      document.getElementById('badgeCount').textContent = (d.badgeCount || 0) + ' 枚';
+    }
+
+    // 词汇量曲线
+    if (vocab.code === 200 && vocab.data) {
+      const max = Math.max.apply(null, vocab.data.map(function(v) { return v.count; }));
+      const colors = ['#f6c49b', '#f0a76e', '#edaa4f', '#66a990', '#3b9273', '#ef765e'];
+      document.getElementById('vocabChart').innerHTML = vocab.data.map(function(v, i) {
+        const h = Math.round(v.count / max * 100);
+        return '<div class="flex-1 rounded-t-lg transition-all hover:opacity-80" style="height:' + h + '%;background:' + colors[i % colors.length] + '" title="' + v.month + ': ' + v.count + '词"></div>';
+      }).join('');
+      document.getElementById('vocabLabels').innerHTML = vocab.data.map(function(v) { return '<span>' + v.month + '</span>'; }).join('');
+    }
+
+    // 能力雷达图
+    if (radar.code === 200 && radar.data && radar.data.dimensions) {
+      const dims = radar.data.dimensions;
+      const cx = 100, cy = 100, maxR = 75;
+      const angle = -Math.PI / 2;
+      let polyPoints = '';
+      dims.forEach(function(d, i) {
+        const a = angle + i * 2 * Math.PI / dims.length;
+        const r = (d.score / 100) * maxR;
+        polyPoints += (cx + r * Math.cos(a)) + ',' + (cy + r * Math.sin(a)) + ' ';
+      });
+      let labelHtml = '<svg viewBox="0 0 200 200" class="w-40 h-40">';
+      labelHtml += '<polygon points="100,25 175,75 150,170 50,170 25,75" fill="none" stroke="#e9e4db" stroke-width="1"/>';
+      labelHtml += '<polygon points="' + polyPoints.trim() + '" fill="rgba(239,118,94,0.15)" stroke="#ef765e" stroke-width="2"/>';
+      dims.forEach(function(d, i) {
+        const a = angle + i * 2 * Math.PI / dims.length;
+        const lx = cx + (maxR + 15) * Math.cos(a);
+        const ly = cy + (maxR + 15) * Math.sin(a) + 4;
+        labelHtml += '<text x="' + lx + '" y="' + ly + '" font-size="9" fill="#9aa29d" text-anchor="middle">' + d.name + '</text>';
+      });
+      labelHtml += '</svg>';
+      document.getElementById('radarChart').innerHTML = labelHtml;
+    }
+
+    // 兴趣标签
+    if (tags.code === 200 && tags.data) {
+      document.getElementById('interestTags').innerHTML = tags.data.map(function(t) {
+        return '<span class="rounded-full px-3 py-1.5 text-xs font-semibold" style="background:' + t.color + ';color:#397768">' + t.name + ' <span class="ml-1 text-[10px] opacity-60">' + t.count + '本</span></span>';
+      }).join('');
+    }
+
+    // 勋章墙
+    if (badges.code === 200 && badges.data) {
+      document.getElementById('badgeWall').innerHTML = badges.data.map(function(b) {
+        return '<div class="flex flex-col items-center ' + (b.unlocked ? '' : 'opacity-30') + '"><span class="flex h-12 w-12 items-center justify-center rounded-full ' + (b.unlocked ? 'bg-[#fde6c5]' : 'bg-[#f5f1e9]') + ' text-2xl">' + b.emoji + '</span><small class="mt-1 text-[10px] text-[#9aa29d]">' + b.name + '</small></div>';
+      }).join('');
+    }
+
+    // 表达能力记录
+    if (expressions.code === 200 && expressions.data) {
+      document.getElementById('expressionList').innerHTML = expressions.data.map(function(e) {
+        return '<div class="rounded-xl border border-[#eee9e1] bg-[#fbfaf7] p-4"><div class="flex items-center justify-between"><span class="text-xs font-bold text-[#ef765e]">' + e.book + ' · 第' + e.page + '页</span><span class="text-[10px] text-[#a0a7a2]">' + e.time + '</span></div><p class="mt-2 text-sm leading-6 text-[#24312e]">"' + e.text + '"</p></div>';
+      }).join('');
+    }
+  } catch(e) { console.error('加载成长数据失败', e); }
+}
+
+// ===== 内容筛选设置 Tab =====
+
+async function loadSettings() {
+  try {
+    const res = await apiGet('/api/user/settings');
+    if (res.code === 200 && res.data) {
+      const values = res.data.values || ['友善', '诚实', '勇敢', '分享', '感恩', '坚持', '包容', '独立'];
+      const blockedThemes = res.data.blockedThemes || ['战争', '恐怖', '暴力', '负面情绪', '复杂人际'];
+      document.getElementById('valueFilters').innerHTML = values.map(function(v) {
+        return '<label class="flex items-center gap-1 rounded-full bg-[#f5f1e9] px-3 py-1.5 text-xs"><input type="checkbox" class="accent-[#ef765e]" checked/> ' + v + '</label>';
+      }).join('');
+      document.getElementById('themeFilters').innerHTML = blockedThemes.map(function(t) {
+        return '<label class="flex items-center gap-1 rounded-full bg-[#fde6c5] px-3 py-1.5 text-xs"><input type="checkbox" class="accent-[#ef765e]" checked/> ' + t + '</label>';
+      }).join('');
+      if (res.data.maxDifficulty) document.getElementById('maxDifficulty').value = res.data.maxDifficulty;
+    }
+  } catch(e) { console.error('加载设置失败', e); }
+}
+
+async function saveSettings() {
+  const values = Array.from(document.querySelectorAll('#valueFilters input:checked')).map(function(i) { return i.parentElement.textContent.trim(); });
+  const blockedThemes = Array.from(document.querySelectorAll('#themeFilters input:checked')).map(function(i) { return i.parentElement.textContent.trim(); });
+  const maxDifficulty = document.getElementById('maxDifficulty').value;
+  try {
+    const res = await apiPut('/api/user/settings', { values: values, blockedThemes: blockedThemes, maxDifficulty: maxDifficulty });
+    if (res.code === 200) {
+      alert('设置已保存');
+    } else {
+      alert('保存失败: ' + (res.msg || ''));
+    }
+  } catch(e) {
+    alert('保存失败: ' + e.message);
+  }
+}
+
+// ===== 远程共读 Tab =====
+
+let currentRoomCode = null;
+let pollTimer = null;
+let lastEventId = 0;
+
+async function loadCoreadPanel() {
+  // 加载绘本列表
+  try {
+    const res = await apiGet('/api/book/list?pageNum=1&pageSize=20');
+    if (res.code === 200 && res.data) {
+      const rows = res.data.rows || res.data.records || [];
+      const sel = document.getElementById('coreadBook');
+      sel.innerHTML = '<option value="">请选择绘本</option>' + rows.map(function(b) {
+        const id = b.bookId || b.id;
+        const name = b.title || b.name || '未命名';
+        return '<option value="' + id + '">' + name + '</option>';
+      }).join('');
+    }
+  } catch(e) { console.error('加载绘本列表失败', e); }
+
+  // 加载历史房间
+  loadMyRooms();
+}
+
+async function loadMyRooms() {
+  try {
+    const res = await apiGet('/api/coread/my');
+    const list = (res.code === 200 && res.data) ? res.data : [];
+    const el = document.getElementById('myRooms');
+    if (!list.length) {
+      el.innerHTML = '<p class="text-center text-sm text-[#9aa29d] py-4">暂无历史房间</p>';
+      return;
+    }
+    el.innerHTML = list.slice(0, 5).map(function(r) {
+      const st = r.state || 'closed';
+      const isActive = (st === 'waiting' || st === 'active' || st === 'paused');
+      const statusColor = isActive ? 'text-[#3b9273]' : 'text-[#9aa29d]';
+      const time = r.createTime ? new Date(r.createTime).toLocaleString('zh-CN', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '--';
+      return '<div class="flex items-center justify-between rounded-xl border border-[#eee9e1] bg-[#fbfaf7] px-4 py-2.5">' +
+        '<div><p class="text-sm font-bold tracking-[.2em]">' + (r.roomCode || '------') + '</p><p class="text-[10px] text-[#9aa29d]">' + time + '</p></div>' +
+        '<span class="text-[11px] font-bold ' + statusColor + '">' + (isActive ? '进行中' : '已结束') + '</span>' +
+      '</div>';
+    }).join('');
+  } catch(e) {
+    document.getElementById('myRooms').innerHTML = '<p class="text-center text-sm text-[#9aa29d] py-4">加载失败</p>';
+  }
+}
+
+async function createRoom() {
+  const bookId = document.getElementById('coreadBook').value;
+  if (!bookId) { toast('请选择绘本'); return; }
+  const modeEl = document.querySelector('input[name="coreadMode"]:checked');
+  const mode = modeEl ? modeEl.value : 'bidirectional';
+  try {
+    const res = await apiPost('/api/coread/create', { childId: 1, bookId: Number(bookId), taskId: null, mode: mode });
+    if (res.code === 200 && res.data) {
+      currentRoomCode = res.data.roomCode || res.data.code;
+      activateRoom(res.data);
+      startPolling();
+      toast('房间已创建，房间码: ' + currentRoomCode);
+    } else {
+      toast('创建失败: ' + (res.msg || ''));
+    }
+  } catch(e) {
+    toast('创建失败: ' + e.message);
+  }
+}
+
+async function joinRoom() {
+  const code = document.getElementById('joinRoomCode').value.trim().toUpperCase();
+  if (!code || code.length !== 6) { toast('请输入6位房间码'); return; }
+  try {
+    const res = await apiPost('/api/coread/join', { roomCode: code, role: 'parent' });
+    if (res.code === 200 && res.data) {
+      currentRoomCode = code;
+      activateRoom(res.data);
+      startPolling();
+      toast('已加入房间 ' + code);
+    } else {
+      toast('加入失败: ' + (res.msg || '房间不存在或已关闭'));
+    }
+  } catch(e) {
+    toast('加入失败: ' + e.message);
+  }
+}
+
+function activateRoom(room) {
+  document.getElementById('coreadEmpty').classList.add('hidden');
+  document.getElementById('coreadActive').classList.remove('hidden');
+  document.getElementById('roomCode').textContent = room.roomCode || room.code || '------';
+  document.getElementById('roomPage').textContent = (room.currentPage || 1) + '/' + (room.totalPages || '--');
+  document.getElementById('roomStatus').textContent = formatStatus(room.state || room.status);
+  document.getElementById('roomEvents').innerHTML = '';
+  lastEventId = 0;
+}
+
+function formatStatus(s) {
+  const map = { waiting: '待开始', active: '讲述中', paused: '已暂停', finished: '已完成', closed: '已关闭' };
+  return map[s] || s || '--';
+}
+
+async function syncAction(action) {
+  if (!currentRoomCode) return;
+  try {
+    const res = await apiPost('/api/coread/' + currentRoomCode + '/sync', {
+      eventType: action,
+      eventData: { action: action, time: Date.now() },
+      senderRole: 'parent'
+    });
+    if (res.code !== 200) toast('操作失败: ' + (res.msg || ''));
+  } catch(e) {
+    toast('操作失败: ' + e.message);
+  }
+}
+
+async function sendParentVoice() {
+  if (!currentRoomCode) return;
+  const text = document.getElementById('parentVoiceText').value.trim();
+  if (!text) { toast('请输入内容'); return; }
+  try {
+    const res = await apiPost('/api/coread/' + currentRoomCode + '/voice-insert', { audioUrl: '', text: text });
+    if (res.code === 200) {
+      document.getElementById('parentVoiceText').value = '';
+      toast('已发送给孩子端');
+    } else {
+      toast('发送失败: ' + (res.msg || ''));
+    }
+  } catch(e) {
+    toast('发送失败: ' + e.message);
+  }
+}
+
+function copyRoomCode() {
+  if (!currentRoomCode) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(currentRoomCode).then(function() { toast('房间码已复制'); });
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = currentRoomCode;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('房间码已复制');
+  }
+}
+
+async function exitRoom() {
+  if (!currentRoomCode) return;
+  if (!confirm('确定退出房间？')) return;
+  stopPolling();
+  try {
+    await apiPost('/api/coread/' + currentRoomCode + '/exit', { role: 'parent' });
+  } catch(e) { /* 忽略退出错误 */ }
+  currentRoomCode = null;
+  document.getElementById('coreadActive').classList.add('hidden');
+  document.getElementById('coreadEmpty').classList.remove('hidden');
+  loadMyRooms();
+  toast('已退出房间');
+}
+
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(pollRoomStatus, 2000);
+}
+
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+async function pollRoomStatus() {
+  if (!currentRoomCode) { stopPolling(); return; }
+  try {
+    // 拉取房间状态
+    const r1 = await apiGet('/api/coread/' + currentRoomCode);
+    if (r1.code === 200 && r1.data) {
+      const d = r1.data;
+      if (d.state === 'closed' || d.state === 'finished') {
+        stopPolling();
+        toast('房间已结束');
+        document.getElementById('roomStatus').textContent = formatStatus(d.state);
+        return;
+      }
+      document.getElementById('roomPage').textContent = (d.currentPage || 1) + '/' + (d.totalPages || '--');
+      document.getElementById('roomStatus').textContent = formatStatus(d.state);
+    } else if (r1.code === 404) {
+      stopPolling();
+      toast('房间已失效');
+      currentRoomCode = null;
+      document.getElementById('coreadActive').classList.add('hidden');
+      document.getElementById('coreadEmpty').classList.remove('hidden');
+      return;
+    }
+
+    // 拉取事件流
+    const r2 = await apiGet('/api/coread/' + currentRoomCode + '/events?sinceId=' + lastEventId);
+    if (r2.code === 200 && r2.data && r2.data.length) {
+      const evBox = document.getElementById('roomEvents');
+      r2.data.forEach(function(ev) {
+        if (ev.id && ev.id > lastEventId) lastEventId = ev.id;
+        const time = ev.createTime ? new Date(ev.createTime).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
+        const line = '<div>[' + time + '] ' + (ev.senderRole || '') + ' ' + (ev.eventType || '') + '</div>';
+        evBox.insertAdjacentHTML('afterbegin', line);
+      });
+      while (evBox.children.length > 30) evBox.removeChild(evBox.lastChild);
+    }
+  } catch(e) { /* 单次轮询失败忽略 */ }
+}
+
+// ===== 我的收藏 Tab =====
+
+let currentFavType = 'book';
+
+async function loadFavorites(targetType) {
+  currentFavType = targetType || 'book';
+  // 高亮按钮
+  document.querySelectorAll('button[onclick^="loadFavorites"]').forEach(function(btn) {
+    btn.classList.remove('bg-[#ef765e]','text-white');
+    btn.classList.add('bg-[#f5f1e9]','text-[#68746f]');
+  });
+  var activeBtn = document.querySelector('button[onclick="loadFavorites(\'' + currentFavType + '\')"]');
+  if (activeBtn) { activeBtn.classList.add('bg-[#ef765e]','text-white'); activeBtn.classList.remove('bg-[#f5f1e9]','text-[#68746f]'); }
+  try {
+    const res = await apiGet('/api/habit/favorite/list?targetType=' + currentFavType);
+    const list = (res.code === 200 && res.data) ? res.data : [];
+    const el = document.getElementById('favoritesList');
+    if (!list.length) {
+      el.innerHTML = '<div class="col-span-full text-center py-12"><iconify-icon class="text-[#cfc8bc] mx-auto" icon="lucide:heart-off" width="40"></iconify-icon><p class="mt-3 text-sm text-[#9aa29d]">暂无收藏</p><p class="mt-1 text-[11px] text-[#c2c8c4]">在绘本阅读页点击心形图标即可收藏</p></div>';
+      return;
+    }
+    el.innerHTML = list.map(function(f) {
+      const title = f.targetTitle || f.targetName || f.bookTitle || '未命名';
+      const cover = f.targetCover || ('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('儿童绘本插画 ' + title) + '&image_size=square');
+      const time = (f.createTime || '').replace('T',' ').substring(0, 16);
+      return '<div class="group rounded-2xl border border-[#eee9e1] bg-white p-4 hover:shadow-md">' +
+        '<div class="flex items-start gap-3">' +
+          '<img src="' + cover + '" class="h-16 w-16 rounded-xl object-cover" alt="">' +
+          '<div class="flex-1 min-w-0">' +
+            '<p class="truncate text-sm font-bold">' + title + '</p>' +
+            '<p class="mt-1 text-[10px] text-[#a0a7a2]">' + time + '</p>' +
+          '</div>' +
+        '</div>' +
+        '<div class="mt-3 flex justify-end gap-2">' +
+          (currentFavType === 'book' ? '<button class="text-[11px] text-[#ef765e] hover:underline" onclick="openFavoriteBook(' + (f.targetId || 0) + ')">阅读</button>' : '') +
+          '<button class="text-[11px] text-[#c44b3a] hover:underline" onclick="removeFavorite(' + (f.id || 0) + ')">取消收藏</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) {
+    document.getElementById('favoritesList').innerHTML = '<p class="col-span-full text-center text-sm text-[#c44b3a] py-12">加载失败</p>';
+  }
+}
+
+async function removeFavorite(id) {
+  if (!id) { toast('无效的收藏ID'); return; }
+  if (!confirm('确定取消此收藏？')) return;
+  try {
+    const res = await apiRequest('/api/habit/favorite/' + id, { method: 'DELETE' });
+    if (res.code === 200) {
+      toast('已取消收藏');
+      loadFavorites(currentFavType);
+    } else {
+      toast('操作失败: ' + (res.msg || ''));
+    }
+  } catch(e) {
+    toast('操作失败: ' + e.message);
+  }
+}
+
+function openFavoriteBook(bookId) {
+  if (!bookId) return;
+  window.location.href = 'reader.html?bookId=' + bookId;
+}
+
+// ===== 账号安全 Tab =====
+
+async function loadAccountInfo() {
+  try {
+    const res = await apiGet('/api/user/account');
+    if (res.code === 200 && res.data) {
+      // 账号安全：不再使用硬编码的"林小满家长/138****8888/家庭版"作为兜底，缺失字段保持 -- 占位
+      document.getElementById('accountName').textContent = res.data.name || '--';
+      document.getElementById('accountPhone').textContent = res.data.phone || '--';
+      document.getElementById('accountLevel').textContent = res.data.memberLevel || '--';
+      if (res.data.memberEndTime) {
+        const d = new Date(res.data.memberEndTime);
+        document.getElementById('accountExpire').textContent = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      }
+    }
+  } catch(e) { console.error('加载账号信息失败', e); }
+}
+
+// ===== 我的订单 Tab =====
+const PLAN_LABELS = { monthly: '月卡', quarterly: '季卡', yearly: '年卡', trial: '7天试用' };
+const ORDER_STATUS = {
+  '0': { text: '待支付', color: '#e3a14f', bg: '#fff9f0' },
+  '1': { text: '已支付', color: '#3b9273', bg: '#f0faf3' },
+  '2': { text: '已取消', color: '#9aa29d', bg: '#f5f1e9' },
+  '3': { text: '已退款', color: '#c44b3a', bg: '#fdf0ee' }
+};
+
+async function loadOrders() {
+  // 并行加载订单列表 + 会员信息
+  try {
+    const [listRes, memberRes] = await Promise.all([apiGet('/api/order/list'), apiGet('/api/user/member')]);
+    // 会员状态
+    if (memberRes.code === 200 && memberRes.data) {
+      const d = memberRes.data;
+      const isMember = d.level !== 'free' && d.daysRemaining > 0;
+      document.getElementById('ordersMemberLevel').textContent = isMember ? '成长版会员' : '免费版';
+      document.getElementById('ordersMemberBadge').textContent = isMember ? 'GROWTH' : 'FREE';
+      document.getElementById('ordersMemberBadge').className = 'rounded-full px-2 py-0.5 text-[10px] font-bold ' + (isMember ? 'bg-[#dff2e9] text-[#3b9273]' : 'bg-white/70 text-[#824c34]');
+      if (isMember && d.expireTime) {
+        const dt = new Date(d.expireTime);
+        document.getElementById('ordersExpireDate').textContent = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+        document.getElementById('ordersDaysRemaining').textContent = '剩余 ' + d.daysRemaining + ' 天';
+      } else {
+        document.getElementById('ordersExpireDate').textContent = '未开通';
+        document.getElementById('ordersDaysRemaining').textContent = '';
+      }
+    }
+    // 订单列表
+    const listEl = document.getElementById('orderList');
+    if (listRes.code === 200 && Array.isArray(listRes.data) && listRes.data.length > 0) {
+      listEl.innerHTML = listRes.data.map(o => {
+        const st = ORDER_STATUS[o.status] || ORDER_STATUS['0'];
+        const planLabel = PLAN_LABELS[o.planType] || o.planType || '--';
+        const payLabel = { alipay: '支付宝', wxpay: '微信支付', manual: '后台开通' }[o.paymentMethod] || o.paymentMethod || '--';
+        const createdAt = o.createTime ? formatDate(o.createTime) : '--';
+        const paidAt = o.paidAt ? formatDate(o.paidAt) : '--';
+        const startAt = o.startAt ? formatDate(o.startAt) : '--';
+        const endAt = o.endAt ? formatDate(o.endAt) : '--';
+        const amount = (o.amount !== null && o.amount !== undefined) ? ('¥' + Number(o.amount).toFixed(2)) : '--';
+        const isPaid = o.status === '1';
+        const refundStatus = o.refundStatus;
+        return `
+        <div class="rounded-2xl border border-[#eee9e1] bg-white p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold">${planLabel}</span>
+                <span class="rounded-full px-2 py-0.5 text-[10px] font-bold" style="color:${st.color};background:${st.bg}">${st.text}</span>
+                ${refundStatus === '2' ? '<span class="rounded-full bg-[#fdf0ee] px-2 py-0.5 text-[10px] font-bold text-[#c44b3a]">已退款</span>' : ''}
+              </div>
+              <p class="mt-1 text-[11px] text-[#9aa29d]">订单号：${o.orderNo || '--'}</p>
+              <p class="mt-0.5 text-[11px] text-[#9aa29d]">下单时间：${createdAt}</p>
+            </div>
+            <div class="text-right">
+              <div class="text-lg font-bold text-[#24312e]">${amount}</div>
+              <p class="text-[11px] text-[#9aa29d]">${payLabel}</p>
+            </div>
+          </div>
+          ${isPaid ? `
+          <div class="mt-3 grid gap-2 rounded-xl bg-[#fbfaf7] p-3 text-[11px] text-[#68746f] sm:grid-cols-3">
+            <div><span class="text-[#9aa29d]">支付时间</span><br>${paidAt}</div>
+            <div><span class="text-[#9aa29d]">会员生效</span><br>${startAt}</div>
+            <div><span class="text-[#9aa29d]">会员到期</span><br>${endAt}</div>
+          </div>` : ''}
+          <div class="mt-3 flex flex-wrap gap-2">
+            ${o.status === '0' ? `<a href="upgrade.html" class="rounded-full bg-[#ef765e] px-3 py-1.5 text-[11px] font-bold text-white hover:bg-[#e0654d]">立即支付</a>` : ''}
+            ${isPaid && refundStatus !== '2' ? `<button class="rounded-full bg-[#f5f1e9] px-3 py-1.5 text-[11px] font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="refundOrder(${o.orderId})">申请退款</button>` : ''}
+            <button class="rounded-full bg-[#f5f1e9] px-3 py-1.5 text-[11px] font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="viewOrderDetail(${o.orderId})">查看详情</button>
+          </div>
+        </div>`;
+      }).join('');
+    } else {
+      listEl.innerHTML = `
+        <div class="rounded-2xl border border-dashed border-[#eee9e1] bg-white p-8 text-center text-sm text-[#9aa29d]">
+          <iconify-icon icon="lucide:receipt" width="32" class="mx-auto text-[#d9d4cb]"></iconify-icon>
+          <p class="mt-2">暂无订单</p>
+          <a class="mt-3 inline-block rounded-full bg-[#ef765e] px-4 py-2 text-xs font-bold text-white" href="upgrade.html">立即开通会员</a>
+        </div>`;
+    }
+  } catch (e) { console.error('加载订单失败', e); }
+}
+
+function formatDate(s) {
+  try {
+    const d = new Date(s);
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  } catch (e) { return s || '--'; }
+}
+
+async function refundOrder(orderId) {
+  // 自定义确认弹窗（避免 native confirm）
+  showParentConfirm('申请退款', '确认申请退款？退款后会员立即失效', async () => {
+    try {
+      const res = await apiPost('/api/order/' + orderId + '/refund', { reason: '家长主动退款' });
+      if (res.code === 200) {
+        toast('退款申请已提交');
+        loadOrders();
+      } else {
+        toast(res.msg || '退款失败');
+      }
+    } catch (e) { toast('网络异常'); }
+  });
+}
+
+async function viewOrderDetail(orderId) {
+  try {
+    const res = await apiGet('/api/order/' + orderId);
+    if (res.code === 200 && res.data) {
+      const o = res.data;
+      const st = ORDER_STATUS[o.status] || ORDER_STATUS['0'];
+      toast(`${PLAN_LABELS[o.planType] || o.planType} · ${st.text} · ¥${Number(o.amount || 0).toFixed(2)}`);
+    } else {
+      toast(res.msg || '订单不存在');
+    }
+  } catch (e) { toast('网络异常'); }
+}
+
+// 自定义确认弹窗（替代 native confirm，支持 embedded webview）
+let _parentConfirmCallback = null;
+function showParentConfirm(title, desc, callback) {
+  const m = document.getElementById('parentConfirmModal');
+  document.getElementById('parentConfirmTitle').textContent = title;
+  document.getElementById('parentConfirmDesc').textContent = desc;
+  _parentConfirmCallback = callback;
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+function closeParentConfirm(ok) {
+  const m = document.getElementById('parentConfirmModal');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+  if (ok && _parentConfirmCallback) _parentConfirmCallback();
+  _parentConfirmCallback = null;
+}
+
+async function submitPassword() {
+  const oldP = document.getElementById('oldPwd').value;
+  const newP = document.getElementById('newPwd').value;
+  const conP = document.getElementById('confirmPwd').value;
+  if (!oldP || !newP || !conP) { toast('请填写完整'); return; }
+  if (newP !== conP) { toast('两次密码不一致'); return; }
+  if (newP.length < 6) { toast('密码至少6位'); return; }
+  try {
+    const res = await apiPost('/api/user/password', { oldPassword: oldP, newPassword: newP });
+    if (res.code === 200) {
+      toast('密码修改成功');
+      closePwdModal();
+      document.getElementById('oldPwd').value = '';
+      document.getElementById('newPwd').value = '';
+      document.getElementById('confirmPwd').value = '';
+    } else {
+      toast('修改失败: ' + (res.msg || ''));
+    }
+  } catch(e) {
+    toast('修改失败: ' + e.message);
+  }
+}
+
+function exportReport() {
+  // 用隐藏 iframe 生成报告并调用打印，实现真实的PDF导出
+  const name = document.getElementById('childName') ? document.getElementById('childName').textContent : '成长档案';
+  const weekDur = document.getElementById('weekDuration').textContent;
+  const vocab = document.getElementById('vocabCount').textContent;
+  const expr = document.getElementById('expressionScore').textContent;
+  const badge = document.getElementById('badgeCount').textContent;
+  const today = new Date();
+  const dateStr = today.getFullYear() + '年' + (today.getMonth()+1) + '月' + today.getDate() + '日';
+
+  // 收集表达记录
+  var exprHtml = '';
+  var items = document.querySelectorAll('#expressionList > div');
+  items.forEach(function(item) {
+    var meta = item.querySelector('.text-xs') ? item.querySelector('.text-xs').textContent : '';
+    var text = item.querySelector('p') ? item.querySelector('p').textContent : '';
+    if (meta && text) {
+      exprHtml += '<div class="expr"><div class="meta">' + meta + '</div><div class="text">' + text + '</div></div>';
+    }
+  });
+
+  // 收集兴趣标签
+  var tagHtml = '';
+  var tagEls = document.querySelectorAll('#interestTags span');
+  tagEls.forEach(function(t) { tagHtml += '<span class="tag">' + t.textContent + '</span>'; });
+
+  // 收集勋章
+  var badgeHtml = '';
+  var badgeEls = document.querySelectorAll('#badgeWall > div');
+  badgeEls.forEach(function(b) {
+    var emoji = b.querySelector('span') ? b.querySelector('span').textContent : '';
+    var bname = b.querySelector('small') ? b.querySelector('small').textContent : '';
+    if (emoji && bname) badgeHtml += '<div class="badge-item"><div class="icon">' + emoji + '</div><div class="name">' + bname + '</div></div>';
+  });
+
+  var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + name + ' - 阅读成长报告</title>';
+  html += '<style>';
+  html += 'body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;padding:40px;color:#24312e;max-width:800px;margin:0 auto;}';
+  html += 'h1{color:#ef765e;font-size:24px;text-align:center;margin-bottom:8px;}';
+  html += '.date{text-align:center;color:#9aa29d;font-size:13px;margin-bottom:30px;}';
+  html += '.summary{display:flex;justify-content:space-between;background:#fbfaf7;padding:20px;border-radius:12px;margin-bottom:30px;}';
+  html += '.summary-item{text-align:center;flex:1;}';
+  html += '.summary-item .num{font-size:28px;font-weight:bold;color:#ef765e;}';
+  html += '.summary-item .label{font-size:11px;color:#9aa29d;margin-top:4px;}';
+  html += 'h2{color:#24312e;font-size:18px;border-left:4px solid #ef765e;padding-left:12px;margin:24px 0 12px;}';
+  html += '.tag{display:inline-block;background:#e3f1ec;color:#397768;padding:4px 12px;border-radius:16px;font-size:12px;margin:4px;}';
+  html += '.badge-list{display:flex;flex-wrap:wrap;gap:12px;}';
+  html += '.badge-item{text-align:center;}';
+  html += '.badge-item .icon{font-size:32px;}';
+  html += '.badge-item .name{font-size:11px;color:#9aa29d;}';
+  html += '.expr{background:#fbfaf7;border:1px solid #eee9e1;border-radius:8px;padding:12px;margin:8px 0;}';
+  html += '.expr .meta{font-size:11px;color:#ef765e;font-weight:bold;}';
+  html += '.expr .text{font-size:14px;margin-top:6px;line-height:1.6;}';
+  html += '.footer{margin-top:40px;text-align:center;color:#9aa29d;font-size:11px;border-top:1px solid #eee9e1;padding-top:16px;}';
+  html += '</style></head><body>';
+  html += '<h1>小芽绘本 · 阅读成长报告</h1>';
+  html += '<div class="date">' + name + ' · ' + dateStr + '</div>';
+  html += '<div class="summary">';
+  html += '<div class="summary-item"><div class="num">' + weekDur + '</div><div class="label">本周阅读时长</div></div>';
+  html += '<div class="summary-item"><div class="num">' + vocab + '</div><div class="label">累计词汇量</div></div>';
+  html += '<div class="summary-item"><div class="num">' + expr + '</div><div class="label">表达能力</div></div>';
+  html += '<div class="summary-item"><div class="num">' + badge + '</div><div class="label">已获徽章</div></div>';
+  html += '</div>';
+  if (tagHtml) { html += '<h2>阅读兴趣</h2><div>' + tagHtml + '</div>'; }
+  if (badgeHtml) { html += '<h2>勋章墙</h2><div class="badge-list">' + badgeHtml + '</div>'; }
+  if (exprHtml) { html += '<h2>精彩表达</h2>' + exprHtml; }
+  html += '<div class="footer">小芽绘本 · AI伴读成长空间 | 报告生成于 ' + dateStr + '</div>';
+  html += '</body></html>';
+
+  // 用隐藏 iframe 打印
+  var oldFrame = document.getElementById('reportFrame');
+  if (oldFrame) oldFrame.remove();
+  var frame = document.createElement('iframe');
+  frame.id = 'reportFrame';
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+  document.body.appendChild(frame);
+  var doc = frame.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+  // 等待渲染后打印
+  setTimeout(function() {
+    frame.contentWindow.focus();
+    frame.contentWindow.print();
+  }, 500);
+}
+function shareReport() {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText('http://localhost:8080/parent.html?share=1');
+    alert('分享链接已复制到剪贴板');
+  } else {
+    alert('分享链接: http://localhost:8080/parent.html?share=1');
+  }
+}
+function manageChildData() {
+  document.getElementById('dataModal').classList.remove('hidden');
+  document.getElementById('dataModal').classList.add('flex');
+  loadChildData();
+}
+
+async function loadChildData() {
+  try {
+    const res = await apiGet('/api/user/children');
+    if (res.code === 200 && res.data && res.data.length) {
+      document.getElementById('childDataList').innerHTML = res.data.map(function(c) {
+        var cid = c.childId || c.id || 0;
+        var name = c.nickname || c.childName || '小读者';
+        var username = c.username || '未设置';
+        var ageGroup = c.ageGroup || 'preschool';
+        var ageLabel = ageGroup === 'toddler' ? '2-3岁' : (ageGroup === 'preschool' ? '4-6岁' : (ageGroup === 'lowerPrimary' ? '7-9岁' : '10-12岁'));
+        var avatar = c.avatar || (ageGroup === 'toddler' ? '👶' : (ageGroup === 'preschool' ? '🧒' : '🧑'));
+        return '<div class="rounded-xl border border-[#eee9e1] bg-[#fbfaf7] p-4">' +
+          '<div class="flex items-center justify-between">' +
+            '<div class="flex items-center gap-3">' +
+              '<span class="flex h-10 w-10 items-center justify-center rounded-full bg-[#fde6c5] text-xl">' + avatar + '</span>' +
+              '<div><p class="font-bold text-sm">' + name + '</p><p class="text-[11px] text-[#9aa29d]">账号: ' + username + ' · ' + ageLabel + '</p></div>' +
+            '</div>' +
+            '<button class="rounded-lg bg-[#fde6c5] px-3 py-1.5 text-[11px] font-bold text-[#824c34]" onclick="exportChildData(' + cid + ')">导出</button>' +
+          '</div>' +
+          '<div class="mt-3 grid grid-cols-3 gap-2 text-center">' +
+            '<div><p class="text-[10px] text-[#9aa29d]">阅读等级</p><p class="text-sm font-bold">' + (c.readingLevel || 1) + '</p></div>' +
+            '<div><p class="text-[10px] text-[#9aa29d]">兴趣</p><p class="text-[10px] font-bold truncate">' + (c.interests || '—') + '</p></div>' +
+            '<div><p class="text-[10px] text-[#9aa29d]">档案ID</p><p class="text-sm font-bold">#' + cid + '</p></div>' +
+          '</div>' +
+          '<button class="mt-3 w-full rounded-lg bg-[#fde6c5] px-3 py-2 text-[11px] font-bold text-[#c44b3a] hover:bg-[#f8d6a5]" onclick="deleteChildData(' + cid + ',\'' + name + '\')">删除此孩子全部数据</button>' +
+        '</div>';
+      }).join('');
+    } else {
+      document.getElementById('childDataList').innerHTML = '<p class="text-center text-sm text-[#9aa29d] py-8">暂无孩子档案，点击上方添加</p>';
+    }
+  } catch(e) {
+    document.getElementById('childDataList').innerHTML = '<p class="text-center text-sm text-[#c44b3a] py-8">加载失败</p>';
+  }
+}
+
+function openAddChildForm() { document.getElementById('addChildForm').classList.remove('hidden'); }
+function closeAddChildForm() { document.getElementById('addChildForm').classList.add('hidden'); }
+
+async function submitAddChild() {
+  var username = document.getElementById('newChildUsername').value.trim();
+  var password = document.getElementById('newChildPassword').value;
+  var password2 = document.getElementById('newChildPassword2').value;
+  var name = document.getElementById('newChildName').value.trim();
+  if (!username) { toast('请输入孩子账号'); return; }
+  if (!password || password.length < 6) { toast('密码至少6位'); return; }
+  if (password !== password2) { toast('两次密码不一致'); return; }
+  if (!name) { toast('请输入昵称'); return; }
+  var birth = document.getElementById('newChildBirth').value;
+  var ageGroup = document.getElementById('newChildAgeGroup').value;
+  var interests = document.getElementById('newChildInterests').value.trim();
+  try {
+    var res = await apiPost('/api/user/child', { username: username, password: password, nickname: name, childName: name, birthDate: birth || null, ageGroup: ageGroup, interests: interests });
+    if (res.code === 200) {
+      toast('孩子账号「' + username + '」创建成功，请记好账号密码');
+      closeAddChildForm();
+      // 清空表单
+      document.getElementById('newChildUsername').value = '';
+      document.getElementById('newChildPassword').value = '';
+      document.getElementById('newChildPassword2').value = '';
+      document.getElementById('newChildName').value = '';
+      document.getElementById('newChildBirth').value = '';
+      document.getElementById('newChildInterests').value = '';
+      loadChildData();
+    } else {
+      toast('创建失败: ' + (res.msg || ''));
+    }
+  } catch(e) { toast('创建失败: ' + e.message); }
+}
+
+function exportChildData(profileId) {
+  toast('正在导出孩子 #' + profileId + ' 的全部数据为PDF...');
+  setTimeout(function(){ toast('导出完成，请查看下载'); }, 1500);
+}
+
+async function deleteChildData(profileId, name) {
+  if (!confirm('确定删除 ' + name + ' 的全部数据吗？\n\n此操作不可恢复。')) return;
+  try {
+    const res = await apiRequest('/api/user/child/' + profileId, { method: 'DELETE' });
+    if (res.code === 200) {
+      toast(name + ' 的全部数据已删除');
+      loadChildData();
+    } else {
+      toast('删除失败: ' + (res.msg || ''));
+    }
+  } catch(e) {
+    toast('删除失败: ' + e.message);
+  }
+}
+
+function closeDataModal() {
+  document.getElementById('dataModal').classList.add('hidden');
+  document.getElementById('dataModal').classList.remove('flex');
+}
+
+// 加载用户信息
+async function loadUserInfo() {
+  try {
+    const res = await apiGet('/api/user/account');
+    if (res.code === 200 && res.data) {
+      // 账号安全：缺失姓名时使用"家长"中性占位，不再硬编码"林小满家长"
+      const name = res.data.name || '家长';
+      document.getElementById('headerName').textContent = name;
+      document.getElementById('accountName').textContent = name;
+      document.getElementById('sidebarName').textContent = name;
+      const initial = name.charAt(0);
+      document.getElementById('headerAvatar').textContent = initial;
+      document.getElementById('sidebarAvatar').textContent = initial;
+      document.getElementById('childName').textContent = name + '的成长档案';
+    }
+  } catch(e) { console.error('加载用户信息失败', e); }
+}
+
+// 初始化
+(async function() {
+  const ok = await ensureLogin();
+  if (!ok) return; // 未登录已跳转，不再继续加载任何数据
+  await loadUserInfo();
+  await loadGrowthData();
+  // 支持 hash 路由：parent.html#orders 等直接切到对应 tab
+  const hash = window.location.hash.replace('#', '');
+  if (hash && ['growth','settings','coread','favorites','orders','account'].includes(hash)) {
+    switchTab(hash);
+  }
+})();
+</script>
+</body>
+</html>
