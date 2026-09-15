@@ -1,0 +1,137 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: picture-book-backend
+  profiles:
+    active: dev
+  # H2 数据库（开发环境默认，生产可切换 mysql）
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:picture_book;DB_CLOSE_DELAY=-1;MODE=MySQL;IGNORECASE=TRUE
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+  # Redis（默认本地，生产可覆盖）
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 3000ms
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+# MyBatis Plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: delFlag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# 小芽绘本业务配置
+picturebook:
+  # JWT 认证
+  jwt:
+    secret: XiaoyaPictureBookJwtSecret2026ForAgingReadingSystem
+    expire: 86400
+    header: Authorization
+    prefix: "Bearer "
+  # 文件存储
+  file:
+    # 存储类型: local / oss / minio
+    storage-type: local
+    local:
+      base-path: d:/project_work/work/picture-book-backend/uploads
+      url-prefix: /uploads
+    oss:
+      endpoint: oss-cn-beijing.aliyuncs.com
+      bucket: picture-book
+    minio:
+      endpoint: http://localhost:9000
+      bucket: picture-book
+    # 允许的文件类型
+    allowed-types: jpg,jpeg,png,gif,webp,mp3,wav,m4a,txt,md
+  # AI 能力（M14 配置占位，真实 Key 走环境变量/配置表）
+  ai:
+    # 默认讲读对话模型（硅基流动 SiliconFlow · 永久免费 2000 万 Token）
+    llm:
+      provider: dashscope           # OpenAI 兼容格式，代码不区分 provider 名
+      model: Qwen/Qwen2.5-7B-Instruct
+      api-url: https://api.siliconflow.cn/v1
+      api-key: ${AI_LLM_KEY:}
+      temperature: 0.7
+      max-token: 2048
+      enabled: true
+    # TTS（暂时 Mock，后续可接浏览器 Web Speech API）
+    tts:
+      provider: mock
+      model: cosyvoice-v1
+      voice: longxiaoxia_v2
+      stream: true
+      default-voice: gentle_female
+      first-token-latency-ms: 300
+      enabled: true
+    # ASR（暂时 Mock，后续可接浏览器 Web Speech API）
+    asr:
+      provider: mock
+      model: qwen3-asr-flash
+      child-finetune: true
+      dialect: zh-CN
+      enabled: true
+    # 内容审核
+    review:
+      enabled: true
+      # AES-256 加密密钥（生产走环境变量）
+      aes-key: ${PICTUREBOOK_AES_KEY:Xiaoya2026AesKeyForChildData2026}
+  # 防沉迷
+  anti-addiction:
+    single-session-minutes: 30
+    daily-minutes: 60
+    night-mode-start: "21:00"
+    night-mode-brightness: 30
+  # 安全白名单（免登录路径）
+  security:
+    whitelist:
+      - /api/auth/login
+      - /api/auth/register
+      - /api/auth/logout
+      - /api/auth/child/login
+      - /api/auth/admin/login
+      - /api/book/list
+      - /api/book/detail/**
+      - /api/book/*/pages
+      - /api/book/*/interactions
+      - /api/role/list
+      - /api/theme/list
+      - /uploads/**
+      - /h2-console/**
+      - /error
+      - /
+      - /*.html
+      - /*.js
+      - /*.css
+      - /static/**
+
+logging:
+  level:
+    com.picturebook: debug
+    org.springframework.security: info

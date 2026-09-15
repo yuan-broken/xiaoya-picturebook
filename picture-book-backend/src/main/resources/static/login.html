@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>家长登录 · 小芽绘本</title>
+  <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+  <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+  <script src="api.js?v=6"></script>
+</head>
+<body class="m-0 min-h-screen bg-gradient-to-br from-[#fff5e0] via-[#fce8d4] to-[#f5e6c5] text-[#24312e]">
+<div class="flex min-h-screen items-center justify-center px-4 py-8">
+  <div class="w-full max-w-[400px]">
+    <!-- Logo -->
+    <div class="text-center">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[#ef765e] text-white shadow-lg">
+        <iconify-icon icon="lucide:book-open-check" width="32"></iconify-icon>
+      </div>
+      <h1 class="mt-4 text-2xl font-bold text-[#24312e]" id="pageTitle">家长登录</h1>
+      <p class="mt-1 text-sm text-[#83908b]" id="pageDesc">登录后管理孩子的阅读成长</p>
+    </div>
+
+    <!-- 登录表单 -->
+    <form class="mt-8 space-y-4" id="loginForm" onsubmit="return doLogin(event)">
+      <div>
+        <label class="text-xs font-bold text-[#68746f]">账号</label>
+        <div class="mt-1 flex items-center gap-2 rounded-2xl border border-[#eee9e1] bg-white px-4 py-3">
+          <iconify-icon icon="lucide:user" width="18" class="text-[#c2c8c4]"></iconify-icon>
+          <input id="username" type="text" autocomplete="username" placeholder="手机号 / 邮箱 / 账号" class="flex-1 bg-transparent text-sm outline-none"/>
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-[#68746f]">密码</label>
+        <div class="mt-1 flex items-center gap-2 rounded-2xl border border-[#eee9e1] bg-white px-4 py-3">
+          <iconify-icon icon="lucide:lock" width="18" class="text-[#c2c8c4]"></iconify-icon>
+          <input id="password" type="password" autocomplete="current-password" placeholder="请输入密码" class="flex-1 bg-transparent text-sm outline-none"/>
+          <button type="button" onclick="togglePwd()" class="text-[#c2c8c4] hover:text-[#ef765e]"><iconify-icon id="eyeIcon" icon="lucide:eye" width="18"></iconify-icon></button>
+        </div>
+      </div>
+      <button type="submit" class="w-full rounded-2xl bg-[#ef765e] py-3.5 text-sm font-bold text-white shadow-md hover:bg-[#e0654d] transition" id="loginBtn">
+        <span id="btnText">登录</span>
+      </button>
+    </form>
+
+    <!-- 注册表单（默认隐藏） -->
+    <form class="mt-8 space-y-4 hidden" id="registerForm" onsubmit="return doRegister(event)">
+      <div>
+        <label class="text-xs font-bold text-[#68746f]">家长账号</label>
+        <div class="mt-1 flex items-center gap-2 rounded-2xl border border-[#eee9e1] bg-white px-4 py-3">
+          <iconify-icon icon="lucide:user" width="18" class="text-[#c2c8c4]"></iconify-icon>
+          <input id="regUsername" type="text" placeholder="字母/数字 4-20 位" class="flex-1 bg-transparent text-sm outline-none"/>
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-[#68746f]">家长昵称</label>
+        <div class="mt-1 flex items-center gap-2 rounded-2xl border border-[#eee9e1] bg-white px-4 py-3">
+          <iconify-icon icon="lucide:smile" width="18" class="text-[#c2c8c4]"></iconify-icon>
+          <input id="regNickname" type="text" placeholder="如：小明妈妈" class="flex-1 bg-transparent text-sm outline-none"/>
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-[#68746f]">手机号</label>
+        <div class="mt-1 flex items-center gap-2 rounded-2xl border border-[#eee9e1] bg-white px-4 py-3">
+          <iconify-icon icon="lucide:phone" width="18" class="text-[#c2c8c4]"></iconify-icon>
+          <input id="regPhone" type="tel" placeholder="11 位手机号" class="flex-1 bg-transparent text-sm outline-none"/>
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-[#68746f]">设置密码</label>
+        <div class="mt-1 flex items-center gap-2 rounded-2xl border border-[#eee9e1] bg-white px-4 py-3">
+          <iconify-icon icon="lucide:lock" width="18" class="text-[#c2c8c4]"></iconify-icon>
+          <input id="regPassword" type="password" placeholder="6-20 位密码" class="flex-1 bg-transparent text-sm outline-none"/>
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-[#68746f]">确认密码</label>
+        <div class="mt-1 flex items-center gap-2 rounded-2xl border border-[#eee9e1] bg-white px-4 py-3">
+          <iconify-icon icon="lucide:lock" width="18" class="text-[#c2c8c4]"></iconify-icon>
+          <input id="regConfirm" type="password" placeholder="再次输入密码" class="flex-1 bg-transparent text-sm outline-none"/>
+        </div>
+      </div>
+      <button type="submit" class="w-full rounded-2xl bg-[#ef765e] py-3.5 text-sm font-bold text-white shadow-md hover:bg-[#e0654d] transition" id="registerBtn">
+        <span id="regBtnText">注册</span>
+      </button>
+    </form>
+
+    <!-- 切换登录/注册 -->
+    <div class="mt-6 rounded-2xl bg-white/60 p-4 text-center">
+      <p class="text-[11px] text-[#9aa29d]" id="switchText">还没有账号？</p>
+      <a href="javascript:switchMode()" class="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[#ef765e] hover:underline" id="switchLink">
+        立即注册
+        <iconify-icon icon="lucide:arrow-right" width="14"></iconify-icon>
+      </a>
+    </div>
+
+    <!-- 返回首页 -->
+    <div class="mt-4 text-center">
+      <a href="home.html" class="inline-flex items-center gap-1 text-xs font-bold text-[#83908b] hover:text-[#ef765e]">
+        <iconify-icon icon="lucide:arrow-left" width="14"></iconify-icon>返回首页
+      </a>
+    </div>
+
+    <!-- 测试账号提示 -->
+    <div class="mt-4 rounded-xl bg-[#fde6c5]/50 p-3 text-center">
+      <p class="text-[10px] text-[#824c34]">体验账号：demo / 123456</p>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed left-1/2 top-8 z-50 -translate-x-1/2 rounded-full bg-[#24312e] px-4 py-2 text-xs text-white shadow-lg opacity-0 transition pointer-events-none"></div>
+
+<script>
+// 模式：login / register
+let mode = 'login';
+
+function switchMode() {
+  if (mode === 'login') {
+    mode = 'register';
+    document.getElementById('pageTitle').textContent = '家长注册';
+    document.getElementById('pageDesc').textContent = '创建账号，开启 AI 伴读之旅';
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('registerForm').classList.remove('hidden');
+    document.getElementById('switchText').textContent = '已有账号？';
+    document.getElementById('switchLink').innerHTML = '返回登录 <iconify-icon icon="lucide:arrow-right" width="14"></iconify-icon>';
+  } else {
+    mode = 'login';
+    document.getElementById('pageTitle').textContent = '家长登录';
+    document.getElementById('pageDesc').textContent = '登录后管理孩子的阅读成长';
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('registerForm').classList.add('hidden');
+    document.getElementById('switchText').textContent = '还没有账号？';
+    document.getElementById('switchLink').innerHTML = '立即注册 <iconify-icon icon="lucide:arrow-right" width="14"></iconify-icon>';
+  }
+}
+
+function togglePwd() {
+  const input = document.getElementById('password');
+  const icon = document.getElementById('eyeIcon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.setAttribute('icon', 'lucide:eye-off');
+  } else {
+    input.type = 'password';
+    icon.setAttribute('icon', 'lucide:eye');
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 2200);
+}
+
+// 登录
+async function doLogin(event) {
+  event.preventDefault();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  if (!username || !password) { showToast('请输入账号和密码'); return false; }
+
+  const btn = document.getElementById('loginBtn');
+  const btnText = document.getElementById('btnText');
+  btn.disabled = true;
+  btnText.textContent = '登录中...';
+
+  try {
+    const res = await API.post('/api/auth/login', { username, password });
+    if (res.code === 200 && res.data) {
+      // 保存登录信息
+      API.setToken(res.data.token);
+      API.setUser({
+        familyId: res.data.familyId,
+        username: username,
+        nickname: res.data.nickname,
+        memberLevel: res.data.memberLevel,
+        role: 'parent'
+      });
+      showToast('登录成功');
+      setTimeout(() => { window.location.href = 'home.html'; }, 800);
+    } else {
+      showToast(res.msg || '登录失败');
+      btn.disabled = false;
+      btnText.textContent = '登录';
+    }
+  } catch (e) {
+    showToast('网络异常，请重试');
+    btn.disabled = false;
+    btnText.textContent = '登录';
+  }
+  return false;
+}
+
+// 注册
+async function doRegister(event) {
+  event.preventDefault();
+  const username = document.getElementById('regUsername').value.trim();
+  const nickname = document.getElementById('regNickname').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const confirm = document.getElementById('regConfirm').value;
+
+  if (!username || username.length < 4) { showToast('账号至少 4 位'); return false; }
+  if (!nickname) { showToast('请输入昵称'); return false; }
+  if (!phone || !/^1\d{10}$/.test(phone)) { showToast('请输入正确的手机号'); return false; }
+  if (!password || password.length < 6) { showToast('密码至少 6 位'); return false; }
+  if (password !== confirm) { showToast('两次密码不一致'); return false; }
+
+  const btn = document.getElementById('registerBtn');
+  const btnText = document.getElementById('regBtnText');
+  btn.disabled = true;
+  btnText.textContent = '注册中...';
+
+  try {
+    const res = await API.post('/api/auth/register', { username, password, nickname, phone });
+    if (res.code === 200) {
+      showToast('注册成功，请登录');
+      // 清空注册表单
+      document.getElementById('regUsername').value = '';
+      document.getElementById('regNickname').value = '';
+      document.getElementById('regPhone').value = '';
+      document.getElementById('regPassword').value = '';
+      document.getElementById('regConfirm').value = '';
+      // 切回登录模式
+      setTimeout(() => {
+        document.getElementById('username').value = username;
+        switchMode();
+      }, 800);
+    } else {
+      showToast(res.msg || '注册失败');
+    }
+  } catch (e) {
+    showToast('网络异常，请重试');
+  }
+  btn.disabled = false;
+  btnText.textContent = '注册';
+  return false;
+}
+
+// 已登录则直接跳首页
+(function init() {
+  if (API.isLoggedIn()) {
+    window.location.href = 'home.html';
+  }
+})();
+</script>
+</body>
+</html>

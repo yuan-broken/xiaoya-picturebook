@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>小朋友登录 · 小芽绘本</title>
+  <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+  <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+  <script src="api.js?v=5"></script>
+</head>
+<body class="m-0 min-h-screen bg-gradient-to-br from-[#fff5e0] via-[#fce8d4] to-[#f5e6c5] text-[#24312e]">
+<div class="flex min-h-screen items-center justify-center px-4 py-8">
+  <div class="w-full max-w-[380px]">
+    <!-- Logo -->
+    <div class="text-center">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[#ef765e] text-white shadow-lg">
+        <iconify-icon icon="lucide:book-open-check" width="32"></iconify-icon>
+      </div>
+      <h1 class="mt-4 text-2xl font-bold text-[#24312e]">小朋友，欢迎回来！</h1>
+      <p class="mt-1 text-sm text-[#83908b]">输入你的账号和密码，开始阅读吧</p>
+    </div>
+
+    <!-- 登录表单 -->
+    <form class="mt-8 space-y-4" onsubmit="return doLogin(event)">
+      <div>
+        <label class="text-xs font-bold text-[#68746f]">我的账号</label>
+        <div class="mt-1 flex items-center gap-2 rounded-2xl border border-[#eee9e1] bg-white px-4 py-3">
+          <iconify-icon icon="lucide:user" width="18" class="text-[#c2c8c4]"></iconify-icon>
+          <input id="username" type="text" autocomplete="username" placeholder="请输入账号" class="flex-1 bg-transparent text-sm outline-none"/>
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-[#68746f]">密码</label>
+        <div class="mt-1 flex items-center gap-2 rounded-2xl border border-[#eee9e1] bg-white px-4 py-3">
+          <iconify-icon icon="lucide:lock" width="18" class="text-[#c2c8c4]"></iconify-icon>
+          <input id="password" type="password" autocomplete="current-password" placeholder="请输入密码" class="flex-1 bg-transparent text-sm outline-none"/>
+          <button type="button" onclick="togglePwd()" class="text-[#c2c8c4] hover:text-[#ef765e]"><iconify-icon id="eyeIcon" icon="lucide:eye" width="18"></iconify-icon></button>
+        </div>
+      </div>
+      <button type="submit" class="w-full rounded-2xl bg-[#ef765e] py-3.5 text-sm font-bold text-white shadow-md hover:bg-[#e0654d] transition" id="loginBtn">
+        <span id="btnText">进入阅读</span>
+      </button>
+    </form>
+
+    <!-- 提示 -->
+    <div class="mt-6 rounded-2xl bg-white/60 p-4 text-center">
+      <p class="text-[11px] leading-5 text-[#9aa29d]">还没有账号？请请爸爸妈妈在家长端帮你创建</p>
+      <a href="home.html" class="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[#ef765e] hover:underline">
+        <iconify-icon icon="lucide:arrow-left" width="14"></iconify-icon>返回首页
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePwd() {
+  var input = document.getElementById('password');
+  var icon = document.getElementById('eyeIcon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.setAttribute('icon', 'lucide:eye-off');
+  } else {
+    input.type = 'password';
+    icon.setAttribute('icon', 'lucide:eye');
+  }
+}
+
+async function doLogin(e) {
+  e.preventDefault();
+  var username = document.getElementById('username').value.trim();
+  var password = document.getElementById('password').value;
+  if (!username) { toast('请输入账号'); return false; }
+  if (!password) { toast('请输入密码'); return false; }
+  var btn = document.getElementById('loginBtn');
+  var text = document.getElementById('btnText');
+  btn.disabled = true;
+  text.textContent = '登录中...';
+  try {
+    var res = await api.auth.childLogin(username, password);
+    if (res.code === 200 && res.data && res.data.token) {
+      setToken(res.data.token);
+      setUser({
+        childId: res.data.childId,
+        username: res.data.username,
+        nickname: res.data.nickname,
+        role: 'child',
+        ageGroup: res.data.ageGroup
+      });
+      toast('登录成功！欢迎回来，' + (res.data.nickname || username));
+      setTimeout(function() { window.location.href = 'reader.html'; }, 800);
+    } else {
+      toast('登录失败: ' + (res.msg || '账号或密码错误'));
+      btn.disabled = false;
+      text.textContent = '进入阅读';
+    }
+  } catch(err) {
+    toast('网络异常: ' + err.message);
+    btn.disabled = false;
+    text.textContent = '进入阅读';
+  }
+  return false;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>伴读 · 加载中...</title>
+  <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+  <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+  <script src="api.js?v=3"></script>
+</head>
+<body class="m-0 min-h-screen bg-[#f7f3ec] text-[#24312e]">
+<div class="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden bg-[#fbfaf7] shadow-[0_12px_60px_rgba(61,48,29,.08)]">
+  <!-- 侧边栏 -->
+  <aside class="hidden w-[248px] shrink-0 border-r border-[#ebe5db] bg-[#f5f1e9] px-5 py-7 lg:block">
+    <a class="flex items-center gap-3 px-2" href="home.html">
+      <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ef765e] text-white"><iconify-icon icon="lucide:book-open-check" width="22"></iconify-icon></span>
+      <span><strong class="block text-lg leading-5">小芽绘本</strong><small class="text-[11px] text-[#83908b]">AI 伴读成长空间</small></span>
+    </a>
+    <div class="mt-12 px-3 text-[11px] font-semibold tracking-[.18em] text-[#a09c91]">我的空间</div>
+    <nav class="mt-3 space-y-1 text-sm">
+      <a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f]" href="home.html"><iconify-icon icon="lucide:layout-dashboard" width="18"></iconify-icon>今日首页</a>
+      <a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f]" href="library.html"><iconify-icon icon="lucide:library" width="18"></iconify-icon>绘本库</a>
+      <a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f]" href="studio.html"><iconify-icon icon="lucide:sparkles" width="18"></iconify-icon>互动故事营</a>
+      <a class="flex items-center gap-3 rounded-xl bg-white px-3 py-3 font-semibold text-[#ef765e] shadow-sm" href="reader.html"><iconify-icon icon="lucide:headphones" width="18"></iconify-icon>最近伴读</a>
+    </nav>
+  </aside>
+  <!-- 主区域 -->
+  <main class="flex flex-1 flex-col overflow-hidden">
+    <header class="flex h-[76px] shrink-0 items-center justify-between border-b border-[#eee9e1] px-6 md:px-10">
+      <a class="flex items-center gap-2 text-xs font-semibold text-[#78827d]" href="library.html"><iconify-icon icon="lucide:arrow-left" width="16"></iconify-icon>返回绘本库</a>
+      <div class="hidden items-center gap-2 text-xs text-[#8b948f] md:flex"><iconify-icon class="text-[#ef765e]" icon="lucide:volume-2" width="17"></iconify-icon>小芽正在陪读</div>
+      <div class="flex items-center gap-2">
+        <button class="flex items-center gap-1.5 rounded-full bg-[#fde6c5] px-3 py-1.5 text-xs font-bold text-[#824c34] hover:bg-[#f8d6a5]" onclick="openCoReadModal()">
+          <iconify-icon icon="lucide:radio" width="14"></iconify-icon><span id="coreadBtnText">远程共读</span>
+        </button>
+        <button class="flex items-center gap-1.5 rounded-full bg-[#f5f1e9] px-3 py-1.5 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="toggleFavorite()" id="favBtn">
+          <iconify-icon icon="lucide:heart" width="14" id="favIcon"></iconify-icon><span id="favText">收藏</span>
+        </button>
+        <!-- 更多菜单 -->
+        <div class="relative">
+          <button class="flex h-9 w-9 items-center justify-center rounded-full text-[#78827e] hover:bg-[#f3eee6]" onclick="toggleMenu()" id="moreBtn">
+            <iconify-icon icon="lucide:more-horizontal" width="18"></iconify-icon>
+          </button>
+          <div id="moreMenu" class="absolute right-0 top-10 z-50 hidden w-44 rounded-xl border border-[#eee9e1] bg-white py-2 shadow-lg">
+            <a class="flex items-center gap-2 px-4 py-2.5 text-xs text-[#68746f] hover:bg-[#f5f1e9]" href="javascript:void(0)" onclick="showVoicePicker()"><iconify-icon icon="lucide:mic-2" width="15"></iconify-icon>切换音色</a>
+            <a class="flex items-center gap-2 px-4 py-2.5 text-xs text-[#68746f] hover:bg-[#f5f1e9]" href="home.html"><iconify-icon icon="lucide:home" width="15"></iconify-icon>返回首页</a>
+            <a class="flex items-center gap-2 px-4 py-2.5 text-xs text-[#68746f] hover:bg-[#f5f1e9]" href="library.html"><iconify-icon icon="lucide:library" width="15"></iconify-icon>选择其他绘本</a>
+            <a class="flex items-center gap-2 px-4 py-2.5 text-xs text-[#68746f] hover:bg-[#f5f1e9]" href="parent.html"><iconify-icon icon="lucide:user" width="15"></iconify-icon>家长中心</a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="flex-1 overflow-y-auto px-5 py-6 md:px-10 md:py-8">
+      <div class="mx-auto max-w-[1100px]">
+        <!-- 标题区 -->
+        <div class="flex flex-col justify-between gap-3 md:flex-row md:items-end">
+          <div>
+            <span class="text-xs font-bold tracking-[.18em] text-[#ef765e]" id="pageInfo">正在伴读 · 第 1 / 12 页</span>
+            <h1 class="mt-2 text-2xl font-bold" id="bookTitle">加载中...</h1>
+          </div>
+          <span class="rounded-full bg-[#e5f3ed] px-3 py-1.5 text-xs font-semibold text-[#42866e]">已读 0 分钟</span>
+        </div>
+        <!-- 进度条 -->
+        <div class="mt-5 h-1.5 overflow-hidden rounded-full bg-[#ebe7de]">
+          <div class="h-full rounded-full bg-[#ef765e] transition-all duration-300" id="progressBar" style="width:8%"></div>
+        </div>
+        <!-- 内容区 -->
+        <div class="mt-8 grid gap-7 lg:grid-cols-[1.25fr_.75fr]">
+          <!-- 绘本画面 -->
+          <section class="overflow-hidden rounded-[28px] border border-[#e9e1d5] shadow-sm" id="pageSection">
+            <div class="relative flex min-h-[450px] flex-col items-center justify-center overflow-hidden px-8 py-10" id="pageIllustration">
+              <!-- 动态填充 -->
+            </div>
+            <!-- 控制条 -->
+            <div class="flex items-center justify-between bg-white/70 px-6 py-4">
+              <button class="flex items-center gap-2 text-xs text-[#77817c] hover:text-[#ef765e]" onclick="prevPage()" id="prevBtn">
+                <iconify-icon icon="lucide:chevron-left" width="17"></iconify-icon>上一页
+              </button>
+              <button class="flex h-11 w-11 items-center justify-center rounded-full bg-[#ef765e] text-white shadow-md" id="play" onclick="playStory()">
+                <iconify-icon icon="lucide:play" width="19"></iconify-icon>
+              </button>
+              <button class="flex items-center gap-2 text-xs font-semibold text-[#ef765e]" onclick="nextPage()" id="nextBtn">
+                下一页<iconify-icon icon="lucide:chevron-right" width="17"></iconify-icon>
+              </button>
+            </div>
+          </section>
+          <!-- 侧边面板 -->
+          <aside class="space-y-5">
+            <!-- 小芽提问（动态加载） -->
+            <div class="rounded-3xl bg-[#e8f3ed] p-6" id="interactionPanel">
+              <div class="flex items-center gap-3">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f7c39e] text-3xl">🦊</div>
+                <div>
+                  <div class="text-xs font-bold text-[#4e9b7c]">小芽提问</div>
+                  <h2 class="mt-1 text-base font-bold" id="questionText">这一页还没有互动问题</h2>
+                </div>
+              </div>
+              <p class="mt-5 text-sm leading-6 text-[#668a7e]">试着说一说你的想法吧，没有标准答案，小芽想听听你的故事。</p>
+              <div class="mt-5 grid gap-2" id="optionsArea"></div>
+              <div class="mt-4 hidden rounded-xl bg-white/70 p-3 text-xs leading-5 text-[#4e786a]" id="feedback"></div>
+            </div>
+            <!-- 伴读设置 -->
+            <div class="rounded-3xl border border-[#eee9e1] bg-white p-6">
+              <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold">伴读设置</h2>
+                <iconify-icon class="text-[#9ca49f]" icon="lucide:settings-2" width="17"></iconify-icon>
+              </div>
+              <div class="mt-4 space-y-4 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="flex items-center gap-2 text-[#78827d]"><iconify-icon icon="lucide:mic-2" width="16"></iconify-icon>语音讲述</span>
+                  <div class="flex items-center gap-1">
+                    <button class="relative rounded-full bg-[#f5f1e9] px-2 py-1 text-[10px] font-bold text-[#a09c91] hover:bg-[#eee9e1]" onclick="openVoiceCloneModal()" id="voiceCloneBtn" title="我的克隆音色"><iconify-icon icon="lucide:user-cog" width="13"></iconify-icon></button>
+                    <button class="rounded-full bg-[#e5f3ed] px-2 py-1 font-bold text-[#4e9b7c] hover:bg-[#d9eed8]" onclick="cycleVoice()" id="voiceLabel">中文 · 温柔</button>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="flex items-center gap-2 text-[#78827d]"><iconify-icon icon="lucide:message-circle-question" width="16"></iconify-icon>互动提问</span>
+                  <button class="h-5 w-9 rounded-full bg-[#4e9b7c] p-0.5 transition-colors" onclick="toggleSwitch(this,'互动提问')" id="switchQuestion"><span class="block h-4 w-4 translate-x-4 rounded-full bg-white transition-transform"></span></button>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="flex items-center gap-2 text-[#78827d]"><iconify-icon icon="lucide:captions" width="16"></iconify-icon>显示字幕</span>
+                  <button class="h-5 w-9 rounded-full bg-[#4e9b7c] p-0.5 transition-colors" onclick="toggleSwitch(this,'显示字幕')" id="switchCaption"><span class="block h-4 w-4 translate-x-4 rounded-full bg-white transition-transform"></span></button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 音色选择弹窗 -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30" id="voiceModal">
+  <div class="w-96 rounded-2xl bg-white p-6 shadow-xl">
+    <h3 class="text-lg font-bold">选择音色</h3>
+    <p class="mt-1 text-[11px] text-[#9aa29d]">选择一个你喜欢的声音来听故事</p>
+    <div class="mt-4 grid grid-cols-2 gap-2" id="voiceList"></div>
+    <button class="mt-4 w-full rounded-xl bg-[#f5f1e9] py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="document.getElementById('voiceModal').classList.add('hidden')">关闭</button>
+  </div>
+</div>
+
+<!-- 我的克隆音色弹窗 -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30" id="voiceCloneModal">
+  <div class="w-[460px] rounded-2xl bg-white p-6 shadow-xl">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-bold">我的音色</h3>
+      <button class="text-[#9aa29d] hover:text-[#ef765e]" onclick="document.getElementById('voiceCloneModal').classList.add('hidden')"><iconify-icon icon="lucide:x" width="18"></iconify-icon></button>
+    </div>
+    <p class="mt-1 text-[11px] text-[#9aa29d]">录制 5-15 秒声音样本，训练后可作为朗读音色</p>
+
+    <!-- 已克隆音色列表 -->
+    <div class="mt-4 max-h-48 space-y-2 overflow-y-auto" id="voiceCloneList"></div>
+
+    <!-- 录制新音色区 -->
+    <div class="mt-4 rounded-xl border border-dashed border-[#eee9e1] bg-[#fbfaf7] p-4">
+      <h4 class="text-sm font-bold">录制新音色</h4>
+      <div class="mt-2 flex items-center gap-2">
+        <input id="cloneVoiceName" type="text" placeholder="音色名称（如：妈妈的声音）" class="flex-1 rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-xs outline-none focus:border-[#ef765e]"/>
+      </div>
+      <div class="mt-3 flex items-center gap-3">
+        <button id="recordBtn" class="flex items-center gap-2 rounded-full bg-[#ef765e] px-4 py-2 text-xs font-bold text-white hover:bg-[#e0654d]" onclick="toggleRecord()">
+          <iconify-icon icon="lucide:mic" width="15"></iconify-icon><span id="recordBtnText">开始录制</span>
+        </button>
+        <span id="recordTimer" class="text-[11px] text-[#9aa29d]">0.0 秒</span>
+        <audio id="recordPlayback" controls class="hidden h-8 w-full max-w-[200px]"></audio>
+      </div>
+      <div class="mt-3 flex items-center gap-2">
+        <button id="uploadCloneBtn" class="rounded-full bg-[#4e9b7c] px-4 py-2 text-xs font-bold text-white hover:bg-[#3d7868] disabled:opacity-50" onclick="uploadCloneSample()" disabled>上传并训练</button>
+        <button class="rounded-full bg-[#f5f1e9] px-3 py-2 text-xs text-[#68746f] hover:bg-[#eee9e1]" onclick="resetRecorder()">重置</button>
+      </div>
+      <p class="mt-2 text-[10px] text-[#a0a7a2]" id="cloneHint">点击"开始录制"后，请用自然语气说话 5-15 秒</p>
+    </div>
+  </div>
+</div>
+
+<!-- 远程共读加入弹窗 -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30" id="coreadModal">
+  <div class="w-80 rounded-2xl bg-white p-6 shadow-xl">
+    <h3 class="text-lg font-bold">远程共读</h3>
+    <p class="mt-1 text-[11px] text-[#9aa29d]">输入家长发来的6位房间码加入</p>
+    <input id="coreadRoomInput" type="text" maxlength="6" placeholder="6位房间码" class="mt-4 w-full rounded-xl border border-[#eee9e1] px-4 py-2 text-sm tracking-[.3em] uppercase"/>
+    <div class="mt-5 flex justify-end gap-2">
+      <button class="rounded-xl px-4 py-2 text-xs text-[#9aa29d]" onclick="closeCoReadModal()">取消</button>
+      <button class="rounded-xl bg-[#ef765e] px-4 py-2 text-xs font-bold text-white" onclick="joinCoReadRoom()">加入房间</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 全局状态
+// ============================================================
+var bookId = new URLSearchParams(location.search).get('bookId') || 1;
+var pages = [];
+var interactions = [];
+var currentIdx = 0;
+var childRoomCode = null;
+var voices = [
+  {id:'gentle_female', name:'中文 · 温柔', desc:'温柔的女声'},
+  {id:'cheerful_female', name:'中文 · 活泼', desc:'活泼的女声'},
+  {id:'calm_male', name:'中文 · 沉稳', desc:'沉稳的男声'},
+  {id:'lively_boy', name:'童声 · 活泼', desc:'活泼的男孩声'},
+  {id:'story_mom', name:'妈妈 · 讲故事', desc:'讲故事的妈妈声'},
+  {id:'narrator', name:'旁白 · 播音', desc:'专业播音腔'},
+];
+var voiceIdx = 0;
+// 音色 → speechSynthesis 参数映射（让 cycleVoice/pickVoice 的切换真正生效）
+// rate=语速，pitch=音高，gender 用于尝试匹配系统 voice 的性别
+var VOICE_PARAMS = {
+  gentle_female:   { lang:'zh-CN', rate:0.9,  pitch:1.1,  gender:'female' },
+  cheerful_female: { lang:'zh-CN', rate:1.05, pitch:1.3,  gender:'female' },
+  calm_male:       { lang:'zh-CN', rate:0.85, pitch:0.85, gender:'male'   },
+  lively_boy:      { lang:'zh-CN', rate:1.1,  pitch:1.5,  gender:'any'    },
+  story_mom:       { lang:'zh-CN', rate:0.85, pitch:1.15, gender:'female' },
+  narrator:        { lang:'zh-CN', rate:0.95, pitch:1.0,  gender:'any'    },
+};
+// 按 voiceId 把参数应用到 utterance 上，并尽量选对应性别的系统语音
+function applyVoiceToUtter(utter, voiceId) {
+  var p = VOICE_PARAMS[voiceId] || VOICE_PARAMS.gentle_female;
+  utter.lang  = p.lang;
+  utter.rate  = p.rate;
+  utter.pitch = p.pitch;
+  // 尝试匹配对应性别/语种的系统 voice
+  var allVoices = (window.speechSynthesis && window.speechSynthesis.getVoices()) || [];
+  // 性别关键词：女声名常见标识，男声名常见标识
+  var femaleHints = ['female','woman','huihui','ting','ting-ting','mei','xiaoxiao','zhiyu','yaoyao','女','hui'];
+  var maleHints   = ['male','man','kangkang','david','george','男','heng'];
+  var picked = null;
+  for (var i = 0; i < allVoices.length; i++) {
+    var v = allVoices[i];
+    if (!v.lang || v.lang.indexOf('zh') !== 0) continue; // 仅在中文 voice 里找
+    var name = (v.name || '').toLowerCase();
+    if (p.gender === 'female') {
+      if (femaleHints.some(function(h){ return name.indexOf(h) >= 0; })) { picked = v; break; }
+    } else if (p.gender === 'male') {
+      if (maleHints.some(function(h){ return name.indexOf(h) >= 0; })) { picked = v; break; }
+    }
+  }
+  // 兜底：取第一个中文 voice
+  if (!picked) {
+    for (var j = 0; j < allVoices.length; j++) {
+      if (allVoices[j].lang && allVoices[j].lang.indexOf('zh') === 0) { picked = allVoices[j]; break; }
+    }
+  }
+  if (picked) utter.voice = picked;
+}
+
+// ============================================================
+// 初始化
+// ============================================================
+window.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+  await ensureReaderLogin();
+  await loadBook();
+  checkFavoriteStatus();
+  applyRoleUI();
+  // 预热系统语音列表（部分浏览器首次 getVoices 返回空，需监听 voiceschanged）
+  if (window.speechSynthesis) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = function() {
+      loadSystemVoices();
+    };
+    loadSystemVoices();
+  }
+  // 加载当前家庭已克隆音色
+  loadClonedVoices();
+}
+
+// 把浏览器内置的中文系统 voice 作为"AI 系统音色"加入 voices 列表
+function loadSystemVoices() {
+  if (!window.speechSynthesis) return;
+  var sysVoices = window.speechSynthesis.getVoices() || [];
+  // 清掉之前注入的系统音色（保留预设 6 个 + 克隆音色）
+  voices = voices.filter(function(v) { return v.type !== 'system'; });
+  sysVoices.forEach(function(v) {
+    if (v.lang && v.lang.indexOf('zh') === 0) {
+      voices.push({
+        id: 'sys_' + v.name,
+        name: '系统 · ' + v.name,
+        desc: v.lang + (v.localService ? '' : ' (云端)'),
+        type: 'system',
+        sysVoice: v
+      });
+    }
+  });
+}
+
+// 加载当前家庭已克隆音色
+function loadClonedVoices() {
+  if (typeof API === 'undefined' || !API.voiceClone) return;
+  API.voiceClone.list().then(function(res) {
+    if (res && res.code === 200 && Array.isArray(res.data)) {
+      // 清掉之前的克隆音色（保留预设 6 个 + 系统音色）
+      voices = voices.filter(function(v) { return v.type !== 'cloned'; });
+      res.data.forEach(function(c) {
+        if (c.status === 'success') {
+          voices.push({
+            id: 'clone_' + c.id,
+            name: '克隆 · ' + c.voiceName,
+            desc: '自定义音色（样本: ' + (c.sampleAudioUrl || '') + '）',
+            type: 'cloned',
+            cloneId: c.id,
+            voiceName: c.voiceName,
+            sampleAudioUrl: c.sampleAudioUrl,
+            sysVoiceId: c.voiceId
+          });
+        }
+      });
+    }
+  }).catch(function(){});
+}
+
+// 根据登录角色切换 UI（孩子隐藏家长功能）
+function applyRoleUI() {
+  var user = {};
+  try { user = JSON.parse(localStorage.getItem('picturebook_user') || '{}'); } catch(e) {}
+  var isChild = user.role === 'child';
+  if (isChild) {
+    // 隐藏远程共读按钮
+    var coreadBtn = document.querySelector('button[onclick="openCoReadModal()"]');
+    if (coreadBtn) coreadBtn.style.display = 'none';
+    // 隐藏更多菜单中的"家长中心"和"选择其他绘本"
+    var menuItems = document.querySelectorAll('#moreMenu a');
+    menuItems.forEach(function(a) {
+      var text = a.textContent.trim();
+      if (text === '家长中心' || text === '选择其他绘本') a.style.display = 'none';
+    });
+    // 侧边栏隐藏家长入口
+    var parentLink = document.querySelector('aside a[href="parent.html"]');
+    if (parentLink) parentLink.style.display = 'none';
+    // 修改标题区的家长身份提示
+    var readingHint = document.querySelector('header .text-\\[\\#8b948f\\]');
+    if (readingHint) readingHint.textContent = '小朋友，开始阅读吧！';
+  }
+  // 异步检测会员状态（用于按需禁用声音克隆、自定义角色等付费功能）
+  applyMemberUI();
+}
+
+// 检测会员状态：家长走 /api/user/member，孩子走 /api/child/profile
+// 结果写入 window.__MEMBER_LEVEL__，付费功能调用前先检查
+async function applyMemberUI() {
+  try {
+    var user = JSON.parse(localStorage.getItem('picturebook_user') || '{}');
+    var isChild = user.role === 'child';
+    var res;
+    if (isChild) {
+      res = await apiRequest('/api/child/profile');
+      if (res.code === 200 && res.data) {
+        window.__MEMBER_LEVEL__ = res.data.memberLevel || 'free';
+        window.__MEMBER_END_AT__ = res.data.memberEndAt || null;
+        window.__BIND_STATUS__ = res.data.bindStatus;
+      }
+    } else {
+      res = await apiRequest('/api/user/member');
+      if (res.code === 200 && res.data) {
+        window.__MEMBER_LEVEL__ = res.data.level || 'free';
+        window.__MEMBER_END_AT__ = res.data.expireTime || null;
+        window.__BIND_STATUS__ = 1;
+      }
+    }
+    // 若免费用户，在声音克隆按钮上加提示
+    var isMember = window.__MEMBER_LEVEL__ === 'growth' || window.__MEMBER_LEVEL__ === 'premium';
+    var cloneBtn = document.getElementById('voiceCloneBtn');
+    if (cloneBtn && !isMember) {
+      cloneBtn.classList.add('relative');
+      // 加角标"会员"
+      if (!cloneBtn.querySelector('.member-badge')) {
+        var badge = document.createElement('span');
+        badge.className = 'member-badge absolute -right-1 -top-1 rounded-full bg-[#ef765e] px-1.5 py-0.5 text-[9px] font-bold text-white';
+        badge.textContent = 'PRO';
+        cloneBtn.appendChild(badge);
+      }
+    }
+  } catch(e) { console.warn('applyMemberUI error', e); }
+}
+
+// 检查是否为会员，免费用户点击付费功能时弹提示
+function checkMember(feature) {
+  var level = window.__MEMBER_LEVEL__ || 'free';
+  if (level === 'growth' || level === 'premium') return true;
+  // 自定义弹窗替代 native alert（支持 embedded webview）
+  showMemberLockToast(feature);
+  return false;
+}
+
+// 会员锁定提示（自定义弹窗，替代 native alert）
+function showMemberLockToast(feature) {
+  var featureName = feature || '此功能';
+  var el = document.createElement('div');
+  el.className = 'fixed inset-0 z-[60] flex items-center justify-center bg-black/30';
+  var inner = document.createElement('div');
+  inner.className = 'w-[320px] rounded-2xl bg-white p-6 shadow-xl text-center';
+  inner.innerHTML =
+    '<div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fff6ef]">' +
+    '<iconify-icon icon="lucide:lock" width="22" class="text-[#ef765e]"></iconify-icon></div>' +
+    '<h3 class="mt-3 text-sm font-bold">' + featureName + '为会员功能</h3>' +
+    '<p class="mt-1 text-[11px] text-[#9aa29d]">开通成长版会员即可解锁</p>';
+  var btnRow = document.createElement('div');
+  btnRow.className = 'mt-4 flex gap-2 justify-center';
+  var laterBtn = document.createElement('button');
+  laterBtn.className = 'rounded-full bg-[#f5f1e9] px-4 py-2 text-xs font-bold text-[#68746f]';
+  laterBtn.textContent = '稍后';
+  laterBtn.onclick = function() { el.remove(); };
+  var upgradeLink = document.createElement('a');
+  upgradeLink.className = 'rounded-full bg-[#ef765e] px-4 py-2 text-xs font-bold text-white';
+  upgradeLink.href = 'upgrade.html';
+  upgradeLink.textContent = '立即开通';
+  btnRow.appendChild(laterBtn);
+  btnRow.appendChild(upgradeLink);
+  inner.appendChild(btnRow);
+  el.appendChild(inner);
+  document.body.appendChild(el);
+}
+
+function ensureReaderLogin() {
+  return new Promise(function(resolve) {
+    var token = localStorage.getItem('picturebook_token');
+    if (token) { resolve(); return; }
+    // 自动登录 demo
+    fetch('/api/auth/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({username:'demo', password:'123456'})
+    }).then(function(r){return r.json()}).then(function(res){
+      if(res.code===200 && res.data && res.data.token){
+        localStorage.setItem('picturebook_token', res.data.token);
+        localStorage.setItem('picturebook_user', JSON.stringify(res.data));
+      }
+      resolve();
+    }).catch(function(){ resolve(); });
+  });
+}
+
+async function loadBook() {
+  try {
+    // 加载绘本详情（返回 { book: {...}, pages: [...] } 结构）
+    var detailRes = await apiGet('/api/book/detail/' + bookId);
+    if (detailRes.code === 200 && detailRes.data) {
+      var bookInfo = detailRes.data.book || detailRes.data;
+      document.title = '伴读 · ' + (bookInfo.title || '绘本');
+      document.getElementById('bookTitle').textContent = bookInfo.title || '未命名绘本';
+      // 如果详情已包含页面数据，直接使用
+      if (detailRes.data.pages && detailRes.data.pages.length > 0) {
+        pages = detailRes.data.pages;
+      }
+    }
+    // 加载页面列表（独立接口，更可靠）
+    var pagesRes = await apiGet('/api/book/' + bookId + '/pages');
+    if (pagesRes.code === 200 && pagesRes.data && pagesRes.data.length > 0) {
+      pages = pagesRes.data;
+    } else if (!pages.length) {
+      // 无数据时使用默认
+      pages = [{page_num:1, narration:'暂无页面内容', role_emoji:'📖', bg_color:'#f6d9b9', decoration:'✦'}];
+    }
+    // 加载互动提问
+    var intRes = await apiGet('/api/book/' + bookId + '/interactions');
+    if (intRes.code === 200 && intRes.data) {
+      interactions = intRes.data;
+    }
+    currentIdx = 0;
+    renderPage();
+  // 预加载音色列表
+    loadVoices();
+  } catch(e) {
+    console.error('加载绘本失败', e);
+    toast('加载绘本失败: ' + e.message);
+  }
+}
+
+function renderPage() {
+  if (!pages.length) return;
+  var page = pages[currentIdx];
+  var totalPages = pages.length;
+
+  // 更新标题和进度
+  document.getElementById('pageInfo').textContent = '正在伴读 · 第 ' + (currentIdx+1) + ' / ' + totalPages + ' 页';
+  var pct = totalPages > 1 ? Math.round((currentIdx+1) / totalPages * 100) : 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  // 渲染画面
+  var bgColor = page.roleColor || page.bg_color || '#f6d9b9';
+  var emoji = page.roleEmoji || page.role_emoji || '📖';
+  var deco = page.decorations || page.decoration || '✦ ✧';
+  var narration = page.narration || '（这一页没有文字）';
+  var html = '<div class="absolute left-8 top-8 h-24 w-24 rounded-full bg-[#f9eccd]/70"></div>';
+  html += '<div class="absolute right-10 top-12 text-3xl opacity-70">' + deco + '</div>';
+  html += '<div class="relative mt-5 flex h-52 w-52 items-center justify-center rounded-[45%] text-[125px] shadow-[0_18px_30px_rgba(130,77,48,.16)]" style="background:' + darker(bgColor) + '">' + emoji + '</div>';
+  html += '<div class="relative mt-7 max-w-md rounded-2xl bg-white/80 px-7 py-4 text-center shadow-sm">';
+  html += '<p class="text-base font-bold leading-7 text-[#674537]">' + narration + '</p>';
+  html += '<span class="mt-2 block text-[10px] text-[#ad806b]">第 ' + (currentIdx+1) + ' 页 · 点击播放听小芽讲述</span>';
+  html += '</div>';
+  document.getElementById('pageIllustration').innerHTML = html;
+  document.getElementById('pageIllustration').parentElement.style.background = bgColor;
+  document.getElementById('pageSection').style.borderColor = bgColor;
+
+  // 更新按钮状态
+  document.getElementById('prevBtn').style.opacity = currentIdx === 0 ? '0.4' : '1';
+  document.getElementById('nextBtn').style.opacity = currentIdx === totalPages - 1 ? '0.4' : '1';
+
+  // 渲染互动提问
+  renderInteraction(page.pageId || page.page_num);
+}
+
+function renderInteraction(currentPageId) {
+  // 找到当前页对应的互动问题（按 pageId 或 pageNum 匹配）
+  var q = null;
+  for (var i = 0; i < interactions.length; i++) {
+    var inter = interactions[i];
+    // 按 pageId 匹配
+    if (inter.pageId === currentPageId) { q = inter; break; }
+    // 也按页码匹配（inter.pageId 对应的页码 == currentIdx+1）
+    if (inter.pageId && pages[currentIdx] && inter.pageId === pages[currentIdx].pageId) { q = inter; break; }
+  }
+
+  if (!q) {
+    document.getElementById('questionText').textContent = '这一页还没有互动问题';
+    document.getElementById('optionsArea').innerHTML = '<p class="text-xs text-[#9aa29d] py-2">继续往下读，小芽在后面准备了好玩的问题！</p>';
+    document.getElementById('feedback').classList.add('hidden');
+    return;
+  }
+
+  document.getElementById('questionText').textContent = q.question || '想一想';
+  var options = [];
+  try { options = JSON.parse(q.options || '[]'); } catch(e) {}
+  if (!options.length) {
+    document.getElementById('optionsArea').innerHTML = '<p class="text-xs text-[#668a7e] py-2">' + (q.guide || '试着说一说你的想法吧') + '</p>';
+  } else {
+    var html = '';
+    for (var i = 0; i < options.length; i++) {
+      html += '<button class="answer rounded-xl border border-white bg-white/75 px-4 py-3 text-left text-xs text-[#4e786a] hover:border-[#71ad94]" onclick="answer(this,' + i + ')">' + options[i] + '</button>';
+    }
+    document.getElementById('optionsArea').innerHTML = html;
+  }
+  document.getElementById('feedback').classList.add('hidden');
+}
+
+// ============================================================
+// 翻页
+// ============================================================
+function prevPage() {
+  if (currentIdx <= 0) { toast('已经是第一页了'); return; }
+  currentIdx--;
+  renderPage();
+  syncCoreadAction('page_prev');
+}
+
+function nextPage() {
+  if (currentIdx >= pages.length - 1) { toast('已经是最后一页了，故事讲完啦！'); return; }
+  currentIdx++;
+  renderPage();
+  syncCoreadAction('page_next');
+}
+
+// ============================================================
+// 播放（使用浏览器内置语音合成 + 调用TTS Mock记录）
+// ============================================================
+var currentUtter = null;
+
+async function playStory() {
+  var b = document.getElementById('play');
+  var isPlaying = b.dataset.playing === '1';
+  if (isPlaying) {
+    // 暂停
+    b.dataset.playing = '0';
+    b.innerHTML = '<iconify-icon icon="lucide:play" width="19"></iconify-icon>';
+    if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+    syncCoreadAction('pause');
+    toast('已暂停');
+  } else {
+    // 播放
+    b.dataset.playing = '1';
+    b.innerHTML = '<iconify-icon icon="lucide:pause" width="19"></iconify-icon>';
+    syncCoreadAction('resume');
+    toast('小芽正在讲读...');
+
+    var page = pages[currentIdx];
+    var text = page.narration || '小芽在给你讲故事';
+    var currentVoice = voices[voiceIdx] || voices[0];
+
+    // 调用后端TTS Mock接口（记录调用日志）
+    try {
+      apiPost('/api/ai/tts/synthesize', { text: text, voiceId: currentVoice.id });
+    } catch(e) {}
+
+    // 使用浏览器内置语音合成实际朗读
+    if (window.speechSynthesis && window.SpeechSynthesisUtterance) {
+      window.speechSynthesis.cancel(); // 停止之前的朗读
+      currentUtter = new SpeechSynthesisUtterance(text);
+
+      // 按音色类型分别处理
+      if (currentVoice.type === 'system' && currentVoice.sysVoice) {
+        // 系统音色：直接用浏览器内置的真实 voice
+        currentUtter.voice = currentVoice.sysVoice;
+        currentUtter.lang = currentVoice.sysVoice.lang;
+        currentUtter.rate = 0.95;
+        currentUtter.pitch = 1.0;
+        toast('正在用' + currentVoice.name + '朗读');
+      } else if (currentVoice.type === 'cloned') {
+        // 克隆音色：用女声系统 voice + 提示用户"正在用克隆声音"
+        applyVoiceToUtter(currentUtter, 'gentle_female');
+        toast('正在用 ' + currentVoice.voiceName + ' 的克隆声音朗读（演示模式）');
+      } else {
+        // 预设风格音色：用 VOICE_PARAMS 差异化参数
+        applyVoiceToUtter(currentUtter, currentVoice.id);
+      }
+
+      // 朗读结束恢复按钮
+      currentUtter.onend = function() {
+        b.innerHTML = '<iconify-icon icon="lucide:play" width="19"></iconify-icon>';
+        b.dataset.playing = '0';
+      };
+      // 错误处理
+      currentUtter.onerror = function() {
+        b.innerHTML = '<iconify-icon icon="lucide:play" width="19"></iconify-icon>';
+        b.dataset.playing = '0';
+        toast('语音播放出错，请检查浏览器设置');
+      };
+
+      window.speechSynthesis.speak(currentUtter);
+    } else {
+      // 浏览器不支持语音合成，3秒后恢复
+      toast('当前浏览器不支持语音合成，仅模拟播放');
+      setTimeout(function() {
+        if (b.dataset.playing === '1') {
+          b.innerHTML = '<iconify-icon icon="lucide:play" width="19"></iconify-icon>';
+          b.dataset.playing = '0';
+        }
+      }, 3000);
+    }
+  }
+}
+
+// ============================================================
+// 互动回答
+// ============================================================
+function answer(btn, idx) {
+  document.querySelectorAll('.answer').forEach(function(x) {
+    x.classList.remove('border-[#4e9b7c]', 'bg-white');
+  });
+  btn.classList.add('border-[#4e9b7c]', 'bg-white');
+  var f = document.getElementById('feedback');
+  f.classList.remove('hidden');
+  // 找到当前互动问题的反馈语
+  var currentPageId = pages[currentIdx].pageId || pages[currentIdx].page_num;
+  var q = null;
+  for (var i = 0; i < interactions.length; i++) {
+    if (interactions[i].pageId === currentPageId) { q = interactions[i]; break; }
+  }
+  f.textContent = q && q.feedback ? q.feedback : '小芽听见啦！你的想法真棒，还愿意告诉我更多吗？';
+}
+
+// ============================================================
+// 音色切换
+// ============================================================
+function cycleVoice() {
+  voiceIdx = (voiceIdx + 1) % voices.length;
+  var v = voices[voiceIdx];
+  document.getElementById('voiceLabel').textContent = v.name;
+  // 根据音色类型给出差异化提示
+  if (v.type === 'cloned') {
+    toast('已切换为 ' + v.name + '（克隆音色）');
+  } else if (v.type === 'system') {
+    toast('已切换为 ' + v.name + '（系统真实音色）');
+  } else {
+    var p = VOICE_PARAMS[v.id] || {};
+    toast('已切换为 ' + v.name + '（语速 ' + p.rate + ' / 音高 ' + p.pitch + '）');
+  }
+}
+
+async function loadVoices() {
+  try {
+    var res = await apiGet('/api/ai/tts/voices');
+    if (res.code === 200 && res.data && res.data.length > 0) {
+      voices = res.data.map(function(v) {
+        return { id: v.voiceId || v.id, name: v.voiceName || v.name, desc: v.voiceDesc || v.desc || '' };
+      });
+    }
+  } catch(e) {}
+}
+
+function showVoicePicker() {
+  var html = '';
+  for (var i = 0; i < voices.length; i++) {
+    var v = voices[i];
+    var active = i === voiceIdx;
+    html += '<button class="rounded-xl border px-3 py-2.5 text-left text-xs ' + (active ? 'border-[#ef765e] bg-[#fff7f3] text-[#ef765e]' : 'border-[#eee9e1] text-[#68746f] hover:bg-[#f5f1e9]') + '" onclick="pickVoice(' + i + ')">';
+    html += '<div class="font-bold">' + v.name + '</div>';
+    html += '<div class="text-[10px] text-[#9aa29d]">' + (v.desc || '') + '</div>';
+    html += '</button>';
+  }
+  document.getElementById('voiceList').innerHTML = html;
+  document.getElementById('voiceModal').classList.remove('hidden');
+  closeMenu();
+}
+
+function pickVoice(idx) {
+  voiceIdx = idx;
+  var v = voices[voiceIdx];
+  document.getElementById('voiceLabel').textContent = v.name;
+  document.getElementById('voiceModal').classList.add('hidden');
+  if (v.type === 'cloned') {
+    toast('已切换为 ' + v.name + '（克隆音色）');
+  } else if (v.type === 'system') {
+    toast('已切换为 ' + v.name + '（系统真实音色）');
+  } else {
+    var p = VOICE_PARAMS[v.id] || {};
+    toast('已切换为 ' + v.name + '（语速 ' + p.rate + ' / 音高 ' + p.pitch + '）');
+  }
+}
+
+// ============================================================
+// 声音克隆：录音 → 上传 → 训练 → 选用
+// ============================================================
+var mediaRecorder = null;
+var audioChunks = [];
+var audioBlob = null;
+var recordTimerInterval = null;
+var recordStartTime = 0;
+var pendingCloneId = null; // 训练轮询用
+
+// 打开"我的音色"弹窗
+function openVoiceCloneModal() {
+  // 声音克隆是会员功能，免费用户先弹会员锁定提示
+  if (!checkMember('声音克隆')) return;
+  document.getElementById('voiceCloneModal').classList.remove('hidden');
+  renderVoiceCloneList();
+  resetRecorder();
+}
+
+// 渲染已克隆音色列表
+function renderVoiceCloneList() {
+  API.voiceClone.list().then(function(res) {
+    var listEl = document.getElementById('voiceCloneList');
+    if (!res || res.code !== 200 || !Array.isArray(res.data) || res.data.length === 0) {
+      listEl.innerHTML = '<div class="rounded-lg bg-[#f5f1e9] px-3 py-4 text-center text-[11px] text-[#9aa29d]">还没有克隆音色，下面录制一个吧</div>';
+      return;
+    }
+    var html = '';
+    res.data.forEach(function(c) {
+      var statusBadge = '';
+      if (c.status === 'success') statusBadge = '<span class="rounded-full bg-[#dff2e9] px-2 py-0.5 text-[10px] text-[#3b9273]">训练完成</span>';
+      else if (c.status === 'training') statusBadge = '<span class="rounded-full bg-[#fff3e0] px-2 py-0.5 text-[10px] text-[#e08a3a]">训练中...</span>';
+      else if (c.status === 'pending') statusBadge = '<span class="rounded-full bg-[#f0f0f0] px-2 py-0.5 text-[10px] text-[#888]">等待中</span>';
+      else statusBadge = '<span class="rounded-full bg-[#ffe0e0] px-2 py-0.5 text-[10px] text-[#c44b3a]">失败</span>';
+      html += '<div class="flex items-center justify-between rounded-lg border border-[#eee9e1] bg-white px-3 py-2">';
+      html += '<div class="flex items-center gap-2"><iconify-icon icon="lucide:audio-lines" width="15" class="text-[#4e9b7c]"></iconify-icon><span class="text-xs font-bold">' + (c.voiceName || '') + '</span>' + statusBadge + '</div>';
+      html += '<div class="flex items-center gap-1">';
+      if (c.sampleAudioUrl) html += '<button class="rounded-full bg-[#f5f1e9] px-2 py-1 text-[10px] text-[#68746f] hover:bg-[#eee9e1]" onclick="playSample(\'' + c.sampleAudioUrl + '\')">试听</button>';
+      if (c.status === 'success') html += '<button class="rounded-full bg-[#dff2e9] px-2 py-1 text-[10px] font-bold text-[#3b9273] hover:bg-[#c9e8d8]" onclick="useClonedVoice(' + c.id + ')">选用</button>';
+      html += '<button class="rounded-full bg-[#ffe0e0] px-2 py-1 text-[10px] text-[#c44b3a] hover:bg-[#f5d0d0]" onclick="deleteClonedVoice(' + c.id + ')">删除</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+    listEl.innerHTML = html;
+  }).catch(function() {
+    document.getElementById('voiceCloneList').innerHTML = '<div class="rounded-lg bg-[#f5f1e9] px-3 py-4 text-center text-[11px] text-[#9aa29d]">加载失败</div>';
+  });
+}
+
+// 试听样本
+function playSample(url) {
+  var audio = new Audio(url);
+  audio.play().catch(function() { toast('试听失败，可能文件不存在'); });
+}
+
+// 选用克隆音色：在 voices 数组中找到对应项并设为当前
+function useClonedVoice(id) {
+  for (var i = 0; i < voices.length; i++) {
+    if (voices[i].type === 'cloned' && voices[i].cloneId === id) {
+      voiceIdx = i;
+      document.getElementById('voiceLabel').textContent = voices[i].name;
+      document.getElementById('voiceCloneModal').classList.add('hidden');
+      toast('已选用 ' + voices[i].voiceName + ' 的克隆音色');
+      return;
+    }
+  }
+  toast('音色还在训练中，请稍候');
+}
+
+// 删除克隆音色（嵌入式 webview 不支持 confirm，用 toast 直接执行软删除）
+function deleteClonedVoice(id) {
+  API.voiceClone.remove(id).then(function(res) {
+    if (res && res.code === 200) {
+      toast('已删除克隆音色');
+      renderVoiceCloneList();
+      loadClonedVoices();
+    } else {
+      toast(res && res.msg ? res.msg : '删除失败');
+    }
+  });
+}
+
+// 开始/停止录制
+async function toggleRecord() {
+  var btn = document.getElementById('recordBtn');
+  var btnText = document.getElementById('recordBtnText');
+  var timerEl = document.getElementById('recordTimer');
+  var hint = document.getElementById('cloneHint');
+
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    // 停止录制
+    mediaRecorder.stop();
+    clearInterval(recordTimerInterval);
+    btnText.textContent = '开始录制';
+    btn.classList.remove('bg-[#c44b3a]');
+    btn.classList.add('bg-[#ef765e]');
+    return;
+  }
+
+  // 开始录制
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    // 优先用 audio/webm; 如不支持回退到 default
+    var mimeType = 'audio/webm';
+    if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = '';
+    mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType: mimeType } : undefined);
+    mediaRecorder.ondataavailable = function(e) {
+      if (e.data.size > 0) audioChunks.push(e.data);
+    };
+    mediaRecorder.onstop = function() {
+      audioBlob = new Blob(audioChunks, { type: mimeType || 'audio/webm' });
+      var audioUrl = URL.createObjectURL(audioBlob);
+      var playback = document.getElementById('recordPlayback');
+      playback.src = audioUrl;
+      playback.classList.remove('hidden');
+      document.getElementById('uploadCloneBtn').disabled = false;
+      hint.textContent = '录制完成，可以点"上传并训练"提交';
+      // 关闭麦克风
+      stream.getTracks().forEach(function(t) { t.stop(); });
+    };
+    mediaRecorder.start();
+    recordStartTime = Date.now();
+    recordTimerInterval = setInterval(function() {
+      var sec = ((Date.now() - recordStartTime) / 1000).toFixed(1);
+      timerEl.textContent = sec + ' 秒';
+      if (sec >= 15) toggleRecord(); // 最多 15 秒自动停
+    }, 100);
+    btnText.textContent = '停止录制';
+    btn.classList.remove('bg-[#ef765e]');
+    btn.classList.add('bg-[#c44b3a]');
+    hint.textContent = '正在录制，请自然地说几句话（最多 15 秒）';
+  } catch (e) {
+    toast('无法访问麦克风：' + (e.message || '请检查权限'));
+  }
+}
+
+// 重置录制
+function resetRecorder() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+    clearInterval(recordTimerInterval);
+  }
+  mediaRecorder = null;
+  audioChunks = [];
+  audioBlob = null;
+  var timerEl = document.getElementById('recordTimer');
+  if (timerEl) timerEl.textContent = '0.0 秒';
+  var btnText = document.getElementById('recordBtnText');
+  if (btnText) btnText.textContent = '开始录制';
+  var playback = document.getElementById('recordPlayback');
+  if (playback) { playback.src = ''; playback.classList.add('hidden'); }
+  var uploadBtn = document.getElementById('uploadCloneBtn');
+  if (uploadBtn) uploadBtn.disabled = true;
+  var hint = document.getElementById('cloneHint');
+  if (hint) hint.textContent = '点击"开始录制"后，请用自然语气说话 5-15 秒';
+}
+
+// 上传录音并提交训练
+function uploadCloneSample() {
+  var voiceName = document.getElementById('cloneVoiceName').value.trim();
+  if (!voiceName) { toast('请填写音色名称'); return; }
+  if (!audioBlob) { toast('请先录制声音样本'); return; }
+
+  var uploadBtn = document.getElementById('uploadCloneBtn');
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = '上传中...';
+
+  // 文件扩展名根据 mimeType
+  var ext = 'webm';
+  if (audioBlob.type.indexOf('mp4') >= 0) ext = 'm4a';
+  var file = new File([audioBlob], voiceName + '.' + ext, { type: audioBlob.type });
+
+  API.upload(file, 'voice_clone').then(function(res) {
+    if (!res || res.code !== 200 || !res.data) {
+      toast('上传失败：' + (res && res.msg ? res.msg : '未知错误'));
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = '上传并训练';
+      return;
+    }
+    var sampleUrl = res.data;
+    // 提交克隆训练任务
+    return API.voiceClone.submit(voiceName, sampleUrl);
+  }).then(function(res) {
+    if (!res || res.code !== 200) {
+      toast('提交训练失败：' + (res && res.msg ? res.msg : ''));
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = '上传并训练';
+      return;
+    }
+    var cloneId = res.data.id;
+    toast('已提交训练，请等待约 3 秒...');
+    document.getElementById('cloneVoiceName').value = '';
+    resetRecorder();
+    // 轮询训练状态
+    pollCloneStatus(cloneId);
+  }).catch(function(e) {
+    toast('上传失败，请重试');
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = '上传并训练';
+  });
+}
+
+// 轮询克隆训练状态
+function pollCloneStatus(id) {
+  pendingCloneId = id;
+  var pollCount = 0;
+  var interval = setInterval(function() {
+    pollCount++;
+    API.voiceClone.get(id).then(function(res) {
+      if (!res || res.code !== 200 || !res.data) return;
+      var status = res.data.status;
+      if (status === 'success') {
+        clearInterval(interval);
+        toast('音色训练完成：' + res.data.voiceName);
+        renderVoiceCloneList();
+        loadClonedVoices();
+        document.getElementById('uploadCloneBtn').disabled = false;
+        document.getElementById('uploadCloneBtn').textContent = '上传并训练';
+      } else if (status === 'failed') {
+        clearInterval(interval);
+        toast('训练失败：' + (res.data.failReason || ''));
+        document.getElementById('uploadCloneBtn').disabled = false;
+        document.getElementById('uploadCloneBtn').textContent = '上传并训练';
+      } else if (pollCount > 30) {
+        // 超过 30 秒
+        clearInterval(interval);
+        toast('训练超时，请稍后在列表中查看');
+        renderVoiceCloneList();
+        loadClonedVoices();
+        document.getElementById('uploadCloneBtn').disabled = false;
+        document.getElementById('uploadCloneBtn').textContent = '上传并训练';
+      }
+    });
+  }, 1000);
+}
+
+// ============================================================
+// 开关切换
+// ============================================================
+function toggleSwitch(btn, name) {
+  var dot = btn.querySelector('span');
+  var isOn = dot.classList.contains('translate-x-4');
+  if (isOn) {
+    dot.classList.remove('translate-x-4');
+    btn.classList.remove('bg-[#4e9b7c]');
+    btn.classList.add('bg-[#c2c8c4]');
+    toast(name + ' 已关闭');
+  } else {
+    dot.classList.add('translate-x-4');
+    btn.classList.add('bg-[#4e9b7c]');
+    btn.classList.remove('bg-[#c2c8c4]');
+    toast(name + ' 已开启');
+  }
+}
+
+// ============================================================
+// 更多菜单
+// ============================================================
+function toggleMenu() {
+  var menu = document.getElementById('moreMenu');
+  menu.classList.toggle('hidden');
+}
+
+function closeMenu() {
+  document.getElementById('moreMenu').classList.add('hidden');
+}
+
+// 点击外部关闭菜单
+document.addEventListener('click', function(e) {
+  var menu = document.getElementById('moreMenu');
+  var btn = document.getElementById('moreBtn');
+  if (menu && !menu.classList.contains('hidden') && btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.add('hidden');
+  }
+});
+
+// ============================================================
+// 远程共读
+// ============================================================
+// ============================================================
+// 收藏功能（与 parent.html 我的收藏联动）
+// ============================================================
+var favState = { loaded: false, isFav: false, favId: null };
+
+async function checkFavoriteStatus() {
+  if (!bookId) return;
+  try {
+    var res = await apiGet('/api/habit/favorite/list?targetType=book');
+    if (res.code === 200 && res.data) {
+      var found = res.data.find(function(f) { return Number(f.targetId) === Number(bookId); });
+      favState.loaded = true;
+      if (found) {
+        favState.isFav = true;
+        favState.favId = found.id;
+        updateFavUI(true);
+      } else {
+        favState.isFav = false;
+        favState.favId = null;
+        updateFavUI(false);
+      }
+    }
+  } catch(e) { console.warn('检查收藏状态失败', e); }
+}
+
+function updateFavUI(isFav) {
+  var btn = document.getElementById('favBtn');
+  var icon = document.getElementById('favIcon');
+  var text = document.getElementById('favText');
+  if (!btn || !icon || !text) return;
+  if (isFav) {
+    btn.classList.remove('bg-[#f5f1e9]','text-[#68746f]','hover:bg-[#eee9e1]');
+    btn.classList.add('bg-[#ef765e]','text-white','hover:bg-[#e0654d]');
+    icon.setAttribute('icon','lucide:heart-crack');
+    text.textContent = '已收藏';
+  } else {
+    btn.classList.add('bg-[#f5f1e9]','text-[#68746f]','hover:bg-[#eee9e1]');
+    btn.classList.remove('bg-[#ef765e]','text-white','hover:bg-[#e0654d]');
+    icon.setAttribute('icon','lucide:heart');
+    text.textContent = '收藏';
+  }
+}
+
+async function toggleFavorite() {
+  await ensureReaderLogin();
+  var title = document.getElementById('bookTitle') ? document.getElementById('bookTitle').textContent : '绘本';
+  try {
+    if (favState.isFav && favState.favId) {
+      // 取消收藏
+      var res = await apiRequest('/api/habit/favorite/' + favState.favId, { method: 'DELETE' });
+      if (res.code === 200) {
+        favState.isFav = false;
+        favState.favId = null;
+        updateFavUI(false);
+        toast('已取消收藏');
+      } else {
+        toast('操作失败: ' + (res.msg || ''));
+      }
+    } else {
+      // 添加收藏
+      var res2 = await apiRequest('/api/habit/favorite', {
+        method: 'POST',
+        body: JSON.stringify({ targetType: 'book', targetId: Number(bookId), targetTitle: title, groupName: '默认' })
+      });
+      if (res2.code === 200) {
+        favState.isFav = true;
+        favState.favId = res2.data;
+        updateFavUI(true);
+        toast('已加入收藏');
+      } else {
+        toast('收藏失败: ' + (res2.msg || ''));
+      }
+    }
+  } catch(e) {
+    toast('操作失败: ' + e.message);
+  }
+}
+
+function openCoReadModal() {
+  document.getElementById('coreadModal').classList.remove('hidden');
+}
+
+function closeCoReadModal() {
+  document.getElementById('coreadModal').classList.add('hidden');
+}
+
+async function joinCoReadRoom() {
+  await ensureReaderLogin();
+  var code = document.getElementById('coreadRoomInput').value.trim().toUpperCase();
+  if (!code || code.length !== 6) { toast('请输入6位房间码'); return; }
+  try {
+    var res = await apiRequest('/api/coread/join', { method:'POST', body: JSON.stringify({ roomCode: code, role:'child' }) });
+    if (res.code === 200 && res.data) {
+      childRoomCode = code;
+      closeCoReadModal();
+      document.getElementById('coreadBtnText').textContent = '已在房间 ' + code;
+      startChildPolling();
+      toast('已加入共读房间 ' + code);
+    } else {
+      toast('加入失败: ' + (res.msg || '房间不存在或已关闭'));
+    }
+  } catch(e) {
+    toast('加入失败: ' + e.message);
+  }
+}
+
+var childPollingTimer = null;
+function startChildPolling() {
+  if (childPollingTimer) clearInterval(childPollingTimer);
+  childPollingTimer = setInterval(pollChildRoom, 3000);
+}
+
+async function pollChildRoom() {
+  if (!childRoomCode) return;
+  try {
+    var res = await apiGet('/api/coread/' + childRoomCode);
+    if (res.code === 200 && res.data) {
+      var room = res.data;
+      if (room.state === 'closed') {
+        toast('房间已关闭');
+        clearInterval(childPollingTimer);
+        childRoomCode = null;
+        document.getElementById('coreadBtnText').textContent = '远程共读';
+      }
+      // 同步页码
+      if (room.currentPage && room.currentPage !== currentIdx + 1) {
+        currentIdx = room.currentPage - 1;
+        if (currentIdx >= pages.length) currentIdx = pages.length - 1;
+        if (currentIdx < 0) currentIdx = 0;
+        renderPage();
+      }
+    }
+  } catch(e) {}
+}
+
+function syncCoreadAction(action) {
+  if (!childRoomCode) return;
+  try {
+    apiRequest('/api/coread/' + childRoomCode + '/sync', {
+      method:'POST',
+      body: JSON.stringify({ eventType: action, eventData: { page: currentIdx + 1, action: action }, senderRole: 'child' })
+    });
+  } catch(e) {}
+}
+
+// ============================================================
+// 工具函数
+// ============================================================
+function darker(hex) {
+  if (!hex || !hex.startsWith('#')) return '#e9a26e';
+  var r = parseInt(hex.slice(1,3), 16);
+  var g = parseInt(hex.slice(3,5), 16);
+  var b = parseInt(hex.slice(5,7), 16);
+  r = Math.max(0, Math.floor(r * 0.85));
+  g = Math.max(0, Math.floor(g * 0.85));
+  b = Math.max(0, Math.floor(b * 0.85));
+  return '#' + r.toString(16).padStart(2,'0') + g.toString(16).padStart(2,'0') + b.toString(16).padStart(2,'0');
+}
+
+function toast(msg) {
+  var t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.className = 'fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 rounded-xl bg-[#24312e] px-4 py-2 text-xs font-semibold text-white shadow-lg transition-opacity duration-300';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.style.opacity = '0'; }, 2000);
+}
+</script>
+</body>
+</html>

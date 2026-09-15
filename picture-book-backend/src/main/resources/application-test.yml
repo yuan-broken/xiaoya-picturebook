@@ -1,0 +1,53 @@
+# 测试环境配置
+server:
+  port: 0
+
+spring:
+  # H2 内存数据库（测试专用）
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:picture_book_test;DB_CLOSE_DELAY=-1;MODE=MySQL;IGNORECASE=TRUE
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+  # Redis：测试环境不连接，使用空配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 100ms
+
+# MyBatis Plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+  global-config:
+    db-config:
+      logic-delete-field: delFlag
+      logic-delete-value: "1"
+      logic-not-delete-value: "0"
+
+# JWT 配置
+picturebook:
+  jwt:
+    secret: picturebook-secret-key-for-jwt-signing-2026
+    header: Authorization
+    prefix: "Bearer "
+    expire: 86400
+  security:
+    whitelist:
+      - /api/auth/login
+      - /api/auth/child/login
+      - /api/auth/admin/login
+      - /api/book/list
+      - /error
+      - /
+      - "*.html"
+      - "*.js"
+      - "*.css"

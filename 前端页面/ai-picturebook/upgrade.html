@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>升级会员 · 小芽绘本</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<script src="api.js?v=4"></script>
+<style>
+  .plan-card.active { box-shadow: 0 0 0 2px #ef765e inset; transform: translateY(-2px); }
+  .pay-method.active { border-color: #ef765e; background: #fff5f2; }
+  .pay-method.active .pay-check { opacity: 1; }
+</style>
+</head>
+<body class="m-0 min-h-screen bg-[#f7f3ec] text-[#24312e]">
+<div class="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden bg-[#fbfaf7] shadow-[0_12px_60px_rgba(61,48,29,.08)]">
+<aside class="hidden w-[248px] shrink-0 border-r border-[#ebe5db] bg-[#f5f1e9] px-5 py-7 lg:block">
+<a class="flex items-center gap-3 px-2" href="home.html">
+<span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ef765e] text-white"><iconify-icon icon="lucide:book-open-check" width="22"></iconify-icon></span>
+<span><strong class="block text-lg leading-5 tracking-tight">小芽绘本</strong><small class="text-[11px] text-[#83908b]">AI 伴读成长空间</small></span>
+</a>
+<div class="mt-12 px-3 text-[11px] font-semibold tracking-[.18em] text-[#a09c91]">我的空间</div>
+<nav class="mt-3 space-y-1 text-sm">
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="home.html"><iconify-icon icon="lucide:layout-dashboard" width="18"></iconify-icon>今日首页</a>
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="library.html"><iconify-icon icon="lucide:library" width="18"></iconify-icon>绘本库</a>
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="studio.html"><iconify-icon icon="lucide:sparkles" width="18"></iconify-icon>互动故事营<span class="ml-auto rounded-full bg-[#dff2e9] px-2 py-0.5 text-[10px] text-[#3b9273]">AI</span></a>
+<a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="reader.html"><iconify-icon icon="lucide:headphones" width="18"></iconify-icon>最近伴读</a>
+<a class="flex items-center gap-3 rounded-xl bg-white px-3 py-3 font-semibold text-[#ef765e] shadow-sm" href="parent.html"><iconify-icon icon="lucide:user-cog" width="18"></iconify-icon>家长端</a>
+</nav>
+</aside>
+<main class="flex-1 overflow-y-auto">
+<header class="flex h-[76px] items-center justify-between border-b border-[#eee9e1] bg-[#fbfaf7] px-6 md:px-10">
+<div class="flex items-center gap-3"><a class="flex items-center gap-1.5 text-xs font-semibold text-[#78827d] hover:text-[#ef765e]" href="parent.html"><iconify-icon icon="lucide:arrow-left" width="16"></iconify-icon>返回家长端</a><span class="hidden text-sm text-[#7e8881] md:block ml-4">会员升级 · 解锁全部成长能力</span></div>
+<div class="flex items-center gap-3"><a class="flex items-center gap-1 rounded-xl bg-[#f5f1e9] px-3 py-1.5 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" href="parent.html#orders"><iconify-icon icon="lucide:list-checks" width="14"></iconify-icon>我的订单</a></div>
+</header>
+
+<div class="px-6 py-8 md:px-10 md:py-10">
+
+<!-- 当前会员状态 -->
+<div class="rounded-2xl border border-[#eee9e1] bg-gradient-to-br from-[#fff6ef] to-[#fde6c5] p-6">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/80 text-[#ef765e] shadow-sm">
+        <iconify-icon icon="lucide:crown" width="28"></iconify-icon>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="text-xl font-bold" id="currentLevel">免费版</h2>
+          <span class="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-bold text-[#824c34]" id="memberBadge">FREE</span>
+        </div>
+        <p class="mt-1 text-xs text-[#8a7355]" id="memberDesc">开通会员解锁 AI 故事创作、声音克隆、专属勋章等全部能力</p>
+      </div>
+    </div>
+    <div class="text-right" id="expireBlock">
+      <div class="text-xs text-[#8a7355]">会员到期</div>
+      <div class="mt-1 text-lg font-bold text-[#24312e]" id="expireDate">--</div>
+      <div class="mt-1 text-[11px] text-[#3b9273]" id="daysRemaining">--</div>
+    </div>
+  </div>
+</div>
+
+<!-- 套餐选择 -->
+<div class="mt-8">
+  <h3 class="text-sm font-bold text-[#68746f]">选择套餐</h3>
+  <p class="mt-1 text-[11px] text-[#9aa29d]">所有套餐解锁全部会员能力，仅时长不同</p>
+  <div class="mt-4 grid gap-4 md:grid-cols-3">
+    <!-- 月卡 -->
+    <button class="plan-card relative rounded-2xl border border-[#eee9e1] bg-white p-6 text-left transition hover:shadow-md" data-plan="monthly" onclick="selectPlan('monthly')">
+      <div class="flex items-center justify-between">
+        <h4 class="text-base font-bold">月卡</h4>
+        <span class="rounded-full bg-[#f5f1e9] px-2 py-0.5 text-[10px] text-[#68746f]">30 天</span>
+      </div>
+      <div class="mt-4 flex items-baseline gap-1">
+        <span class="text-3xl font-bold text-[#24312e]">¥29</span>
+        <span class="text-xs text-[#9aa29d]">/月</span>
+      </div>
+      <p class="mt-2 text-[11px] text-[#9aa29d]">折合每天不到 1 元</p>
+      <div class="mt-4 space-y-1.5 text-[11px] text-[#68746f]">
+        <div class="flex items-center gap-1.5"><iconify-icon icon="lucide:check" width="12" class="text-[#3b9273]"></iconify-icon>全部会员功能</div>
+        <div class="flex items-center gap-1.5"><iconify-icon icon="lucide:check" width="12" class="text-[#3b9273]"></iconify-icon>3 个孩子档案</div>
+        <div class="flex items-center gap-1.5"><iconify-icon icon="lucide:check" width="12" class="text-[#3b9273]"></iconify-icon>每日 60 分钟</div>
+      </div>
+      <div class="check-icon absolute right-4 top-4 hidden h-6 w-6 items-center justify-center rounded-full bg-[#ef765e] text-white">
+        <iconify-icon icon="lucide:check" width="14"></iconify-icon>
+      </div>
+    </button>
+    <!-- 季卡 (推荐) -->
+    <button class="plan-card relative rounded-2xl border-2 border-[#ef765e] bg-white p-6 text-left transition hover:shadow-md" data-plan="quarterly" onclick="selectPlan('quarterly')">
+      <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#ef765e] px-3 py-0.5 text-[10px] font-bold text-white">最受欢迎</span>
+      <div class="flex items-center justify-between">
+        <h4 class="text-base font-bold">季卡</h4>
+        <span class="rounded-full bg-[#f5f1e9] px-2 py-0.5 text-[10px] text-[#68746f]">90 天</span>
+      </div>
+      <div class="mt-4 flex items-baseline gap-1">
+        <span class="text-3xl font-bold text-[#ef765e]">¥79</span>
+        <span class="text-xs text-[#9aa29d]">/季</span>
+      </div>
+      <p class="mt-2 text-[11px] text-[#3b9273]">较月卡省 ¥8</p>
+      <div class="mt-4 space-y-1.5 text-[11px] text-[#68746f]">
+        <div class="flex items-center gap-1.5"><iconify-icon icon="lucide:check" width="12" class="text-[#3b9273]"></iconify-icon>全部会员功能</div>
+        <div class="flex items-center gap-1.5"><iconify-icon icon="lucide:check" width="12" class="text-[#3b9273]"></iconify-icon>3 个孩子档案</div>
+        <div class="flex items-center gap-1.5"><iconify-icon icon="lucide:check" width="12" class="text-[#3b9273]"></iconify-icon>每日 60 分钟</div>
+      </div>
+      <div class="check-icon absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-[#ef765e] text-white">
+        <iconify-icon icon="lucide:check" width="14"></iconify-icon>
+      </div>
+    </button>
+    <!-- 年卡 -->
+    <button class="plan-card relative rounded-2xl border border-[#eee9e1] bg-white p-6 text-left transition hover:shadow-md" data-plan="yearly" onclick="selectPlan('yearly')">
+      <div class="flex items-center justify-between">
+        <h4 class="text-base font-bold">年卡</h4>
+        <span class="rounded-full bg-[#f5f1e9] px-2 py-0.5 text-[10px] text-[#68746f]">365 天</span>
+      </div>
+      <div class="mt-4 flex items-baseline gap-1">
+        <span class="text-3xl font-bold text-[#24312e]">¥199</span>
+        <span class="text-xs text-[#9aa29d]">/年</span>
+      </div>
+      <p class="mt-2 text-[11px] text-[#3b9273]">较月卡省 ¥149 · 最划算</p>
+      <div class="mt-4 space-y-1.5 text-[11px] text-[#68746f]">
+        <div class="flex items-center gap-1.5"><iconify-icon icon="lucide:check" width="12" class="text-[#3b9273]"></iconify-icon>全部会员功能</div>
+        <div class="flex items-center gap-1.5"><iconify-icon icon="lucide:check" width="12" class="text-[#3b9273]"></iconify-icon>3 个孩子档案</div>
+        <div class="flex items-center gap-1.5"><iconify-icon icon="lucide:check" width="12" class="text-[#3b9273]"></iconify-icon>每日 60 分钟</div>
+      </div>
+      <div class="check-icon absolute right-4 top-4 hidden h-6 w-6 items-center justify-center rounded-full bg-[#ef765e] text-white">
+        <iconify-icon icon="lucide:check" width="14"></iconify-icon>
+      </div>
+    </button>
+  </div>
+</div>
+
+<!-- 7 天试用（仅未试用过的家庭显示） -->
+<div id="trialBlock" class="mt-6 hidden rounded-2xl border border-dashed border-[#ef765e]/40 bg-[#fff6ef] p-4">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <iconify-icon icon="lucide:gift" width="18" class="text-[#ef765e]"></iconify-icon>
+      <div>
+        <span class="text-sm font-bold text-[#24312e]">首次开通？免费试用 7 天</span>
+        <p class="text-[11px] text-[#8a7355]">无需付款，开通后立即解锁全部会员能力</p>
+      </div>
+    </div>
+    <button class="rounded-full bg-[#ef765e] px-4 py-2 text-xs font-bold text-white hover:bg-[#e0654d]" onclick="startTrial()">立即试用</button>
+  </div>
+</div>
+
+<!-- 支付方式 -->
+<div class="mt-8">
+  <h3 class="text-sm font-bold text-[#68746f]">支付方式</h3>
+  <div class="mt-3 flex flex-wrap gap-3">
+    <button class="pay-method active flex items-center gap-2 rounded-xl border-2 border-[#eee9e1] bg-white px-5 py-3 transition" data-method="alipay" onclick="selectPay('alipay')">
+      <iconify-icon icon="lucide:wallet" width="18" class="text-[#1677ff]"></iconify-icon>
+      <span class="text-sm font-bold">支付宝</span>
+      <iconify-icon icon="lucide:check-circle" width="16" class="pay-check ml-1 text-[#ef765e] opacity-0 transition"></iconify-icon>
+    </button>
+    <button class="pay-method flex items-center gap-2 rounded-xl border-2 border-[#eee9e1] bg-white px-5 py-3 transition" data-method="wxpay" onclick="selectPay('wxpay')">
+      <iconify-icon icon="lucide:message-circle" width="18" class="text-[#3b9273]"></iconify-icon>
+      <span class="text-sm font-bold">微信支付</span>
+      <iconify-icon icon="lucide:check-circle" width="16" class="pay-check ml-1 text-[#ef765e] opacity-0 transition"></iconify-icon>
+    </button>
+    <button class="pay-method flex items-center gap-2 rounded-xl border-2 border-[#eee9e1] bg-white px-5 py-3 transition" data-method="manual" onclick="selectPay('manual')">
+      <iconify-icon icon="lucide:user-check" width="18" class="text-[#824c34]"></iconify-icon>
+      <span class="text-sm font-bold">后台开通</span>
+      <iconify-icon icon="lucide:check-circle" width="16" class="pay-check ml-1 text-[#ef765e] opacity-0 transition"></iconify-icon>
+    </button>
+  </div>
+  <p class="mt-2 text-[11px] text-[#9aa29d]">说明：当前为演示阶段，支付环节由后台模拟开通。正式上线后接入真实支付网关。</p>
+</div>
+
+<!-- 支付按钮 -->
+<div class="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[#eee9e1] pt-6">
+  <div>
+    <div class="text-xs text-[#9aa29d]">已选套餐</div>
+    <div class="mt-1 flex items-baseline gap-2">
+      <span class="text-sm font-bold text-[#24312e]" id="selectedPlanName">季卡</span>
+      <span class="text-2xl font-bold text-[#ef765e]" id="selectedPlanPrice">¥79</span>
+    </div>
+  </div>
+  <button id="payBtn" class="flex items-center gap-2 rounded-full bg-[#ef765e] px-8 py-3 text-sm font-bold text-white shadow-md hover:bg-[#e0654d] disabled:opacity-50" onclick="doPay()">
+    <iconify-icon icon="lucide:shield-check" width="16"></iconify-icon>
+    立即支付
+  </button>
+</div>
+
+<!-- 权益对比 -->
+<div class="mt-10">
+  <h3 class="text-sm font-bold text-[#68746f]">会员权益对比</h3>
+  <div class="mt-4 overflow-hidden rounded-2xl border border-[#eee9e1] bg-white">
+    <table class="w-full text-left text-sm">
+      <thead class="bg-[#f5f1e9] text-xs text-[#68746f]">
+        <tr>
+          <th class="px-4 py-3 font-bold">权益</th>
+          <th class="px-4 py-3 text-center font-bold">免费版</th>
+          <th class="px-4 py-3 text-center font-bold text-[#ef765e]">成长版会员</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-[#eee9e1]">
+        <tr><td class="px-4 py-3">孩子档案数</td><td class="text-center">1 个</td><td class="text-center font-bold text-[#3b9273]">3 个</td></tr>
+        <tr><td class="px-4 py-3">每日阅读时长</td><td class="text-center">30 分钟</td><td class="text-center font-bold text-[#3b9273]">60 分钟</td></tr>
+        <tr><td class="px-4 py-3">单次阅读时长</td><td class="text-center">15 分钟</td><td class="text-center font-bold text-[#3b9273]">30 分钟</td></tr>
+        <tr><td class="px-4 py-3">AI 故事创作</td><td class="text-center text-[#9aa29d]">--</td><td class="text-center font-bold text-[#3b9273]">无限制</td></tr>
+        <tr><td class="px-4 py-3">声音克隆</td><td class="text-center text-[#9aa29d]">--</td><td class="text-center font-bold text-[#3b9273]">3 个自定义音色</td></tr>
+        <tr><td class="px-4 py-3">远程共读</td><td class="text-center text-[#9aa29d]">--</td><td class="text-center font-bold text-[#3b9273]">无限次</td></tr>
+        <tr><td class="px-4 py-3">勋章/成长档案</td><td class="text-center">基础</td><td class="text-center font-bold text-[#3b9273]">完整版</td></tr>
+        <tr><td class="px-4 py-3">优先体验新功能</td><td class="text-center text-[#9aa29d]">--</td><td class="text-center font-bold text-[#3b9273]">√</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 订单流程提示 -->
+<div class="mt-8 rounded-2xl bg-[#f5f1e9] p-5">
+  <h3 class="text-sm font-bold text-[#68746f]">订单流程</h3>
+  <div class="mt-3 grid gap-3 md:grid-cols-4">
+    <div class="rounded-xl bg-white p-3">
+      <div class="flex items-center gap-2">
+        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#ef765e] text-xs font-bold text-white">1</span>
+        <span class="text-xs font-bold">选择套餐</span>
+      </div>
+      <p class="mt-2 text-[11px] text-[#9aa29d]">月卡/季卡/年卡任选其一</p>
+    </div>
+    <div class="rounded-xl bg-white p-3">
+      <div class="flex items-center gap-2">
+        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#ef765e] text-xs font-bold text-white">2</span>
+        <span class="text-xs font-bold">创建订单</span>
+      </div>
+      <p class="mt-2 text-[11px] text-[#9aa29d]">系统生成订单号，状态：待支付</p>
+    </div>
+    <div class="rounded-xl bg-white p-3">
+      <div class="flex items-center gap-2">
+        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#ef765e] text-xs font-bold text-white">3</span>
+        <span class="text-xs font-bold">完成支付</span>
+      </div>
+      <p class="mt-2 text-[11px] text-[#9aa29d]">支付成功后订单状态变为已支付</p>
+    </div>
+    <div class="rounded-xl bg-white p-3">
+      <div class="flex items-center gap-2">
+        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#3b9273] text-xs font-bold text-white">4</span>
+        <span class="text-xs font-bold">查看订单</span>
+      </div>
+      <p class="mt-2 text-[11px] text-[#9aa29d]">家长端 → 我的订单 查看进度</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</main>
+</div>
+
+<!-- 支付中弹窗（mock） -->
+<div id="payModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30">
+  <div class="w-[380px] rounded-2xl bg-white p-6 shadow-xl">
+    <div class="flex flex-col items-center text-center">
+      <div class="flex h-14 w-14 items-center justify-center rounded-full bg-[#fff6ef]">
+        <iconify-icon icon="lucide:loader-2" width="28" class="animate-spin text-[#ef765e]"></iconify-icon>
+      </div>
+      <h3 class="mt-4 text-base font-bold">正在支付...</h3>
+      <p class="mt-1 text-[11px] text-[#9aa29d]" id="payModalDesc">订单号：--</p>
+      <p class="mt-3 text-[11px] text-[#a0a7a2]">演示环境将自动完成支付</p>
+    </div>
+  </div>
+</div>
+
+<!-- 支付结果弹窗 -->
+<div id="resultModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30">
+  <div class="w-[380px] rounded-2xl bg-white p-6 shadow-xl">
+    <div class="flex flex-col items-center text-center">
+      <div class="flex h-14 w-14 items-center justify-center rounded-full bg-[#dff2e9]" id="resultIconBox">
+        <iconify-icon icon="lucide:check" width="28" class="text-[#3b9273]" id="resultIcon"></iconify-icon>
+      </div>
+      <h3 class="mt-4 text-base font-bold" id="resultTitle">支付成功</h3>
+      <p class="mt-1 text-[11px] text-[#9aa29d]" id="resultDesc">会员已生效</p>
+      <div class="mt-5 flex gap-2">
+        <button class="rounded-full bg-[#f5f1e9] px-4 py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="document.getElementById('resultModal').classList.add('hidden')">关闭</button>
+        <button class="rounded-full bg-[#ef765e] px-4 py-2 text-xs font-bold text-white hover:bg-[#e0654d]" onclick="document.getElementById('resultModal').classList.add('hidden'); window.location.href='parent.html#orders'">查看订单</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 确认弹窗（替代 native confirm） -->
+<div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30">
+  <div class="w-[360px] rounded-2xl bg-white p-6 shadow-xl">
+    <div class="flex items-center gap-3">
+      <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#fff6ef]">
+        <iconify-icon icon="lucide:gift" width="20" class="text-[#ef765e]"></iconify-icon>
+      </div>
+      <div>
+        <h3 class="text-sm font-bold" id="confirmTitle">开通试用</h3>
+        <p class="mt-0.5 text-[11px] text-[#9aa29d]" id="confirmDesc">是否开通 7 天免费试用？</p>
+      </div>
+    </div>
+    <div class="mt-5 flex justify-end gap-2">
+      <button class="rounded-full bg-[#f5f1e9] px-4 py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="closeConfirm(false)">取消</button>
+      <button class="rounded-full bg-[#ef765e] px-4 py-2 text-xs font-bold text-white hover:bg-[#e0654d]" onclick="closeConfirm(true)">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PLAN_INFO = {
+  monthly:   { name: '月卡', price: 29,  days: 30  },
+  quarterly: { name: '季卡', price: 79,  days: 90  },
+  yearly:    { name: '年卡', price: 199, days: 365 }
+};
+
+let selectedPlan = 'quarterly';
+let selectedMethod = 'alipay';
+
+// 初始化
+(async function init() {
+  // 未登录跳登录
+  if (!API.isLoggedIn()) {
+    window.location.href = 'home.html';
+    return;
+  }
+  // 加载会员信息
+  try {
+    const res = await OrderApi.memberInfo();
+    if (res.code === 200 && res.data) {
+      const d = res.data;
+      const level = d.level || 'free';
+      const isMember = level !== 'free' && d.daysRemaining > 0;
+      document.getElementById('currentLevel').textContent = isMember ? '成长版会员' : '免费版';
+      document.getElementById('memberBadge').textContent = isMember ? 'GROWTH' : 'FREE';
+      document.getElementById('memberBadge').className = 'rounded-full px-2 py-0.5 text-[10px] font-bold ' + (isMember ? 'bg-[#dff2e9] text-[#3b9273]' : 'bg-white/70 text-[#824c34]');
+      if (isMember && d.expireTime) {
+        const dt = new Date(d.expireTime);
+        const dateStr = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+        document.getElementById('expireDate').textContent = dateStr;
+        document.getElementById('daysRemaining').textContent = '剩余 ' + d.daysRemaining + ' 天';
+      } else {
+        document.getElementById('expireDate').textContent = '未开通';
+        document.getElementById('daysRemaining').textContent = '开通后立即生效';
+        document.getElementById('daysRemaining').className = 'mt-1 text-[11px] text-[#9aa29d]';
+      }
+    }
+  } catch (e) { console.warn('memberInfo error', e); }
+
+  // 加载订单列表判断是否已试用过
+  try {
+    const list = await OrderApi.list();
+    if (list.code === 200 && Array.isArray(list.data)) {
+      const hasTrial = list.data.some(o => o.planType === 'trial');
+      if (!hasTrial) {
+        document.getElementById('trialBlock').classList.remove('hidden');
+      }
+    }
+  } catch (e) { /* ignore */ }
+
+  // 默认选中季卡
+  selectPlan('quarterly');
+})();
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.querySelectorAll('.plan-card').forEach(el => {
+    if (el.dataset.plan === plan) {
+      el.classList.add('active');
+      el.querySelector('.check-icon').classList.remove('hidden');
+      el.querySelector('.check-icon').classList.add('flex');
+    } else {
+      el.classList.remove('active');
+      el.querySelector('.check-icon').classList.add('hidden');
+      el.querySelector('.check-icon').classList.remove('flex');
+    }
+  });
+  const info = PLAN_INFO[plan];
+  document.getElementById('selectedPlanName').textContent = info.name;
+  document.getElementById('selectedPlanPrice').textContent = '¥' + info.price;
+}
+
+function selectPay(method) {
+  selectedMethod = method;
+  document.querySelectorAll('.pay-method').forEach(el => {
+    if (el.dataset.method === method) {
+      el.classList.add('active');
+    } else {
+      el.classList.remove('active');
+    }
+  });
+}
+
+// 7 天试用
+async function startTrial() {
+  showConfirm('开通试用', '是否开通 7 天免费试用？试用期间可使用全部会员功能。', async () => {
+    try {
+      const res = await OrderApi.startTrial();
+      if (res.code === 200) {
+        API.toast('试用已开通，请重新进入查看');
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        API.toast(res.msg || '开通失败');
+      }
+    } catch (e) {
+      API.toast('网络异常');
+    }
+  });
+}
+
+// 自定义确认弹窗（替代 native confirm，支持 embedded webview）
+let _confirmCallback = null;
+function showConfirm(title, desc, callback) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmDesc').textContent = desc;
+  _confirmCallback = callback;
+  const m = document.getElementById('confirmModal');
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+function closeConfirm(ok) {
+  const m = document.getElementById('confirmModal');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+  if (ok && _confirmCallback) _confirmCallback();
+  _confirmCallback = null;
+}
+
+// 立即支付：创建订单 → 支付
+async function doPay() {
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<iconify-icon icon="lucide:loader-2" width="16" class="animate-spin"></iconify-icon>处理中...';
+  try {
+    // 1) 创建订单
+    const createRes = await OrderApi.create(selectedPlan, selectedMethod);
+    if (createRes.code !== 200 || !createRes.data) {
+      API.toast(createRes.msg || '订单创建失败');
+      btn.disabled = false;
+      btn.innerHTML = '<iconify-icon icon="lucide:shield-check" width="16"></iconify-icon>立即支付';
+      return;
+    }
+    const orderId = createRes.data.orderId;
+    const orderNo = createRes.data.orderNo;
+    // 2) 显示支付中弹窗
+    const modal = document.getElementById('payModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.getElementById('payModalDesc').textContent = '订单号：' + orderNo;
+    // 3) 模拟支付（演示环境直接调 pay）
+    await new Promise(r => setTimeout(r, 1500));
+    const payRes = await OrderApi.pay(orderId, selectedMethod);
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    // 4) 显示结果
+    const resultModal = document.getElementById('resultModal');
+    resultModal.classList.remove('hidden');
+    resultModal.classList.add('flex');
+    if (payRes.code === 200) {
+      document.getElementById('resultTitle').textContent = '支付成功';
+      document.getElementById('resultDesc').textContent = '成长版会员已生效';
+      document.getElementById('resultIcon').setAttribute('icon', 'lucide:check');
+      document.getElementById('resultIcon').className = 'text-[#3b9273]';
+      document.getElementById('resultIconBox').className = 'flex h-14 w-14 items-center justify-center rounded-full bg-[#dff2e9]';
+    } else {
+      document.getElementById('resultTitle').textContent = '支付失败';
+      document.getElementById('resultDesc').textContent = payRes.msg || '请稍后重试';
+      document.getElementById('resultIcon').setAttribute('icon', 'lucide:x');
+      document.getElementById('resultIcon').className = 'text-[#ef765e]';
+      document.getElementById('resultIconBox').className = 'flex h-14 w-14 items-center justify-center rounded-full bg-[#fff6ef]';
+    }
+  } catch (e) {
+    API.toast('网络异常');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<iconify-icon icon="lucide:shield-check" width="16"></iconify-icon>立即支付';
+  }
+}
+</script>
+</body>
+</html>

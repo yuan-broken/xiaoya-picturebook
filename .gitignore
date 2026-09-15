@@ -1,0 +1,30 @@
+# Build output
+picture-book-backend/target/
+**/target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Env / Secrets
+.env
+*.env
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+
+# H2 Database files
+*.db
+*.mv.db
+
+# Node
+node_modules/
+
+# Vercel
+.vercel/
