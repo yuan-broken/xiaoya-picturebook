@@ -380,6 +380,7 @@ function switchTab(tab) {
   document.getElementById('panel-orders').classList.toggle('hidden', tab !== 'orders');
   document.getElementById('panel-account').classList.toggle('hidden', tab !== 'account');
   // 懒加载
+  if (tab === 'growth') loadGrowthData();
   if (tab === 'settings') loadSettings();
   if (tab === 'coread') loadCoreadPanel();
   if (tab === 'favorites') loadFavorites('book');
@@ -403,6 +404,8 @@ async function loadGrowthData() {
     if (emptyEl) emptyEl.classList.remove('hidden');
     if (contentEl) contentEl.classList.add('hidden');
     if (subEl) subEl.textContent = '请先添加孩子档案';
+    var cnEl = document.getElementById('childName');
+    if (cnEl) cnEl.textContent = '成长档案';
     return;
   }
   if (emptyEl) emptyEl.classList.add('hidden');
@@ -1238,6 +1241,7 @@ function deleteChildData(profileId, name) {
       if (res.code === 200) {
         toast(name + ' 的全部数据已删除');
         loadChildData();
+        loadGrowthData(); // 同步刷新成长档案（删除最后一个孩子时显示空状态）
       } else {
         toast('删除失败: ' + (res.msg || ''));
       }
