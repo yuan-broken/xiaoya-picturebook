@@ -14,7 +14,7 @@ const API = (function () {
   // ============================================================
   // 配置
   // ============================================================
-  const BASE_URL = 'https://knowledgestorm-variance-dial-der.trycloudflare.com'; // 开发环境：前端在 8765，后端在 8080，需显式指向后端
+  const BASE_URL = 'https://356e3495.r8.cpolar.cn'; // 开发环境：前端在 8765，后端在 8080，需显式指向后端
   const TOKEN_KEY = 'picturebook_token';
   const USER_KEY = 'picturebook_user';
 
