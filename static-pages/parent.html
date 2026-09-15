@@ -47,6 +47,17 @@
 <div id="panel-growth" class="mt-8">
 <div class="flex items-center justify-between"><div><h2 class="text-2xl font-bold tracking-tight" id="childName">成长档案</h2><p class="mt-1 text-sm text-[#7f8983]" id="childNameSubtitle">记录每一次阅读带来的改变</p></div><div class="flex gap-2"><button class="flex items-center gap-1 rounded-xl bg-[#f5f1e9] px-3 py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="exportReport()"><iconify-icon icon="lucide:download" width="14"></iconify-icon>导出报告</button><button class="flex items-center gap-1 rounded-xl bg-[#ef765e] px-3 py-2 text-xs font-bold text-white" onclick="shareReport()"><iconify-icon icon="lucide:share-2" width="14"></iconify-icon>分享给亲友</button></div></div>
 
+<!-- 无孩子时空状态提示 -->
+<div id="growthEmptyState" class="hidden mt-10 rounded-3xl border border-dashed border-[#e5dfd5] bg-[#fbfaf7] p-12 text-center">
+  <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#fde6c5] text-3xl">🧒</div>
+  <p class="mt-4 text-lg font-bold text-[#24312e]">还没有绑定孩子账户</p>
+  <p class="mt-1 text-sm text-[#9aa29d]">添加孩子档案后，这里会展示孩子的阅读成长数据</p>
+  <button class="mt-5 rounded-xl bg-[#ef765e] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#e0654d]" onclick="switchTab('account');setTimeout(manageChildData,300);">去添加孩子 →</button>
+</div>
+
+<!-- 成长档案内容区域 -->
+<div id="growthContent">
+
 <!-- 统计卡片 -->
 <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 <div class="rounded-2xl border border-[#eee9e1] bg-white p-5"><div class="flex items-center justify-between"><span class="text-xs text-[#9aa29d]">本周阅读时长</span><iconify-icon class="text-[#ef765e]" icon="lucide:clock" width="18"></iconify-icon></div><div class="mt-3 text-2xl font-bold text-[#24312e]" id="weekDuration">--</div><div class="mt-1 text-[11px] text-[#3b9273]">较上周 +12%</div></div>
@@ -69,6 +80,7 @@
 
 <!-- 表达能力记录 -->
 <div class="mt-6 rounded-2xl border border-[#eee9e1] bg-white p-5"><h3 class="text-sm font-bold">表达能力记录</h3><p class="mt-1 text-[11px] text-[#9aa29d]">孩子在互动问答中的精彩表达</p><div class="mt-4 space-y-3" id="expressionList"></div></div>
+</div><!-- /growthContent -->
 </div>
 
 <!-- 内容筛选设置 Tab -->
@@ -378,6 +390,23 @@ function switchTab(tab) {
 // ===== 成长档案 Tab =====
 
 async function loadGrowthData() {
+  // 成长档案展示的是孩子的成长，没有孩子则显示空状态，不加载 Mock 数据
+  var hasChild = false;
+  try {
+    const childrenRes = await apiGet('/api/user/children');
+    hasChild = childrenRes && childrenRes.code === 200 && Array.isArray(childrenRes.data) && childrenRes.data.length > 0;
+  } catch(e) { console.warn('检查孩子列表失败:', e.message); }
+  var emptyEl = document.getElementById('growthEmptyState');
+  var contentEl = document.getElementById('growthContent');
+  var subEl = document.getElementById('childNameSubtitle');
+  if (!hasChild) {
+    if (emptyEl) emptyEl.classList.remove('hidden');
+    if (contentEl) contentEl.classList.add('hidden');
+    if (subEl) subEl.textContent = '请先添加孩子档案';
+    return;
+  }
+  if (emptyEl) emptyEl.classList.add('hidden');
+  if (contentEl) contentEl.classList.remove('hidden');
   try {
     const [overview, vocab, radar, tags, badges, expressions] = await Promise.all([
       apiGet('/api/user/growth/overview'),
@@ -1202,19 +1231,20 @@ function exportChildData(profileId) {
   toast(name + ' 的成长数据已导出');
 }
 
-async function deleteChildData(profileId, name) {
-  if (!confirm('确定删除 ' + name + ' 的全部数据吗？\n\n此操作不可恢复。')) return;
-  try {
-    const res = await apiRequest('/api/user/child/' + profileId, { method: 'DELETE' });
-    if (res.code === 200) {
-      toast(name + ' 的全部数据已删除');
-      loadChildData();
-    } else {
-      toast('删除失败: ' + (res.msg || ''));
+function deleteChildData(profileId, name) {
+  showParentConfirm('删除孩子数据', '确定删除 ' + name + ' 的全部数据吗？\n此操作不可恢复。', async function() {
+    try {
+      const res = await apiRequest('/api/user/child/' + profileId, { method: 'DELETE' });
+      if (res.code === 200) {
+        toast(name + ' 的全部数据已删除');
+        loadChildData();
+      } else {
+        toast('删除失败: ' + (res.msg || ''));
+      }
+    } catch(e) {
+      toast('删除失败: ' + e.message);
     }
-  } catch(e) {
-    toast('删除失败: ' + e.message);
-  }
+  });
 }
 
 function closeDataModal() {
