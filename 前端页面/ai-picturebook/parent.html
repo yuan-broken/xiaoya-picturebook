@@ -45,7 +45,7 @@
 
 <!-- 成长档案 Tab -->
 <div id="panel-growth" class="mt-8">
-<div class="flex items-center justify-between"><div><h2 class="text-2xl font-bold tracking-tight" id="childName">成长档案</h2><p class="mt-1 text-sm text-[#7f8983]">记录每一次阅读带来的改变</p></div><div class="flex gap-2"><button class="flex items-center gap-1 rounded-xl bg-[#f5f1e9] px-3 py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="exportReport()"><iconify-icon icon="lucide:download" width="14"></iconify-icon>导出报告</button><button class="flex items-center gap-1 rounded-xl bg-[#ef765e] px-3 py-2 text-xs font-bold text-white" onclick="shareReport()"><iconify-icon icon="lucide:share-2" width="14"></iconify-icon>分享给亲友</button></div></div>
+<div class="flex items-center justify-between"><div><h2 class="text-2xl font-bold tracking-tight" id="childName">成长档案</h2><p class="mt-1 text-sm text-[#7f8983]" id="childNameSubtitle">记录每一次阅读带来的改变</p></div><div class="flex gap-2"><button class="flex items-center gap-1 rounded-xl bg-[#f5f1e9] px-3 py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="exportReport()"><iconify-icon icon="lucide:download" width="14"></iconify-icon>导出报告</button><button class="flex items-center gap-1 rounded-xl bg-[#ef765e] px-3 py-2 text-xs font-bold text-white" onclick="shareReport()"><iconify-icon icon="lucide:share-2" width="14"></iconify-icon>分享给亲友</button></div></div>
 
 <!-- 统计卡片 -->
 <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -1198,11 +1198,34 @@ async function loadUserInfo() {
     var initial = name.charAt(0);
     var ha = document.getElementById('headerAvatar'); if (ha) ha.textContent = initial;
     var sa = document.getElementById('sidebarAvatar'); if (sa) sa.textContent = initial;
-    var cn = document.getElementById('childName'); if (cn) cn.textContent = name + '的成长档案';
     var planText = (level === 'growth' ? '成长版' : (level === 'premium' ? '尊享版' : '免费版')) + ' · 已登录';
     var planEl = document.getElementById('sidebarPlan');
     if (planEl) planEl.textContent = planText;
   } catch(e) { console.error('更新用户信息UI失败:', e.message); }
+  // 加载孩子信息，成长档案展示的是孩子的成长
+  await loadChildInfo();
+}
+
+// 加载孩子信息：成长档案应展示孩子的成长，不是家长的
+async function loadChildInfo() {
+  var cn = document.getElementById('childName');
+  try {
+    const res = await apiGet('/api/user/children');
+    if (res && res.code === 200 && Array.isArray(res.data) && res.data.length > 0) {
+      var child = res.data[0];
+      var childName = child.nickname || child.childName || child.username || '小读者';
+      if (cn) cn.textContent = childName + '的成长档案';
+      var sub = document.getElementById('childNameSubtitle');
+      if (sub) sub.textContent = '您正在查看 ' + childName + ' 的阅读成长记录';
+    } else {
+      if (cn) cn.textContent = '成长档案';
+      var sub = document.getElementById('childNameSubtitle');
+      if (sub) sub.textContent = '尚未添加孩子，点击"管理孩子数据"添加后查看成长记录';
+    }
+  } catch(e) {
+    console.warn('加载孩子信息失败:', e.message);
+    if (cn) cn.textContent = '成长档案';
+  }
 }
 
 // 初始化

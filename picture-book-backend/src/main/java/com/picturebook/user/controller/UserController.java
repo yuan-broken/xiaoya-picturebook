@@ -202,14 +202,25 @@ public class UserController {
     @GetMapping("/user/growth/overview")
     public Result<Map<String, Object>> growthOverview() {
         Long fid = currentFamilyId();
-        // 取习惯统计的真实连续天数（如有打卡记录）
+        // 取家庭下第一个孩子的成长数据（成长档案是孩子的，不是家长的）
+        Long childId = 1L;
+        try {
+            List<ChildProfile> children = childProfileMapper.selectList(
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ChildProfile>()
+                            .eq(ChildProfile::getFamilyId, fid)
+                            .eq(ChildProfile::getDelFlag, "0")
+                            .last("LIMIT 1"));
+            if (children != null && !children.isEmpty()) {
+                childId = children.get(0).getChildId();
+            }
+        } catch (Exception ignore) {}
         Map<String, Object> r = new HashMap<>();
         try {
-            Map<String, Object> stats = habitService.getCheckinStats(1L); // 默认 childId=1
+            Map<String, Object> stats = habitService.getCheckinStats(childId);
             r.put("weekDuration", stats.getOrDefault("monthMinutes", 0));
             r.put("vocabCount", 120); // Mock：M26 词汇量未接入
             r.put("expressionScore", "A+");
-            r.put("badgeCount", habitService.listUserBadges(1L).size());
+            r.put("badgeCount", habitService.listUserBadges(childId).size());
             r.put("continuousDays", stats.getOrDefault("continuousDays", 0));
             r.put("totalDays", stats.getOrDefault("totalDays", 0));
         } catch (Exception e) {
@@ -297,7 +308,24 @@ public class UserController {
      * GET /api/user/growth/badges
      */
     @GetMapping("/user/growth/badges")
-    public Result<List<Map<String, Object>>> growthBadges(@RequestParam(required = false, defaultValue = "1") Long childId) {
+    public Result<List<Map<String, Object>>> growthBadges(@RequestParam(required = false) Long childId) {
+        // 未传 childId 时取家庭下第一个孩子（成长档案是孩子的）
+        if (childId == null) {
+            try {
+                List<ChildProfile> children = childProfileMapper.selectList(
+                        new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ChildProfile>()
+                                .eq(ChildProfile::getFamilyId, currentFamilyId())
+                                .eq(ChildProfile::getDelFlag, "0")
+                                .last("LIMIT 1"));
+                if (children != null && !children.isEmpty()) {
+                    childId = children.get(0).getChildId();
+                } else {
+                    childId = 1L;
+                }
+            } catch (Exception e) {
+                childId = 1L;
+            }
+        }
         // 已解锁勋章从 habitService 拿真实数据，未解锁从全部勋章定义里补
         List<com.picturebook.user.domain.UserBadge> owned = habitService.listUserBadges(childId);
         Set<String> ownedCodes = new HashSet<>();
