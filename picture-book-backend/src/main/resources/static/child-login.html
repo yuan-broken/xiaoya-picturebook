@@ -49,11 +49,6 @@
         <iconify-icon icon="lucide:arrow-left" width="14"></iconify-icon>返回首页
       </a>
     </div>
-
-    <!-- 测试账号提示 -->
-    <div class="mt-4 rounded-xl bg-[#fde6c5]/50 p-3 text-center">
-      <p class="text-[10px] text-[#824c34]">体验账号：kid001 / 123456</p>
-    </div>
   </div>
 </div>
 
@@ -81,15 +76,18 @@ async function doLogin(e) {
   btn.disabled = true;
   text.textContent = '登录中...';
   try {
-    var res = await api.auth.childLogin(username, password);
+    var res = await API.auth.childLogin(username, password);
     if (res.code === 200 && res.data && res.data.token) {
-      setToken(res.data.token);
-      setUser({
+      API.setToken(res.data.token);
+      API.setUser({
         childId: res.data.childId,
+        familyId: res.data.familyId,
         username: res.data.username,
         nickname: res.data.nickname,
         role: 'child',
-        ageGroup: res.data.ageGroup
+        ageGroup: res.data.ageGroup,
+        memberLevel: res.data.memberLevel,
+        memberEndAt: res.data.memberEndAt
       });
       toast('登录成功！欢迎回来，' + (res.data.nickname || username));
       setTimeout(function() { window.location.href = 'reader.html'; }, 800);

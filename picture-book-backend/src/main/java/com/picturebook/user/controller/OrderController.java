@@ -145,6 +145,6 @@ public class OrderController {
         if (auth != null && auth.getDetails() instanceof Long) {
             return (Long) auth.getDetails();
         }
-        return 1L; // 兜底
+        throw new com.picturebook.common.exception.BusinessException("请先登录");
     }
 }

@@ -424,13 +424,13 @@ public class UserController {
 
     /**
      * 从 SecurityContext 获取当前家庭ID
+     * token 无效时直接抛出异常，不再兜底到演示账号，避免数据错乱
      */
     private Long currentFamilyId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getDetails() instanceof Long) {
             return (Long) auth.getDetails();
         }
-        // 兜底：未认证时使用演示账号
-        return 1L;
+        throw new com.picturebook.common.exception.BusinessException("请先登录");
     }
 }

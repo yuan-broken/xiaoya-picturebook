@@ -158,7 +158,7 @@ public class HabitController {
         if (auth != null && auth.getDetails() instanceof Long) {
             return (Long) auth.getDetails();
         }
-        return 1L; // 兜底演示账号
+        throw new com.picturebook.common.exception.BusinessException("请先登录");
     }
 
     private Long toLong(Object o) {

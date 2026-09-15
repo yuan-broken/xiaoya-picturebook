@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 小芽绘本 AI 伴读成长空间 - 公共 API 封装
  *
  * 维护人：Agent-5（公共文件，统一维护）
@@ -14,7 +14,7 @@ const API = (function () {
   // ============================================================
   // 配置
   // ============================================================
-  const BASE_URL = 'https://mobiles-visitor-charming-commit.trycloudflare.com'; // 开发环境：前端在 8765，后端在 8080，需显式指向后端
+  const BASE_URL = 'https://mobiles-visitor-charming-commit.trycloudflare.com'; // 生产环境
   const TOKEN_KEY = 'picturebook_token';
   const USER_KEY = 'picturebook_user';
 
@@ -224,10 +224,13 @@ const API = (function () {
     roles: () => get('/api/role/list'),
     /** 主题列表 */
     themes: () => get('/api/theme/list'),
-    /** 生成故事 */
-    generate: (roleId, themeId, inspiration) => post('/api/story/generate', { roleId, themeId, inspiration }),
+    /** 生成故事（调用后端 AI LLM） */
+    generate: (roleId, roleName, themeId, storyInput) =>
+      post('/api/story/create', { roleId, roleName, themeId, storyInput }),
     /** 获取故事详情 */
     detail: (id) => get('/api/story/' + id),
+    /** 我的故事列表 */
+    my: () => get('/api/story/my'),
   };
 
   // ============================================================
@@ -369,6 +372,8 @@ const API = (function () {
     asrFallback: (reason) => get('/api/ai/asr/fallback' + buildQuery({ reason })),
     /** ASR 方言列表 */
     dialects: () => get('/api/ai/asr/dialects'),
+    /** AI 图片生成（角色头像） */
+    imageGenerate: (prompt) => post('/api/ai/image/generate', { prompt }),
   };
 
   // ============================================================

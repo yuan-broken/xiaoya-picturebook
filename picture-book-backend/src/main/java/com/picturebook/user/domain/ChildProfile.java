@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.picturebook.common.core.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,6 +12,7 @@ import lombok.EqualsAndHashCode;
 /**
  * 孩子档案实体 biz_child_profile
  * 对应 PRD D1/E1：孩子画像数据（年龄、兴趣、阅读能力等级、薄弱项、阅读偏好）。
+ * 孩子账号只能由家长创建，family_id 关联家长账号。
  *
  * @author Agent-4
  */
@@ -23,14 +25,14 @@ public class ChildProfile extends BaseEntity {
     @TableId(value = "id", type = IdType.AUTO)
     private Long childId;
 
-    /** 所属家庭ID（1:1 绑定家长账号） */
+    /** 所属家庭ID（关联家长账号，由家长创建时设置） */
     private Long familyId;
 
-    /** 孩子登录账号（全局唯一） */
+    /** 孩子登录账号（全局唯一，由家长创建） */
     @TableField("username")
     private String username;
 
-    /** BCrypt 加密密码 */
+    /** BCrypt 加密密码（由家长设置） */
     @TableField("password")
     private String password;
 
@@ -46,15 +48,11 @@ public class ChildProfile extends BaseEntity {
     @TableField("child_name")
     private String nickname;
 
-    /** 孩子头像（schema无此列） */
-    @TableField(exist = false)
+    /** 孩子头像URL */
     private String avatar;
 
-    /** 性别（schema无此列） */
-    @TableField(exist = false)
-    private String sex;
-
-    /** 出生日期（DB列名 birth_date） */
+    /** 出生日期（DB列名 birth_date，前端传 birthDate） */
+    @JsonProperty("birthDate")
     @TableField("birth_date")
     private java.util.Date birthday;
 
@@ -67,15 +65,6 @@ public class ChildProfile extends BaseEntity {
     /** 兴趣标签（多个用逗号分隔，如 森林,勇气,动物） */
     private String interests;
 
-    /** 薄弱项（schema无此列，Phase2扩展） */
-    @TableField(exist = false)
-    private String weaknesses;
-
-    /** 阅读偏好（schema无此列，Phase2扩展） */
-    @TableField(exist = false)
-    private String preference;
-
-    /** 状态（schema无此列，仅内存使用） */
-    @TableField(exist = false)
+    /** 状态（0=正常 1=停用） */
     private String status;
 }

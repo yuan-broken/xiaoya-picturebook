@@ -47,7 +47,7 @@ if %errorlevel% equ 0 (
 
 :: 启动 Cloudflare Tunnel
 echo [2/2] 启动 Cloudflare Tunnel...
-start /min "Cloudflare Tunnel" cmd /c ""C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://localhost:8080"
+start /min "Cloudflare Tunnel" cmd /c ""C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://localhost:8080 --protocol http2"
 
 :: 等待隧道 URL 生成
 echo       等待隧道连接...

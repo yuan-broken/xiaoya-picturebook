@@ -14,7 +14,7 @@ const API = (function () {
   // ============================================================
   // 配置
   // ============================================================
-  const BASE_URL = ''; // 同源部署，无需填 host
+  const BASE_URL = 'https://mobiles-visitor-charming-commit.trycloudflare.com'; // 生产环境
   const TOKEN_KEY = 'picturebook_token';
   const USER_KEY = 'picturebook_user';
 
@@ -84,10 +84,13 @@ const API = (function () {
       }
       // 统一错误处理
       if (response.status === 401 || response.status === 403) {
-        clearAuth();
-        // 跳转登录（避免在登录页跳转循环）
-        if (!window.location.pathname.includes('login')) {
-          console.warn('认证失效，请重新登录');
+        // 测试 token 不清除认证，保持测试会话（仅未部署后端时使用）
+        if (!token.startsWith('test-token-')) {
+          clearAuth();
+          // 跳转登录（避免在登录页跳转循环）
+          if (!window.location.pathname.includes('login')) {
+            console.warn('认证失效，请重新登录');
+          }
         }
       }
       return result;
@@ -221,22 +224,26 @@ const API = (function () {
     roles: () => get('/api/role/list'),
     /** 主题列表 */
     themes: () => get('/api/theme/list'),
-    /** 生成故事 */
-    generate: (roleId, themeId, inspiration) => post('/api/story/generate', { roleId, themeId, inspiration }),
+    /** 生成故事（调用后端 AI LLM） */
+    generate: (roleId, roleName, themeId, storyInput) =>
+      post('/api/story/create', { roleId, roleName, themeId, storyInput }),
     /** 获取故事详情 */
     detail: (id) => get('/api/story/' + id),
+    /** 我的故事列表 */
+    my: () => get('/api/story/my'),
   };
 
   // ============================================================
   // 角色对话 API（Agent-3 维护后端）
   // ============================================================
   const chat = {
-    /** 创建对话会话 */
-    createSession: (roleId) => post('/api/chat/session', { roleId }),
-    /** 发送消息 */
-    sendMessage: (sessionId, message) => post('/api/chat/session/' + sessionId + '/message', { message }),
+    /** 创建或恢复对话会话（后端 POST /api/chat/session/{roleId}） */
+    createSession: (roleId) => post('/api/chat/session/' + roleId, {}),
+    /** 发送消息（后端 POST /api/chat/send，body 为 SendMessageRequest） */
+    sendMessage: (sessionId, content, roleId, opts) =>
+      post('/api/chat/send', Object.assign({ sessionId, content, roleId, messageType: 'text' }, opts || {})),
     /** 获取会话消息列表 */
-    messages: (sessionId) => get('/api/chat/session/' + sessionId + '/messages'),
+    messages: (sessionId) => get('/api/chat/' + sessionId + '/messages'),
   };
 
   // ============================================================
@@ -365,6 +372,8 @@ const API = (function () {
     asrFallback: (reason) => get('/api/ai/asr/fallback' + buildQuery({ reason })),
     /** ASR 方言列表 */
     dialects: () => get('/api/ai/asr/dialects'),
+    /** AI 图片生成（角色头像） */
+    imageGenerate: (prompt) => post('/api/ai/image/generate', { prompt }),
   };
 
   // ============================================================
@@ -524,6 +533,8 @@ const API = (function () {
     habit, recommend, ai, voiceClone, coread, order,
     // 工具
     getQueryParam, toast,
+    // 配置
+    BASE_URL,
   };
 
   // 暴露全局别名（兼容旧代码中直接调用 TokenUtil/apiRequest/toast/BookApi 等）

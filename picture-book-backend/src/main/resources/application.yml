@@ -97,6 +97,14 @@ picturebook:
       child-finetune: true
       dialect: zh-CN
       enabled: true
+    # 图片生成（硅基流动 Stable Diffusion · 免费）
+    image:
+      provider: dashscope
+      model: stabilityai/stable-diffusion-xl-base-1.0
+      api-url: https://api.siliconflow.cn/v1
+      api-key: ${AI_LLM_KEY:}
+      size: 1024x1024
+      enabled: true
     # 内容审核
     review:
       enabled: true
