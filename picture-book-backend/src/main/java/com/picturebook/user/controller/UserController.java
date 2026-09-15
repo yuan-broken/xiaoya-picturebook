@@ -203,7 +203,7 @@ public class UserController {
     public Result<Map<String, Object>> growthOverview() {
         Long fid = currentFamilyId();
         // 取家庭下第一个孩子的成长数据（成长档案是孩子的，不是家长的）
-        Long childId = 1L;
+        Long childId = null;
         try {
             List<ChildProfile> children = childProfileMapper.selectList(
                     new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ChildProfile>()
@@ -215,6 +215,16 @@ public class UserController {
             }
         } catch (Exception ignore) {}
         Map<String, Object> r = new HashMap<>();
+        // 没有孩子则返回空数据，不展示虚假的成长记录
+        if (childId == null) {
+            r.put("weekDuration", 0);
+            r.put("vocabCount", 0);
+            r.put("expressionScore", "--");
+            r.put("badgeCount", 0);
+            r.put("continuousDays", 0);
+            r.put("totalDays", 0);
+            return Result.ok(r);
+        }
         try {
             Map<String, Object> stats = habitService.getCheckinStats(childId);
             r.put("weekDuration", stats.getOrDefault("monthMinutes", 0));
