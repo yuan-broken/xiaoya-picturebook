@@ -367,12 +367,9 @@ public class UserServiceImpl implements UserService {
         if (exist == null) {
             throw new BusinessException("孩子档案不存在");
         }
-        ChildProfile update = new ChildProfile();
-        update.setChildId(childId);
-        update.setDelFlag("1");
-        update.setUpdateBy(exist.getCreateBy());
-        update.setUpdateTime(new Date());
-        childProfileMapper.updateById(update);
+        // 用 deleteById 触发 MyBatis-Plus 逻辑删除（自动 SET del_flag=1）
+        // 注意：不能用 updateById + setDelFlag，因为 @TableLogic 字段不会进入 SET 子句
+        childProfileMapper.deleteById(childId);
     }
 
     // ==================== 内容筛选与时长管控 ====================

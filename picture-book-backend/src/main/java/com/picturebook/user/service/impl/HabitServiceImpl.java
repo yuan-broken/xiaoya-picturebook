@@ -346,11 +346,8 @@ public class HabitServiceImpl implements HabitService {
         Favorite exist = favoriteMapper.selectById(id);
         if (exist == null) throw new BusinessException("收藏记录不存在");
         if (!exist.getFamilyId().equals(familyId)) throw new BusinessException("无权操作他人收藏");
-        Favorite up = new Favorite();
-        up.setId(id);
-        up.setDelFlag("1");
-        up.setUpdateTime(new Date());
-        favoriteMapper.updateById(up);
+        // 用 deleteById 触发逻辑删除（@TableLogic 字段不会被 updateById 更新）
+        favoriteMapper.deleteById(id);
     }
 
     @Override

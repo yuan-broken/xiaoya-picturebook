@@ -146,12 +146,8 @@ public class AdminUserController {
         if ("super".equals(exist.getRole())) {
             return Result.fail("超级管理员不可删除");
         }
-        SysAdmin update = new SysAdmin();
-        update.setAdminId(adminId);
-        update.setDelFlag("2");
-        update.setUpdateBy(currentAdminName());
-        update.setUpdateTime(new Date());
-        sysAdminMapper.updateById(update);
+        // 用 deleteById 触发逻辑删除（@TableLogic 字段不会被 updateById 更新）
+        sysAdminMapper.deleteById(adminId);
         return Result.ok();
     }
 
