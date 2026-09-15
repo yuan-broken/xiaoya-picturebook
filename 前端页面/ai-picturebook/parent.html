@@ -767,20 +767,36 @@ function openFavoriteBook(bookId) {
 
 // ===== 账号安全 Tab =====
 
+function levelLabel(level) {
+  if (level === 'growth') return '成长版';
+  if (level === 'premium') return '尊享版';
+  return '免费版';
+}
+
 async function loadAccountInfo() {
+  const localUser = TokenUtil.getUser() || {};
+  let name = localUser.nickname || localUser.username || '--';
+  let phone = '--';
+  let level = localUser.memberLevel || 'free';
+  let expire = '--';
   try {
     const res = await apiGet('/api/user/account');
-    if (res.code === 200 && res.data) {
-      // 账号安全：不再使用硬编码的"林小满家长/138****8888/家庭版"作为兜底，缺失字段保持 -- 占位
-      document.getElementById('accountName').textContent = res.data.name || '--';
-      document.getElementById('accountPhone').textContent = res.data.phone || '--';
-      document.getElementById('accountLevel').textContent = res.data.memberLevel || '--';
+    if (res && res.code === 200 && res.data) {
+      name = res.data.name || name;
+      phone = res.data.phone || phone;
+      level = res.data.memberLevel || level;
       if (res.data.memberEndTime) {
         const d = new Date(res.data.memberEndTime);
-        document.getElementById('accountExpire').textContent = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        expire = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
       }
     }
-  } catch(e) { console.error('加载账号信息失败', e); }
+  } catch(e) { console.warn('加载账号信息失败，使用本地缓存:', e.message); }
+  try {
+    document.getElementById('accountName').textContent = name;
+    document.getElementById('accountPhone').textContent = phone;
+    document.getElementById('accountLevel').textContent = levelLabel(level);
+    document.getElementById('accountExpire').textContent = expire;
+  } catch(e) { console.error('更新账号信息UI失败:', e.message); }
 }
 
 // ===== 我的订单 Tab =====
@@ -920,6 +936,27 @@ function closeParentConfirm(ok) {
   _parentConfirmCallback = null;
 }
 
+function showChangePassword() {
+  const m = document.getElementById('pwdModal');
+  if (!m) return;
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+  const oldEl = document.getElementById('oldPwd');
+  if (oldEl) setTimeout(() => oldEl.focus(), 50);
+}
+
+function closePwdModal() {
+  const m = document.getElementById('pwdModal');
+  if (!m) return;
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+  const ids = ['oldPwd', 'newPwd', 'confirmPwd'];
+  ids.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
 async function submitPassword() {
   const oldP = document.getElementById('oldPwd').value;
   const newP = document.getElementById('newPwd').value;
@@ -928,7 +965,7 @@ async function submitPassword() {
   if (newP !== conP) { toast('两次密码不一致'); return; }
   if (newP.length < 6) { toast('密码至少6位'); return; }
   try {
-    const res = await apiPost('/api/user/password', { oldPassword: oldP, newPassword: newP });
+    const res = await apiPut('/api/user/password', { oldPassword: oldP, newPassword: newP });
     if (res.code === 200) {
       toast('密码修改成功');
       closePwdModal();
