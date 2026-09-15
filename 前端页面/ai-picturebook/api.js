@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 小芽绘本 AI 伴读成长空间 - 公共 API 封装
  *
  * 维护人：Agent-5（公共文件，统一维护）
@@ -14,7 +14,7 @@ const API = (function () {
   // ============================================================
   // 配置
   // ============================================================
-  const BASE_URL = 'https://bear-pads-search-greater.trycloudflare.com'; // 开发环境：前端在 8765，后端在 8080，需显式指向后端
+  const BASE_URL = 'https://knowledgestorm-variance-dial-der.trycloudflare.com'; // 开发环境：前端在 8765，后端在 8080，需显式指向后端
   const TOKEN_KEY = 'picturebook_token';
   const USER_KEY = 'picturebook_user';
 
