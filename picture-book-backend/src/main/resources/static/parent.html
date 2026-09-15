@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
 <head>
 <meta charset="utf-8"/>
@@ -6,7 +6,7 @@
 <title>家长端 · 小芽绘本</title>
 <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
 <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
-<script src="api.js?v=2"></script>
+<script src="api.js?v=13"></script>
 </head>
 <body class="m-0 min-h-screen bg-[#f7f3ec] text-[#24312e]">
 <div class="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden bg-[#fbfaf7] shadow-[0_12px_60px_rgba(61,48,29,.08)]">
@@ -23,13 +23,13 @@
 <a class="flex items-center gap-3 rounded-xl px-3 py-3 text-[#68746f] hover:bg-white" href="reader.html"><iconify-icon icon="lucide:headphones" width="18"></iconify-icon>最近伴读</a>
 <a class="flex items-center gap-3 rounded-xl bg-white px-3 py-3 font-semibold text-[#ef765e] shadow-sm" href="parent.html"><iconify-icon icon="lucide:user-cog" width="18"></iconify-icon>家长端</a>
 </nav>
-<div class="mt-8 border-t border-[#e5dfd5] pt-6"><div class="flex items-center gap-3 px-2 text-sm text-[#68746f]"><span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#f8c7a1] font-bold text-[#824c34]" id="sidebarAvatar">林</span><span class="flex-1"><span class="block font-semibold" id="sidebarName">林小满家长</span><small class="block text-[11px] text-[#a09c91]" id="sidebarPlan">家庭版 · 3 位成员</small></span></div></div>
+<div class="mt-8 border-t border-[#e5dfd5] pt-6"><div class="flex items-center gap-3 px-2 text-sm text-[#68746f]"><span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#f8c7a1] font-bold text-[#824c34]" id="sidebarAvatar">·</span><span class="flex-1"><span class="block font-semibold" id="sidebarName">家长</span><small class="block text-[11px] text-[#a09c91]" id="sidebarPlan">未登录</small></span></div></div>
 </aside>
 <main class="flex-1 overflow-y-auto">
 <header class="flex h-[76px] items-center justify-between border-b border-[#eee9e1] bg-[#fbfaf7] px-6 md:px-10">
 <div class="flex items-center gap-3 lg:hidden"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ef765e] text-white"><iconify-icon icon="lucide:book-open-check" width="19"></iconify-icon></span><b>小芽绘本</b></div>
 <div class="flex items-center gap-3"><a class="flex items-center gap-1.5 text-xs font-semibold text-[#78827d] hover:text-[#ef765e]" href="home.html"><iconify-icon icon="lucide:arrow-left" width="16"></iconify-icon>返回首页</a><span class="hidden text-sm text-[#7e8881] md:block ml-4">家长端 · 关注孩子的每一次成长</span></div>
-<div class="flex items-center gap-3"><span class="hidden text-xs text-[#8c958f] md:block" id="headerName">林小满家长</span><a class="flex h-8 w-8 items-center justify-center rounded-full bg-[#f8c7a1] text-xs font-bold text-[#824c34] cursor-pointer hover:ring-2 hover:ring-[#ef765e]/30" id="headerAvatar" href="parent.html">林</a></div>
+<div class="flex items-center gap-3"><span class="hidden text-xs text-[#8c958f] md:block" id="headerName">家长</span><a class="flex h-8 w-8 items-center justify-center rounded-full bg-[#f8c7a1] text-xs font-bold text-[#824c34] cursor-pointer hover:ring-2 hover:ring-[#ef765e]/30" id="headerAvatar" href="parent.html">·</a></div>
 </header>
 <div class="px-6 py-8 md:px-10 md:py-10">
 
@@ -45,7 +45,7 @@
 
 <!-- 成长档案 Tab -->
 <div id="panel-growth" class="mt-8">
-<div class="flex items-center justify-between"><div><h2 class="text-2xl font-bold tracking-tight" id="childName">林小满的成长档案</h2><p class="mt-1 text-sm text-[#7f8983]">记录每一次阅读带来的改变</p></div><div class="flex gap-2"><button class="flex items-center gap-1 rounded-xl bg-[#f5f1e9] px-3 py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="exportReport()"><iconify-icon icon="lucide:download" width="14"></iconify-icon>导出报告</button><button class="flex items-center gap-1 rounded-xl bg-[#ef765e] px-3 py-2 text-xs font-bold text-white" onclick="shareReport()"><iconify-icon icon="lucide:share-2" width="14"></iconify-icon>分享给亲友</button></div></div>
+<div class="flex items-center justify-between"><div><h2 class="text-2xl font-bold tracking-tight" id="childName">成长档案</h2><p class="mt-1 text-sm text-[#7f8983]">记录每一次阅读带来的改变</p></div><div class="flex gap-2"><button class="flex items-center gap-1 rounded-xl bg-[#f5f1e9] px-3 py-2 text-xs font-bold text-[#68746f] hover:bg-[#eee9e1]" onclick="exportReport()"><iconify-icon icon="lucide:download" width="14"></iconify-icon>导出报告</button><button class="flex items-center gap-1 rounded-xl bg-[#ef765e] px-3 py-2 text-xs font-bold text-white" onclick="shareReport()"><iconify-icon icon="lucide:share-2" width="14"></iconify-icon>分享给亲友</button></div></div>
 
 <!-- 统计卡片 -->
 <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -243,7 +243,7 @@
 <div class="max-w-2xl space-y-5">
 <div class="rounded-2xl border border-[#eee9e1] bg-white p-6">
 <h2 class="text-lg font-bold">账号信息</h2>
-<div class="mt-4 space-y-3 text-sm"><div class="flex justify-between"><span class="text-[#9aa29d]">家长姓名</span><span class="font-semibold" id="accountName">林小满家长</span></div><div class="flex justify-between"><span class="text-[#9aa29d]">手机号</span><span class="font-semibold" id="accountPhone">138****8888</span></div><div class="flex justify-between"><span class="text-[#9aa29d]">会员等级</span><span class="font-semibold text-[#ef765e]" id="accountLevel">家庭版</span></div><div class="flex justify-between"><span class="text-[#9aa29d]">到期时间</span><span class="font-semibold" id="accountExpire">2026-12-31</span></div></div>
+<div class="mt-4 space-y-3 text-sm"><div class="flex justify-between"><span class="text-[#9aa29d]">家长姓名</span><span class="font-semibold" id="accountName">--</span></div><div class="flex justify-between"><span class="text-[#9aa29d]">手机号</span><span class="font-semibold" id="accountPhone">--</span></div><div class="flex justify-between"><span class="text-[#9aa29d]">会员等级</span><span class="font-semibold text-[#ef765e]" id="accountLevel">--</span></div><div class="flex justify-between"><span class="text-[#9aa29d]">到期时间</span><span class="font-semibold" id="accountExpire">--</span></div></div>
 <div class="mt-4 flex justify-end"><a class="rounded-xl bg-[#ef765e] px-4 py-2 text-xs font-bold text-white hover:bg-[#e0654d]" href="upgrade.html">升级 / 续费 →</a></div>
 </div>
 <div class="rounded-2xl border border-[#eee9e1] bg-white p-6">
@@ -315,7 +315,7 @@
 <div><label class="text-xs font-bold text-[#68746f]">孩子账号 <span class="text-[#c44b3a]">*</span></label><input id="newChildUsername" type="text" placeholder="如：kid001（用于孩子登录）" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
 <div><label class="text-xs font-bold text-[#68746f]">初始密码 <span class="text-[#c44b3a]">*</span></label><input id="newChildPassword" type="password" placeholder="至少6位" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
 <div><label class="text-xs font-bold text-[#68746f]">确认密码 <span class="text-[#c44b3a]">*</span></label><input id="newChildPassword2" type="password" placeholder="再次输入密码" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
-<div><label class="text-xs font-bold text-[#68746f]">昵称</label><input id="newChildName" type="text" placeholder="如：林小满" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
+<div><label class="text-xs font-bold text-[#68746f]">昵称</label><input id="newChildName" type="text" placeholder="请输入昵称" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
 <div><label class="text-xs font-bold text-[#68746f]">出生日期</label><input id="newChildBirth" type="date" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"/></div>
 <div><label class="text-xs font-bold text-[#68746f]">年龄段</label>
 <select id="newChildAgeGroup" class="mt-1 w-full rounded-lg border border-[#eee9e1] bg-white px-3 py-2 text-sm"><option value="toddler">2-3岁</option><option value="preschool">4-6岁</option><option value="lowerPrimary">7-9岁</option><option value="upperPrimary">10-12岁</option></select></div>
@@ -340,18 +340,13 @@ async function apiGet(path) { return apiRequest(path); }
 async function apiPost(path, body) { return apiRequest(path, { method: 'POST', body: JSON.stringify(body) }); }
 async function apiPut(path, body) { return apiRequest(path, { method: 'PUT', body: JSON.stringify(body) }); }
 
-// 确保已登录（测试环境自动用 demo 账号登录）
+// 确保已登录：未登录直接跳转登录页，不再使用 demo 后门自动登录（账号安全）
 async function ensureLogin() {
   if (!TokenUtil.get()) {
-    const res = await apiRequest('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username: 'demo', password: '123456' })
-    });
-    if (res.code === 200 && res.data && res.data.token) {
-      TokenUtil.set(res.data.token);
-      TokenUtil.setUserInfo(res.data.userInfo || { username: 'demo', nickname: '林小满家长' });
-    }
+    location.href = 'login.html';
+    return false;
   }
+  return true;
 }
 
 // Tab 切换
@@ -776,9 +771,10 @@ async function loadAccountInfo() {
   try {
     const res = await apiGet('/api/user/account');
     if (res.code === 200 && res.data) {
-      document.getElementById('accountName').textContent = res.data.name || '林小满家长';
-      document.getElementById('accountPhone').textContent = res.data.phone || '138****8888';
-      document.getElementById('accountLevel').textContent = res.data.memberLevel || '家庭版';
+      // 账号安全：不再使用硬编码的"林小满家长/138****8888/家庭版"作为兜底，缺失字段保持 -- 占位
+      document.getElementById('accountName').textContent = res.data.name || '--';
+      document.getElementById('accountPhone').textContent = res.data.phone || '--';
+      document.getElementById('accountLevel').textContent = res.data.memberLevel || '--';
       if (res.data.memberEndTime) {
         const d = new Date(res.data.memberEndTime);
         document.getElementById('accountExpire').textContent = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -1143,24 +1139,34 @@ function closeDataModal() {
 
 // 加载用户信息
 async function loadUserInfo() {
+  var localUser = TokenUtil.getUser() || {};
+  var name = localUser.nickname || localUser.username || '家长';
+  var level = localUser.memberLevel || 'free';
   try {
     const res = await apiGet('/api/user/account');
-    if (res.code === 200 && res.data) {
-      const name = res.data.name || '林小满家长';
-      document.getElementById('headerName').textContent = name;
-      document.getElementById('accountName').textContent = name;
-      document.getElementById('sidebarName').textContent = name;
-      const initial = name.charAt(0);
-      document.getElementById('headerAvatar').textContent = initial;
-      document.getElementById('sidebarAvatar').textContent = initial;
-      document.getElementById('childName').textContent = name + '的成长档案';
+    if (res && res.code === 200 && res.data) {
+      name = res.data.name || name;
+      level = res.data.memberLevel || level;
     }
-  } catch(e) { console.error('加载用户信息失败', e); }
+  } catch(e) { console.warn('加载用户信息失败，使用本地缓存:', e.message); }
+  try {
+    var hn = document.getElementById('headerName'); if (hn) hn.textContent = name;
+    var an = document.getElementById('accountName'); if (an) an.textContent = name;
+    var sn = document.getElementById('sidebarName'); if (sn) sn.textContent = name;
+    var initial = name.charAt(0);
+    var ha = document.getElementById('headerAvatar'); if (ha) ha.textContent = initial;
+    var sa = document.getElementById('sidebarAvatar'); if (sa) sa.textContent = initial;
+    var cn = document.getElementById('childName'); if (cn) cn.textContent = name + '的成长档案';
+    var planText = (level === 'growth' ? '成长版' : (level === 'premium' ? '尊享版' : '免费版')) + ' · 已登录';
+    var planEl = document.getElementById('sidebarPlan');
+    if (planEl) planEl.textContent = planText;
+  } catch(e) { console.error('更新用户信息UI失败:', e.message); }
 }
 
 // 初始化
 (async function() {
-  await ensureLogin();
+  const ok = await ensureLogin();
+  if (!ok) return; // 未登录已跳转，不再继续加载任何数据
   await loadUserInfo();
   await loadGrowthData();
   // 支持 hash 路由：parent.html#orders 等直接切到对应 tab

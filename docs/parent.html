@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
 <head>
 <meta charset="utf-8"/>
@@ -6,7 +6,7 @@
 <title>家长端 · 小芽绘本</title>
 <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
 <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
-<script src="api.js?v=3"></script>
+<script src="api.js?v=13"></script>
 </head>
 <body class="m-0 min-h-screen bg-[#f7f3ec] text-[#24312e]">
 <div class="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden bg-[#fbfaf7] shadow-[0_12px_60px_rgba(61,48,29,.08)]">
@@ -1139,20 +1139,28 @@ function closeDataModal() {
 
 // 加载用户信息
 async function loadUserInfo() {
+  var localUser = TokenUtil.getUser() || {};
+  var name = localUser.nickname || localUser.username || '家长';
+  var level = localUser.memberLevel || 'free';
   try {
     const res = await apiGet('/api/user/account');
-    if (res.code === 200 && res.data) {
-      // 账号安全：缺失姓名时使用"家长"中性占位，不再硬编码"林小满家长"
-      const name = res.data.name || '家长';
-      document.getElementById('headerName').textContent = name;
-      document.getElementById('accountName').textContent = name;
-      document.getElementById('sidebarName').textContent = name;
-      const initial = name.charAt(0);
-      document.getElementById('headerAvatar').textContent = initial;
-      document.getElementById('sidebarAvatar').textContent = initial;
-      document.getElementById('childName').textContent = name + '的成长档案';
+    if (res && res.code === 200 && res.data) {
+      name = res.data.name || name;
+      level = res.data.memberLevel || level;
     }
-  } catch(e) { console.error('加载用户信息失败', e); }
+  } catch(e) { console.warn('加载用户信息失败，使用本地缓存:', e.message); }
+  try {
+    var hn = document.getElementById('headerName'); if (hn) hn.textContent = name;
+    var an = document.getElementById('accountName'); if (an) an.textContent = name;
+    var sn = document.getElementById('sidebarName'); if (sn) sn.textContent = name;
+    var initial = name.charAt(0);
+    var ha = document.getElementById('headerAvatar'); if (ha) ha.textContent = initial;
+    var sa = document.getElementById('sidebarAvatar'); if (sa) sa.textContent = initial;
+    var cn = document.getElementById('childName'); if (cn) cn.textContent = name + '的成长档案';
+    var planText = (level === 'growth' ? '成长版' : (level === 'premium' ? '尊享版' : '免费版')) + ' · 已登录';
+    var planEl = document.getElementById('sidebarPlan');
+    if (planEl) planEl.textContent = planText;
+  } catch(e) { console.error('更新用户信息UI失败:', e.message); }
 }
 
 // 初始化

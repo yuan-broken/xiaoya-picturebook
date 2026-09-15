@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
 <head>
@@ -7,7 +7,7 @@
 <title>小芽绘本 · AI伴读</title>
 <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
 <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
-<script src="api.js?v=7"></script>
+<script src="api.js?v=18"></script>
 </head>
 <body class="m-0 min-h-screen bg-[#f7f3ec] text-[#24312e]">
 <div class="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden bg-[#fbfaf7] shadow-[0_12px_60px_rgba(61,48,29,.08)]">
@@ -158,11 +158,15 @@ function renderHome(data){
   // 优先使用 localStorage 中登录用户的名字，避免被 API 返回的旧数据覆盖
   var loginUser = API.getUser() || {};
   var hasLoginUser = loginUser.nickname || loginUser.username;
-  const family = data.family || {};
-  const displayName = hasLoginUser ? (loginUser.nickname || loginUser.username) : (family.nickname || family.parentName || '家长');
-  const avatarText = hasLoginUser ? displayName.slice(0, 1) : ((family.avatar && family.avatar.length === 1) ? family.avatar : (family.nickname || '家').slice(0, 1));
-  document.querySelectorAll('[data-family-avatar]').forEach(el => el.textContent = avatarText);
-  document.querySelectorAll('[data-family-name]').forEach(el => el.textContent = displayName);
+  var token = API.getToken();
+  // 账号安全：未登录时不展示家长伪个人信息，跳过本字段更新（由 applyRoleUI 设置"未登录"）
+  if (hasLoginUser || token) {
+    const family = data.family || {};
+    const displayName = hasLoginUser ? (loginUser.nickname || loginUser.username) : (family.nickname || family.parentName || '家长');
+    const avatarText = hasLoginUser ? displayName.slice(0, 1) : ((family.avatar && family.avatar.length === 1) ? family.avatar : (family.nickname || '家').slice(0, 1));
+    document.querySelectorAll('[data-family-avatar]').forEach(el => el.textContent = avatarText);
+    document.querySelectorAll('[data-family-name]').forEach(el => el.textContent = displayName);
+  }
   // 顶部问候语时段切分
   const hour = new Date().getHours();
   const greeting = hour < 11 ? '早上好' : (hour < 13 ? '中午好' : (hour < 18 ? '下午好' : '晚上好'));
@@ -276,6 +280,18 @@ function applyRoleUI(){
     // 隐藏退出登录按钮
     var logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.classList.add('hidden');
+    // 账号安全：未登录时不展示任何家长伪个人信息（姓名/头像/会员等级），
+    // 将侧边栏底部家长信息块改造为"未登录"提示 + 跳转 login.html，避免进入 parent.html 个人中心
+    var parentEntry = document.querySelector('aside a[href="parent.html"]');
+    if (parentEntry) {
+      parentEntry.setAttribute('href', 'login.html');
+      var parentAvatar = parentEntry.querySelector('[data-family-avatar]');
+      if (parentAvatar) parentAvatar.textContent = '客';
+      var parentName = parentEntry.querySelector('[data-family-name]');
+      if (parentName) parentName.textContent = '未登录';
+      var parentMeta = parentEntry.querySelector('[data-family-meta]');
+      if (parentMeta) parentMeta.textContent = '点击登录账户';
+    }
     // 在 Hero 区添加孩子登录入口
     var hero = document.querySelector('section.relative .flex.flex-wrap.gap-3');
     if (hero && !document.getElementById('childEntry')) {

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
 <head>
   <meta charset="utf-8"/>
@@ -6,7 +6,7 @@
   <title>家长登录 · 小芽绘本</title>
   <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
   <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
-  <script src="api.js?v=6"></script>
+  <script src="api.js?v=17"></script>
 </head>
 <body class="m-0 min-h-screen bg-gradient-to-br from-[#fff5e0] via-[#fce8d4] to-[#f5e6c5] text-[#24312e]">
 <div class="flex min-h-screen items-center justify-center px-4 py-8">
@@ -93,16 +93,16 @@
       </a>
     </div>
 
+    <!-- 测试账号提示（仅测试用，后端未部署时使用） -->
+    <div class="mt-3 rounded-2xl border border-dashed border-[#f0c987] bg-[#fff8ed] p-3 text-center">
+      <p class="text-[11px] text-[#b47739]">测试账号：<b>test</b> / <b>test123456</b>（仅未部署后端时使用）</p>
+    </div>
+
     <!-- 返回首页 -->
     <div class="mt-4 text-center">
       <a href="home.html" class="inline-flex items-center gap-1 text-xs font-bold text-[#83908b] hover:text-[#ef765e]">
         <iconify-icon icon="lucide:arrow-left" width="14"></iconify-icon>返回首页
       </a>
-    </div>
-
-    <!-- 测试账号提示 -->
-    <div class="mt-4 rounded-xl bg-[#fde6c5]/50 p-3 text-center">
-      <p class="text-[10px] text-[#824c34]">体验账号：demo / 123456</p>
     </div>
   </div>
 </div>
@@ -153,6 +153,9 @@ function showToast(msg) {
   setTimeout(() => t.style.opacity = '0', 2200);
 }
 
+// 测试账号（仅未部署后端时使用，后端启动后走真实登录）
+const TEST_ACCOUNT = { username: 'test', password: 'test123456' };
+
 // 登录
 async function doLogin(event) {
   event.preventDefault();
@@ -164,6 +167,22 @@ async function doLogin(event) {
   const btnText = document.getElementById('btnText');
   btn.disabled = true;
   btnText.textContent = '登录中...';
+
+  // 测试账号：后端未部署时直接本地创建 mock 会话
+  if (username === TEST_ACCOUNT.username && password === TEST_ACCOUNT.password) {
+    API.setToken('test-token-' + Date.now());
+    API.setUser({
+      familyId: 0,
+      username: 'test',
+      nickname: '测试家长',
+      memberLevel: 'premium',
+      memberEndAt: '2026-12-31',
+      role: 'parent'
+    });
+    showToast('测试账号登录成功（仅测试用）');
+    setTimeout(() => { window.location.href = 'home.html'; }, 800);
+    return false;
+  }
 
   try {
     const res = await API.post('/api/auth/login', { username, password });

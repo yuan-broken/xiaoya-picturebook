@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
 <head>
   <meta charset="utf-8"/>
@@ -6,7 +6,7 @@
   <title>伴读 · 加载中...</title>
   <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
   <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
-  <script src="api.js?v=3"></script>
+  <script src="api.js?v=14"></script>
 </head>
 <body class="m-0 min-h-screen bg-[#f7f3ec] text-[#24312e]">
 <div class="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden bg-[#fbfaf7] shadow-[0_12px_60px_rgba(61,48,29,.08)]">
@@ -252,7 +252,8 @@ function applyVoiceToUtter(utter, voiceId) {
 window.addEventListener('DOMContentLoaded', init);
 
 async function init() {
-  await ensureReaderLogin();
+  const ok = await ensureReaderLogin();
+  if (!ok) return; // 未登录已跳转 login.html，不再加载后续数据
   await loadBook();
   checkFavoriteStatus();
   applyRoleUI();
@@ -415,21 +416,12 @@ function showMemberLockToast(feature) {
 }
 
 function ensureReaderLogin() {
+  // 账号安全：未登录直接跳转登录页，不再使用 demo/123456 后门自动登录
   return new Promise(function(resolve) {
     var token = localStorage.getItem('picturebook_token');
-    if (token) { resolve(); return; }
-    // 自动登录 demo
-    fetch('/api/auth/login', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({username:'demo', password:'123456'})
-    }).then(function(r){return r.json()}).then(function(res){
-      if(res.code===200 && res.data && res.data.token){
-        localStorage.setItem('picturebook_token', res.data.token);
-        localStorage.setItem('picturebook_user', JSON.stringify(res.data));
-      }
-      resolve();
-    }).catch(function(){ resolve(); });
+    if (token) { resolve(true); return; }
+    location.href = 'login.html';
+    resolve(false);
   });
 }
 
