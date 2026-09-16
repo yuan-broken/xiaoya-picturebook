@@ -14,7 +14,7 @@ const API = (function () {
   // ============================================================
   // 配置
   // ============================================================
-  const BASE_URL = 'https://volleyball-manor-pension-learners.trycloudflare.com'; // 生产环境
+  const BASE_URL = 'https://bryant-labs-electronic-excessive.trycloudflare.com'; // 生产环境
   const TOKEN_KEY = 'picturebook_token';
   const USER_KEY = 'picturebook_user';
 
