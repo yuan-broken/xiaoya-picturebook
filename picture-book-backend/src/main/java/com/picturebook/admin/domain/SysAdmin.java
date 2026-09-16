@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
 public class SysAdmin extends BaseEntity {
 
     /** 管理员ID */
-    @TableId(type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long adminId;
 
     /** 登录账号 */

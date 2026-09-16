@@ -370,11 +370,24 @@ CREATE TABLE IF NOT EXISTS sys_admin (
     password    VARCHAR(128) NOT NULL COMMENT 'BCrypt加密',
     nickname    VARCHAR(64),
     role        VARCHAR(32) DEFAULT 'admin',
-    status      TINYINT(1) DEFAULT 1,
+    avatar      VARCHAR(255),
+    phone       VARCHAR(32),
+    last_login_at  TIMESTAMP,
+    last_login_ip  VARCHAR(64),
+    status      VARCHAR(8) DEFAULT '1',
+    create_by   VARCHAR(64),
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_by   VARCHAR(64),
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     del_flag    INT DEFAULT 0
 );
+-- 兼容旧表结构：补充可能缺失的列
+ALTER TABLE sys_admin ADD COLUMN IF NOT EXISTS avatar VARCHAR(255);
+ALTER TABLE sys_admin ADD COLUMN IF NOT EXISTS phone VARCHAR(32);
+ALTER TABLE sys_admin ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP;
+ALTER TABLE sys_admin ADD COLUMN IF NOT EXISTS last_login_ip VARCHAR(64);
+ALTER TABLE sys_admin ADD COLUMN IF NOT EXISTS create_by VARCHAR(64);
+ALTER TABLE sys_admin ADD COLUMN IF NOT EXISTS update_by VARCHAR(64);
 
 -- ============================================================
 -- 八、激励与习惯（二期 M36 维护）

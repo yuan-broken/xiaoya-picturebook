@@ -56,14 +56,14 @@ public class UserServiceImpl implements UserService {
         Family family = familyMapper.selectOne(new LambdaQueryWrapper<Family>()
                 .eq(Family::getUsername, username));
         if (family == null) {
-            throw new BusinessException("账号不存在");
+            throw new BusinessException(401, "账号不存在");
         }
         if (family.getStatus() != null && family.getStatus() == 0) {
-            throw new BusinessException("账号已停用，请联系管理员");
+            throw new BusinessException(403, "账号已停用，请联系管理员");
         }
         // 2. 校验密码（BCrypt）
         if (!SecurityUtil.matchesPassword(password, family.getPassword())) {
-            throw new BusinessException("密码错误");
+            throw new BusinessException(401, "密码错误");
         }
         // 3. 生成真实 JWT Token
         String token = JwtUtil.generateToken(family.getFamilyId(), family.getUsername(), "parent", jwtSecret, jwtExpireSeconds * 1000);
@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
                 .eq(Family::getUsername, family.getUsername())
                 .eq(Family::getDelFlag, "0"));
         if (exist != null && exist > 0) {
-            throw new BusinessException("账号已存在");
+            throw new BusinessException(400, "账号已存在");
         }
         // 2. 加密密码
         family.setPassword(SecurityUtil.encryptPassword(family.getPassword()));
@@ -107,13 +107,13 @@ public class UserServiceImpl implements UserService {
     public void changePassword(Long familyId, String oldPassword, String newPassword) {
         Family family = familyMapper.selectById(familyId);
         if (family == null) {
-            throw new BusinessException("账号不存在");
+            throw new BusinessException(401, "账号不存在");
         }
         if (!SecurityUtil.matchesPassword(oldPassword, family.getPassword())) {
-            throw new BusinessException("原密码错误");
+            throw new BusinessException(401, "原密码错误");
         }
         if (!StringUtils.hasText(newPassword) || newPassword.length() < 6) {
-            throw new BusinessException("新密码至少 6 位");
+            throw new BusinessException(400, "新密码至少 6 位");
         }
         Family update = new Family();
         update.setFamilyId(familyId);
@@ -307,14 +307,14 @@ public class UserServiceImpl implements UserService {
                 .eq(ChildProfile::getUsername, username)
                 .eq(ChildProfile::getDelFlag, "0"));
         if (child == null) {
-            throw new BusinessException("孩子账号不存在");
+            throw new BusinessException(401, "孩子账号不存在");
         }
         if (child.getBindStatus() == null || child.getBindStatus() == 0) {
-            throw new BusinessException("账号尚未绑定家长，请联系家长确认");
+            throw new BusinessException(403, "账号尚未绑定家长，请联系家长确认");
         }
         // 2. 校验密码（BCrypt）
         if (!StringUtils.hasText(child.getPassword()) || !SecurityUtil.matchesPassword(password, child.getPassword())) {
-            throw new BusinessException("密码错误");
+            throw new BusinessException(401, "密码错误");
         }
         // 3. 生成 JWT Token（role=child）
         String token = JwtUtil.generateToken(child.getChildId(), child.getUsername(), "child", jwtSecret, jwtExpireSeconds * 1000);

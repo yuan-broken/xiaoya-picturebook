@@ -10,7 +10,6 @@ import com.picturebook.user.domain.MemberOrder;
 import com.picturebook.user.mapper.FamilyMapper;
 import com.picturebook.user.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -26,7 +25,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/admin/user")
-@PreAuthorize("hasAnyRole('SUPER','OPERATOR')")
 public class AdminUserController {
 
     @Autowired
@@ -43,7 +41,6 @@ public class AdminUserController {
     /**
      * 管理员列表
      */
-    @PreAuthorize("@ss.hasPermi('admin:user:list')")
     @GetMapping("/admin")
     public Result<List<SysAdmin>> listAdmin() {
         List<SysAdmin> list = sysAdminMapper.selectList(new LambdaQueryWrapper<SysAdmin>()
@@ -56,7 +53,6 @@ public class AdminUserController {
     /**
      * 新增管理员
      */
-    @PreAuthorize("@ss.hasPermi('admin:user:add')")
     @PostMapping("/admin")
     public Result<Long> addAdmin(@RequestBody SysAdmin admin) {
         Long exist = sysAdminMapper.selectCount(new LambdaQueryWrapper<SysAdmin>()
@@ -81,7 +77,6 @@ public class AdminUserController {
     /**
      * 修改管理员（不含密码）
      */
-    @PreAuthorize("@ss.hasPermi('admin:user:edit')")
     @PutMapping("/admin")
     public Result<Void> editAdmin(@RequestBody SysAdmin admin) {
         SysAdmin exist = sysAdminMapper.selectById(admin.getAdminId());
@@ -98,7 +93,6 @@ public class AdminUserController {
     /**
      * 修改管理员密码
      */
-    @PreAuthorize("@ss.hasPermi('admin:user:edit')")
     @PutMapping("/admin/{id}/password")
     public Result<Void> changeAdminPassword(@PathVariable("id") Long adminId, @RequestBody Map<String, String> body) {
         SysAdmin exist = sysAdminMapper.selectById(adminId);
@@ -121,7 +115,6 @@ public class AdminUserController {
     /**
      * 启用/禁用管理员
      */
-    @PreAuthorize("@ss.hasPermi('admin:user:edit')")
     @PutMapping("/admin/{id}/status")
     public Result<Void> toggleAdminStatus(@PathVariable("id") Long adminId, @RequestBody Map<String, String> body) {
         SysAdmin update = new SysAdmin();
@@ -136,7 +129,6 @@ public class AdminUserController {
     /**
      * 删除管理员（软删除，超级管理员不可删除）
      */
-    @PreAuthorize("@ss.hasPermi('admin:user:remove')")
     @DeleteMapping("/admin/{id}")
     public Result<Void> removeAdmin(@PathVariable("id") Long adminId) {
         SysAdmin exist = sysAdminMapper.selectById(adminId);
@@ -156,7 +148,6 @@ public class AdminUserController {
     /**
      * 会员账号列表（家庭账号）
      */
-    @PreAuthorize("@ss.hasPermi('admin:member:list')")
     @GetMapping("/family")
     public Result<List<Family>> listFamily(@RequestParam(value = "memberLevel", required = false) String memberLevel,
                                        @RequestParam(value = "memberStatus", required = false) String memberStatus,
@@ -183,7 +174,6 @@ public class AdminUserController {
     /**
      * 查看家庭详情
      */
-    @PreAuthorize("@ss.hasPermi('admin:member:query')")
     @GetMapping("/family/{id}")
     public Result<Family> getFamily(@PathVariable("id") Long familyId) {
         Family family = familyMapper.selectById(familyId);
@@ -197,7 +187,6 @@ public class AdminUserController {
     /**
      * 订阅订单查询
      */
-    @PreAuthorize("@ss.hasPermi('admin:order:list')")
     @GetMapping("/order")
     public Result<List<MemberOrder>> listOrder(@RequestParam(required = false) Long familyId,
                                           @RequestParam(required = false) String planType,
@@ -214,7 +203,6 @@ public class AdminUserController {
     /**
      * 订单详情
      */
-    @PreAuthorize("@ss.hasPermi('admin:order:query')")
     @GetMapping("/order/{id}")
     public Result<MemberOrder> getOrder(@PathVariable("id") Long orderId) {
         return Result.ok(orderService.getById(orderId));
@@ -223,7 +211,6 @@ public class AdminUserController {
     /**
      * 退款处理
      */
-    @PreAuthorize("@ss.hasPermi('admin:order:refund')")
     @PostMapping("/order/{id}/refund")
     public Result<Void> refundOrder(@PathVariable("id") Long orderId, @RequestBody Map<String, String> body) {
         orderService.refundOrder(orderId, body.get("reason"));
@@ -233,7 +220,6 @@ public class AdminUserController {
     /**
      * 后台为家长手动开通/续费（运营场景）
      */
-    @PreAuthorize("@ss.hasPermi('admin:order:add')")
     @PostMapping("/order/manual")
     public Result<MemberOrder> manualOpen(@RequestBody Map<String, Object> body) {
         Long familyId = Long.valueOf(body.get("familyId").toString());
