@@ -8,10 +8,10 @@ spring:
     name: picture-book-backend
   profiles:
     active: dev
-  # H2 数据库（开发环境默认，生产可切换 mysql）
+  # H2 数据库（文件模式，数据持久化到磁盘，重启不丢失）
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:picture_book;DB_CLOSE_DELAY=-1;MODE=MySQL;IGNORECASE=TRUE
+    url: jdbc:h2:file:d:/project_work/picturebook_data/picture_book;MODE=MySQL;IGNORECASE=TRUE
     username: sa
     password:
   h2:
@@ -21,6 +21,7 @@ spring:
   sql:
     init:
       mode: always
+      continue-on-error: true
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
   # Redis（默认本地，生产可覆盖）
