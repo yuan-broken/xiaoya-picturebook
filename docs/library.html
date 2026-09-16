@@ -1,5 +1,4 @@
-﻿<!DOCTYPE html>
-
+<!DOCTYPE html>
 
 <html class="w-full min-h-full bg-[#f7f3ec]" lang="zh-CN">
 <head>
@@ -35,3 +34,251 @@
 <div class="mt-4"><p class="mb-2 text-[11px] text-[#9aa29d]">更多主题</p><div class="flex flex-wrap gap-2" id="moreThemes"></div></div>
 <div class="mt-4"><p class="mb-2 text-[11px] text-[#9aa29d]">语言类型</p><div class="flex flex-wrap gap-2" id="langFilter"></div></div>
 <div class="mt-4"><p class="mb-2 text-[11px] text-[#9aa29d]">评分</p><div class="flex flex-wrap gap-2" id="ratingFilter"></div></div>
+<div class="mt-4 flex justify-end gap-2"><button class="rounded-lg bg-[#f5f1e9] px-4 py-2 text-xs text-[#76817b]" onclick="resetFilters()">重置筛选</button><button class="rounded-lg bg-[#ef765e] px-4 py-2 text-xs font-bold text-white" onclick="toggleMoreFilter(false)">应用</button></div>
+</div>
+<div class="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4" id="books">
+<div class="col-span-4 text-center py-16 text-[#a0a7a2] text-sm">正在加载绘本...</div>
+</div>
+<div class="hidden py-16 text-center" id="empty"><iconify-icon class="text-[#c3cbc6]" icon="lucide:search-x" width="40"></iconify-icon><p class="mt-3 text-sm font-semibold">还没有找到匹配的绘本</p><p class="mt-1 text-xs text-[#9aa29d]">换个关键词试试，小芽会帮你继续找</p></div>
+</div>
+</main>
+</div>
+<script>
+// 当前筛选条件
+let currentKeyword = '';
+let currentAgeGroup = '';
+let currentTheme = '';
+let currentSort = 'rating'; // rating=推荐排序, newest=最新
+
+// 从后端加载绘本
+async function loadBooks() {
+  const container = document.getElementById('books');
+  const params = { pageNum: 1, pageSize: 50 };
+  if (currentKeyword) params.keyword = currentKeyword;
+  if (currentAgeGroup) params.ageGroup = currentAgeGroup;
+  if (currentTheme) params.theme = currentTheme;
+
+  try {
+    const res = await BookApi.list(params);
+    if (res.code === 200 && res.data) {
+      let books = res.data.rows || [];
+      // 语言类型前端过滤
+      if (currentLang) {
+        books = books.filter(function(b) { return b.languageType === currentLang; });
+      }
+      // 评分前端过滤
+      if (currentRating > 0) {
+        books = books.filter(function(b) { return (b.rating || 0) >= currentRating; });
+      }
+      // 前端排序
+      if (currentSort === 'newest') {
+        books = books.sort(function(a, b) { return (b.createTime || '').localeCompare(a.createTime || ''); });
+      } else {
+        books = books.sort(function(a, b) { return (b.rating || 0) - (a.rating || 0); });
+      }
+      document.getElementById('bookCount').textContent = '共 ' + (res.data.total || 0) + ' 本';
+      if (books.length === 0) {
+        container.innerHTML = '';
+        document.getElementById('empty').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('empty').classList.add('hidden');
+      const colorMap = {'勇气':'#c7e7de','情绪':'#f8d6a5','想象':'#d9d1ee','自然':'#e3f1ec','习惯':'#f2cbd0','童话':'#fde6c5','传统':'#f5e9c5','友谊':'#d5e9c5'};
+      container.innerHTML = books.map(function(b) {
+        const themeColor = colorMap[b.theme] || '#e3f1ec';
+        const emoji = b.coverEmoji || '📚';
+        const tag = (b.tags || '推荐').split(',')[0];
+        const rating = b.rating || 5.0;
+        return '<a class="book group overflow-hidden rounded-2xl border border-[#eee9e1] bg-white" href="reader.html?bookId='+b.bookId+'">' +
+          '<div class="flex h-44 items-end justify-between px-5" style="background:'+themeColor+'">' +
+          '<span class="mb-4 rounded-lg bg-white/75 px-2 py-1 text-[10px] font-bold text-[#397768]">'+tag+'</span>' +
+          '<span class="text-8xl transition group-hover:scale-110">'+emoji+'</span>' +
+          '</div><div class="p-4"><h3 class="font-bold">'+b.title+'</h3>' +
+          '<p class="mt-2 text-xs text-[#8d9690]">'+(b.ageGroup||'')+' · '+(b.languageType==='chinese'?'中文原创':b.languageType==='english'?'英文启蒙':'双语')+'</p>' +
+          '<div class="mt-3 flex items-center gap-1 text-[11px] text-[#e3a14f]">' +
+          '<iconify-icon icon="lucide:star" width="13"></iconify-icon>'+rating+' <span class="ml-2 text-[#a0a7a2]">'+(b.readDuration||0)+'分钟伴读</span></div>' +
+          '</div></a>';
+      }).join('');
+    } else {
+      container.innerHTML = '<div class="col-span-4 text-center py-16 text-[#a0a7a2] text-sm">' + (res.msg || '加载失败') + '<br/><a href="http://localhost:8080/api/health" target="_blank" class="text-[#ef765e]">检查后端状态</a></div>';
+      document.getElementById('bookCount').textContent = '';
+    }
+  } catch (e) {
+    container.innerHTML = '<div class="col-span-4 text-center py-16 text-[#a0a7a2] text-sm">数据加载失败，请确认后端服务已启动<br/><a href="http://localhost:8080/api/health" target="_blank" class="text-[#ef765e]">检查后端状态</a></div>';
+    document.getElementById('bookCount').textContent = '';
+  }
+}
+
+// 搜索框输入
+function filterBooks() {
+  currentKeyword = document.getElementById('search').value.trim();
+  loadBooks();
+}
+
+// 年龄筛选
+function setAge(button, age) {
+  document.querySelectorAll('.age').forEach(function(item) {
+    item.classList.remove('bg-[#ef765e]', 'font-bold', 'text-white');
+    item.classList.add('bg-white', 'text-[#76817b]');
+  });
+  button.classList.remove('bg-white', 'text-[#76817b]');
+  button.classList.add('bg-[#ef765e]', 'font-bold', 'text-white');
+  currentAgeGroup = age;
+  loadBooks();
+}
+
+// 主题筛选
+function setTheme(button, theme) {
+  // 如果点击的是已选中的主题，则取消选中
+  if (currentTheme === theme) {
+    currentTheme = '';
+    button.classList.remove('bg-[#ef765e]', 'font-bold', 'text-white');
+    button.classList.add('bg-white', 'text-[#76817b]');
+  } else {
+    // 取消其他主题按钮的选中状态
+    document.querySelectorAll('.theme-btn').forEach(function(item) {
+      item.classList.remove('bg-[#ef765e]', 'font-bold', 'text-white');
+      item.classList.add('bg-white', 'text-[#76817b]');
+    });
+    // 选中当前按钮
+    button.classList.remove('bg-white', 'text-[#76817b]');
+    button.classList.add('bg-[#ef765e]', 'font-bold', 'text-white');
+    currentTheme = theme;
+  }
+  loadBooks();
+}
+
+// 排序切换
+function toggleSort() {
+  if (currentSort === 'rating') {
+    currentSort = 'newest';
+    document.getElementById('sortBtn').innerHTML = '最新排序 <iconify-icon icon="lucide:chevron-down" width="14"></iconify-icon>';
+  } else {
+    currentSort = 'rating';
+    document.getElementById('sortBtn').innerHTML = '推荐排序 <iconify-icon icon="lucide:chevron-down" width="14"></iconify-icon>';
+  }
+  loadBooks();
+}
+
+// 更多筛选面板展开/收起
+function toggleMoreFilter(show) {
+  const panel = document.getElementById('moreFilter');
+  if (show) {
+    panel.classList.remove('hidden');
+    document.getElementById('moreBtn').classList.add('bg-[#ef765e]', 'text-white', 'font-bold');
+    document.getElementById('moreBtn').classList.remove('bg-white', 'text-[#76817b]');
+    initMoreFilters();
+  } else {
+    panel.classList.add('hidden');
+    document.getElementById('moreBtn').classList.remove('bg-[#ef765e]', 'text-white', 'font-bold');
+    document.getElementById('moreBtn').classList.add('bg-white', 'text-[#76817b]');
+  }
+}
+
+// 高级筛选条件
+let currentLang = '';
+let currentRating = 0;
+
+// 初始化更多筛选项
+function initMoreFilters() {
+  // 更多主题
+  const themes = ['勇气', '情绪', '自然', '想象', '习惯', '童话', '传统', '友谊', '睡前', '科普', '成长', '探索'];
+  const moreThemes = document.getElementById('moreThemes');
+  moreThemes.innerHTML = themes.map(function(t) {
+    const active = currentTheme === t ? 'bg-[#ef765e] text-white font-bold' : 'bg-white text-[#76817b]';
+    return '<button class="theme-btn-more rounded-full px-3 py-1.5 text-xs ' + active + '" onclick="setThemeMore(this,\'' + t + '\')">' + t + '</button>';
+  }).join('');
+  // 语言类型
+  const langs = [
+    { code: '', name: '全部' },
+    { code: 'chinese', name: '中文原创' },
+    { code: 'english', name: '英文启蒙' },
+    { code: 'bilingual', name: '双语' }
+  ];
+  document.getElementById('langFilter').innerHTML = langs.map(function(l) {
+    const active = currentLang === l.code ? 'bg-[#ef765e] text-white font-bold' : 'bg-white text-[#76817b]';
+    return '<button class="lang-btn rounded-full px-3 py-1.5 text-xs ' + active + '" onclick="setLang(this,\'' + l.code + '\')">' + l.name + '</button>';
+  }).join('');
+  // 评分
+  const ratings = [
+    { code: 0, name: '全部' },
+    { code: 4.5, name: '4.5以上' },
+    { code: 4.7, name: '4.7以上' },
+    { code: 4.8, name: '4.8以上' },
+    { code: 4.9, name: '4.9以上' }
+  ];
+  document.getElementById('ratingFilter').innerHTML = ratings.map(function(r) {
+    const active = currentRating === r.code ? 'bg-[#ef765e] text-white font-bold' : 'bg-white text-[#76817b]';
+    return '<button class="rating-btn rounded-full px-3 py-1.5 text-xs ' + active + '" onclick="setRating(this,' + r.code + ')">' + r.name + '</button>';
+  }).join('');
+}
+
+// 更多主题选择（高级筛选面板内）
+function setThemeMore(button, theme) {
+  if (currentTheme === theme) {
+    currentTheme = '';
+    button.classList.remove('bg-[#ef765e]', 'text-white', 'font-bold');
+    button.classList.add('bg-white', 'text-[#76817b]');
+  } else {
+    document.querySelectorAll('.theme-btn-more').forEach(function(item) {
+      item.classList.remove('bg-[#ef765e]', 'text-white', 'font-bold');
+      item.classList.add('bg-white', 'text-[#76817b]');
+    });
+    button.classList.remove('bg-white', 'text-[#76817b]');
+    button.classList.add('bg-[#ef765e]', 'text-white', 'font-bold');
+    currentTheme = theme;
+  }
+  loadBooks();
+}
+
+// 语言类型筛选
+function setLang(button, lang) {
+  document.querySelectorAll('.lang-btn').forEach(function(item) {
+    item.classList.remove('bg-[#ef765e]', 'text-white', 'font-bold');
+    item.classList.add('bg-white', 'text-[#76817b]');
+  });
+  button.classList.remove('bg-white', 'text-[#76817b]');
+  button.classList.add('bg-[#ef765e]', 'text-white', 'font-bold');
+  currentLang = lang;
+  loadBooks();
+}
+
+// 评分筛选
+function setRating(button, rating) {
+  document.querySelectorAll('.rating-btn').forEach(function(item) {
+    item.classList.remove('bg-[#ef765e]', 'text-white', 'font-bold');
+    item.classList.add('bg-white', 'text-[#76817b]');
+  });
+  button.classList.remove('bg-white', 'text-[#76817b]');
+  button.classList.add('bg-[#ef765e]', 'text-white', 'font-bold');
+  currentRating = rating;
+  loadBooks();
+}
+
+// 重置所有筛选
+function resetFilters() {
+  currentKeyword = '';
+  currentAgeGroup = '';
+  currentTheme = '';
+  currentLang = '';
+  currentRating = 0;
+  document.getElementById('search').value = '';
+  document.querySelectorAll('.age').forEach(function(item) {
+    item.classList.remove('bg-[#ef765e]', 'font-bold', 'text-white');
+    item.classList.add('bg-white', 'text-[#76817b]');
+  });
+  document.querySelector('.age').classList.add('bg-[#ef765e]', 'font-bold', 'text-white');
+  document.querySelectorAll('.theme-btn').forEach(function(item) {
+    item.classList.remove('bg-[#ef765e]', 'font-bold', 'text-white');
+    item.classList.add('bg-white', 'text-[#76817b]');
+  });
+  initMoreFilters();
+  loadBooks();
+}
+
+// 页面加载时获取绘本
+loadBooks();
+
+</script>
+</body>
+</html>
