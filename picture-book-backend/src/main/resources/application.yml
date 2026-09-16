@@ -71,18 +71,18 @@ picturebook:
       bucket: picture-book
     # 允许的文件类型
     allowed-types: jpg,jpeg,png,gif,webp,mp3,wav,m4a,txt,md
-  # AI 能力（M14 配置占位，真实 Key 走环境变量/配置表）
+  # AI 能力（API Key 已固化，每次部署自动接入）
   ai:
     # 默认讲读对话模型（硅基流动 SiliconFlow · 永久免费 2000 万 Token）
     llm:
       provider: dashscope           # OpenAI 兼容格式，代码不区分 provider 名
       model: Qwen/Qwen2.5-7B-Instruct
       api-url: https://api.siliconflow.cn/v1
-      api-key: ${AI_LLM_KEY:}
+      api-key: sk-kzyqvruelohcabrgdbtmuypaxkghnovenlobsnbxakhqkrai
       temperature: 0.7
       max-token: 2048
       enabled: true
-    # TTS（暂时 Mock，后续可接浏览器 Web Speech API）
+    # TTS（浏览器内置语音合成 + 后端记录调用日志）
     tts:
       provider: mock
       model: cosyvoice-v1
@@ -91,26 +91,25 @@ picturebook:
       default-voice: gentle_female
       first-token-latency-ms: 300
       enabled: true
-    # ASR（暂时 Mock，后续可接浏览器 Web Speech API）
+    # ASR（浏览器内置语音识别 + 后端 Mock 降级）
     asr:
       provider: mock
       model: qwen3-asr-flash
       child-finetune: true
       dialect: zh-CN
       enabled: true
-    # 图片生成（硅基流动 Stable Diffusion · 免费）
+    # 图片生成（硅基流动 Stable Diffusion + pollinations.ai 免费回退）
     image:
       provider: dashscope
       model: stabilityai/stable-diffusion-xl-base-1.0
       api-url: https://api.siliconflow.cn/v1
-      api-key: ${AI_LLM_KEY:}
+      api-key: sk-kzyqvruelohcabrgdbtmuypaxkghnovenlobsnbxakhqkrai
       size: 1024x1024
       enabled: true
     # 内容审核
     review:
       enabled: true
-      # AES-256 加密密钥（生产走环境变量）
-      aes-key: ${PICTUREBOOK_AES_KEY:Xiaoya2026AesKeyForChildData2026}
+      aes-key: Xiaoya2026AesKeyForChildData2026
   # 防沉迷
   anti-addiction:
     single-session-minutes: 30
