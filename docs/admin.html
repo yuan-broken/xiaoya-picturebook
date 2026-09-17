@@ -539,7 +539,7 @@ async function loadBooks(pageNum) {
   try {
     var res = await API.adminBook.list(params.pageNum, params.pageSize, params.keyword, params.status);
     var pr = res.data || {};
-    var list = pr.records || pr.list || pr || [];
+    var list = pr.records || pr.list || pr.rows || pr || [];
     if (!Array.isArray(list)) list = [];
     if (!list.length) { document.getElementById('bookTableBody').innerHTML = '<tr><td colspan="7" class="empty">暂无绘本</td></tr>'; document.getElementById('bookPager').innerHTML=''; return; }
     document.getElementById('bookTableBody').innerHTML = list.map(function(b) {
@@ -574,7 +574,7 @@ function showBookModal(id) {
   if (isEdit) {
     API.adminBook.list(1, 100).then(function(res) {
       var pr = res.data || {};
-      var list = pr.records || pr.list || pr || [];
+      var list = pr.records || pr.list || pr.rows || pr || [];
       if (!Array.isArray(list)) list = [];
       var book = list.find(function(b) { return b.bookId === id; });
       if (book) {
