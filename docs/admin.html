@@ -317,7 +317,8 @@ function switchTab(tab) {
   document.getElementById('panel-' + tab).classList.add('active');
   var titles = { overview: '数据概览', admins: '管理员账号', families: '会员家庭', orders: '订单管理', books: '绘本管理', aimodels: 'AI 模型配置', config: '系统配置' };
   document.getElementById('topbarTitle').textContent = titles[tab] || '';
-  if (!tabLoaded[tab]) {
+  // 数据概览每次切换都刷新，保证与其他模块数据同步；其他 tab 首次加载后保留状态
+  if (tab === 'overview' || !tabLoaded[tab]) {
     tabLoaded[tab] = true;
     if (tab === 'overview') loadOverview();
     else if (tab === 'admins') loadAdmins();
@@ -341,12 +342,12 @@ async function loadOverview() {
     var res = await API.adminStats.overview();
     var d = res.data || {};
     var items = [
-      { label: '家庭总数', value: d.familyCount || d.families || 0, sub: '注册家长账号' },
-      { label: '孩子总数', value: d.childCount || d.children || 0, sub: '孩子档案' },
-      { label: '绘本总数', value: d.bookCount || d.books || 0, sub: '已上架绘本' },
-      { label: '订单总数', value: d.orderCount || d.orders || 0, sub: '全部订单' },
-      { label: '今日阅读', value: d.todayReadings || 0, sub: '阅读任务' },
-      { label: '活跃用户', value: d.activeUsers || 0, sub: '近 7 天' }
+      { label: '家庭总数', value: d.totalRegister || 0, sub: '注册家长账号' },
+      { label: '今日活跃', value: d.todayActive || 0, sub: '今日活跃用户' },
+      { label: '今日阅读', value: d.todayReading || 0, sub: '今日阅读任务' },
+      { label: '今日故事', value: d.todayStory || 0, sub: '今日生成故事' },
+      { label: '平均阅读时长', value: d.avgReadingMinutes || 0, sub: '分钟' },
+      { label: '阅读成功率', value: (d.readingSuccessRate || 0) + '%', sub: '阅读完成率' }
     ];
     document.getElementById('statGrid').innerHTML = items.map(function(i) {
       return '<div class="stat-card"><div class="stat-label">' + i.label + '</div><div class="stat-value">' + i.value + '</div><div class="stat-sub">' + i.sub + '</div></div>';
