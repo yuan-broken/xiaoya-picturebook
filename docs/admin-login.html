@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理员登录 · 小芽绘本后台</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: #1e2a3a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .login-wrap { width: 380px; max-width: 90vw; }
+  .login-card { background: #243449; border-radius: 12px; padding: 40px 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .brand { text-align: center; margin-bottom: 32px; }
+  .brand-icon { width: 56px; height: 56px; background: #3b82f6; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 12px; }
+  .brand-title { font-size: 20px; font-weight: 600; color: #f1f5f9; }
+  .brand-sub { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+  .form-group { margin-bottom: 18px; }
+  .form-label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; }
+  .form-input { width: 100%; height: 42px; background: #1e2a3a; border: 1px solid #334155; border-radius: 8px; color: #f1f5f9; font-size: 14px; padding: 0 14px; outline: none; transition: border-color 0.2s; }
+  .form-input:focus { border-color: #3b82f6; }
+  .form-input::placeholder { color: #64748b; }
+  .btn-login { width: 100%; height: 44px; background: #3b82f6; border: none; border-radius: 8px; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+  .btn-login:hover { background: #2563eb; }
+  .btn-login:disabled { background: #475569; cursor: not-allowed; }
+  .error-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; padding: 8px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .error-msg.show { display: block; }
+  .footer { text-align: center; margin-top: 24px; }
+  .footer a { color: #64748b; text-decoration: none; font-size: 13px; }
+  .footer a:hover { color: #94a3b8; }
+  .loading-dot { display: inline-block; width: 6px; height: 6px; background: #fff; border-radius: 50%; animation: bounce 0.8s infinite; }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-icon">🌿</div>
+      <div class="brand-title">小芽绘本管理后台</div>
+      <div class="brand-sub">管理员专属入口</div>
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="form-group">
+      <label class="form-label">管理员账号</label>
+      <input type="text" class="form-input" id="username" placeholder="请输入管理员账号" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">密码</label>
+      <input type="password" class="form-input" id="password" placeholder="请输入密码" autocomplete="off">
+    </div>
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">登录</button>
+  </div>
+  <div class="footer">
+    <a href="home.html">← 返回首页</a>
+  </div>
+</div>
+<script src="api.js?v=21"></script>
+<script>
+  // 已登录直接跳转
+  if (API.isAdmin()) {
+    window.location.href = 'admin.html';
+  }
+
+  function showError(msg) {
+    var el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+  function clearError() {
+    document.getElementById('errorMsg').classList.remove('show');
+  }
+
+  async function doLogin() {
+    clearError();
+    var username = document.getElementById('username').value.trim();
+    var password = document.getElementById('password').value;
+    if (!username || !password) {
+      showError('请输入账号和密码');
+      return;
+    }
+    var btn = document.getElementById('btnLogin');
+    btn.disabled = true;
+    btn.innerHTML = '登录中...';
+    try {
+      var res = await API.auth.adminLogin(username, password);
+      if (res.code === 200 && res.data && res.data.token) {
+        API.setToken(res.data.token);
+        API.setUser({
+          username: res.data.username || username,
+          role: 'admin',
+          nickname: res.data.nickname || '管理员'
+        });
+        window.location.href = 'admin.html';
+      } else {
+        showError(res.msg || '登录失败，请检查账号密码');
+        btn.disabled = false;
+        btn.innerHTML = '登录';
+      }
+    } catch (e) {
+      showError('网络异常，请确认后端服务已启动');
+      btn.disabled = false;
+      btn.innerHTML = '登录';
+    }
+  }
+
+  // 回车提交
+  document.getElementById('password').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') doLogin();
+  });
+</script>
+</body>
+</html>
