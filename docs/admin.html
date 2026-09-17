@@ -199,8 +199,8 @@
         <div class="card">
           <div class="table-wrap">
             <table class="table">
-              <thead><tr><th>ID</th><th>用户名</th><th>家长姓名</th><th>手机</th><th>会员等级</th><th>会员状态</th><th>到期时间</th></tr></thead>
-              <tbody id="familyTableBody"><tr><td colspan="7" class="loading">加载中...</td></tr></tbody>
+              <thead><tr><th>ID</th><th>用户名</th><th>家长姓名</th><th>手机</th><th>会员等级</th><th>会员状态</th><th>到期时间</th><th>操作</th></tr></thead>
+              <tbody id="familyTableBody"><tr><td colspan="8" class="loading">加载中...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -469,13 +469,75 @@ async function loadFamilies() {
   try {
     var res = await API.adminUser.familyList(params);
     var list = res.data || [];
-    if (!list.length) { document.getElementById('familyTableBody').innerHTML = '<tr><td colspan="7" class="empty">暂无数据</td></tr>'; return; }
+    if (!list.length) { document.getElementById('familyTableBody').innerHTML = '<tr><td colspan="8" class="empty">暂无数据</td></tr>'; return; }
     document.getElementById('familyTableBody').innerHTML = list.map(function(f) {
-      var levelBadge = f.memberLevel === 'premium' ? '<span class="badge badge-blue">高级</span>' : (f.memberLevel === 'basic' ? '<span class="badge badge-yellow">基础</span>' : '<span class="badge badge-gray">免费</span>');
-      var statusBadge = f.memberStatus === 1 || f.memberStatus === '1' ? '<span class="badge badge-green">有效</span>' : '<span class="badge badge-red">过期</span>';
-      return '<tr><td>' + f.familyId + '</td><td>' + (f.username||'-') + '</td><td>' + (f.parentName||'-') + '</td><td>' + (f.phone||'-') + '</td><td>' + levelBadge + '</td><td>' + statusBadge + '</td><td>' + (f.memberEndAt||'-') + '</td></tr>';
+      var levelBadge = f.memberLevel === 'family' ? '<span class="badge badge-blue">家庭版</span>' : (f.memberLevel === 'growth' ? '<span class="badge badge-yellow">成长版</span>' : '<span class="badge badge-gray">免费</span>');
+      var statusBadge = f.memberStatus === '1' ? '<span class="badge badge-green">已开通</span>' : (f.memberStatus === '2' ? '<span class="badge badge-red">已过期</span>' : '<span class="badge badge-gray">未开通</span>');
+      var actions = '<button class="btn btn-outline btn-sm" onclick="showFamilyPwdModal(' + f.familyId + ')">改密</button> ';
+      actions += '<button class="btn btn-outline btn-sm" onclick="showFamilyStatusModal(' + f.familyId + ',\'' + (f.memberStatus||'0') + '\')">会员状态</button> ';
+      actions += '<button class="btn btn-outline btn-sm" onclick="showFamilyExpireModal(' + f.familyId + ',\'' + (f.memberEndAt||'').substring(0,10) + '\')">到期时间</button> ';
+      actions += '<button class="btn btn-danger btn-sm" onclick="deleteFamily(' + f.familyId + ')">删除</button>';
+      return '<tr><td>' + f.familyId + '</td><td>' + (f.username||'-') + '</td><td>' + (f.parentName||'-') + '</td><td>' + (f.phone||'-') + '</td><td>' + levelBadge + '</td><td>' + statusBadge + '</td><td>' + (f.memberEndAt||'-') + '</td><td>' + actions + '</td></tr>';
     }).join('');
-  } catch (e) { document.getElementById('familyTableBody').innerHTML = '<tr><td colspan="7" class="empty">加载失败</td></tr>'; }
+  } catch (e) { document.getElementById('familyTableBody').innerHTML = '<tr><td colspan="8" class="empty">加载失败</td></tr>'; }
+}
+
+function showFamilyPwdModal(id) {
+  var html = '<div class="modal-title">修改家长密码 (ID: ' + id + ')</div>';
+  html += '<div class="modal-field"><label>新密码（至少6位）</label><input type="password" id="m_familyPwd"></div>';
+  html += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveFamilyPwd(' + id + ')">保存</button></div>';
+  showModal(html);
+}
+
+async function saveFamilyPwd(id) {
+  var pwd = document.getElementById('m_familyPwd').value;
+  if (!pwd || pwd.length < 6) { API.toast('密码至少6位'); return; }
+  var res = await API.adminUser.familyChangePwd(id, pwd);
+  if (res.code === 200) { API.toast('密码已更新'); closeModal(); }
+  else API.toast(res.msg || '失败');
+}
+
+function showFamilyStatusModal(id, current) {
+  var html = '<div class="modal-title">修改会员状态 (ID: ' + id + ')</div>';
+  html += '<div class="modal-field"><label>会员状态</label><select id="m_familyStatus"><option value="0"' + (current==='0'?' selected':'') + '>未开通</option><option value="1"' + (current==='1'?' selected':'') + '>已开通</option><option value="2"' + (current==='2'?' selected':'') + '>已过期</option></select></div>';
+  html += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveFamilyStatus(' + id + ')">保存</button></div>';
+  showModal(html);
+}
+
+async function saveFamilyStatus(id) {
+  var status = document.getElementById('m_familyStatus').value;
+  var res = await API.adminUser.familyChangeStatus(id, status);
+  if (res.code === 200) { API.toast('状态已更新'); closeModal(); loadFamilies(); }
+  else API.toast(res.msg || '失败');
+}
+
+function showFamilyExpireModal(id, current) {
+  var html = '<div class="modal-title">修改会员到期时间 (ID: ' + id + ')</div>';
+  html += '<div class="modal-field"><label>到期日期</label><input type="date" id="m_familyExpire" value="' + current + '"></div>';
+  html += '<div class="modal-field"><label>快捷操作</label><div style="display:flex;gap:6px;"><button class="btn btn-outline btn-sm" onclick="setExpireQuick(30)">+30天</button><button class="btn btn-outline btn-sm" onclick="setExpireQuick(90)">+90天</button><button class="btn btn-outline btn-sm" onclick="setExpireQuick(365)">+1年</button></div></div>';
+  html += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveFamilyExpire(' + id + ')">保存</button></div>';
+  showModal(html);
+}
+
+function setExpireQuick(days) {
+  var d = new Date();
+  d.setDate(d.getDate() + days);
+  document.getElementById('m_familyExpire').value = d.toISOString().substring(0,10);
+}
+
+async function saveFamilyExpire(id) {
+  var expire = document.getElementById('m_familyExpire').value;
+  if (!expire) { API.toast('请选择日期'); return; }
+  var res = await API.adminUser.familyChangeExpire(id, expire);
+  if (res.code === 200) { API.toast('到期时间已更新'); closeModal(); loadFamilies(); }
+  else API.toast(res.msg || '失败');
+}
+
+async function deleteFamily(id) {
+  if (!confirm('确认删除该家庭账号？此操作不可恢复（软删除）。')) return;
+  var res = await API.adminUser.familyRemove(id);
+  if (res.code === 200) { API.toast('已删除'); loadFamilies(); }
+  else API.toast(res.msg || '删除失败');
 }
 
 // ===== 订单管理 =====
