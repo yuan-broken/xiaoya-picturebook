@@ -14,7 +14,10 @@ const API = (function () {
   // ============================================================
   // 配置
   // ============================================================
-  const BASE_URL = 'https://circumstances-standards-cookbook-washer.trycloudflare.com'; // 生产环境 tunnel (http2)
+  // BASE_URL 自适应：localhost 访问走本地后端，GitHub Pages 走 tunnel
+  const BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:8080'
+    : 'https://circumstances-standards-cookbook-washer.trycloudflare.com';
   const TOKEN_KEY = 'picturebook_token';
   const USER_KEY = 'picturebook_user';
 
@@ -146,6 +149,8 @@ const API = (function () {
   const auth = {
     /** 家长登录 */
     login: (username, password) => post('/api/auth/login', { username, password }),
+    /** 管理员登录 */
+    adminLogin: (username, password) => post('/api/auth/admin/login', { username, password }),
     /** 孩子登录 */
     childLogin: (username, password) => post('/api/auth/child/login', { username, password }),
     /** 获取当前用户信息 */
@@ -303,6 +308,57 @@ const API = (function () {
     remove: (id) => del('/api/admin/ai-model/' + id),
     /** 切换启用 */
     toggle: (id) => put('/api/admin/ai-model/' + id + '/toggle'),
+  };
+
+  // ============================================================
+  // 管理端 - 管理员账号 + 会员家庭 + 订单 API
+  // ============================================================
+  const adminUser = {
+    // ---- 管理员账号 ----
+    /** 管理员列表 */
+    adminList: () => get('/api/admin/user/admin'),
+    /** 新增管理员 */
+    adminAdd: (admin) => post('/api/admin/user/admin', admin),
+    /** 修改管理员（不含密码） */
+    adminUpdate: (admin) => put('/api/admin/user/admin', admin),
+    /** 修改管理员密码 */
+    adminChangePwd: (id, newPassword) => put('/api/admin/user/admin/' + id + '/password', { newPassword }),
+    /** 启用/禁用管理员 */
+    adminToggleStatus: (id, status) => put('/api/admin/user/admin/' + id + '/status', { status }),
+    /** 删除管理员 */
+    adminRemove: (id) => del('/api/admin/user/admin/' + id),
+    // ---- 会员家庭 ----
+    /** 会员家庭列表（支持筛选） */
+    familyList: (params) => get('/api/admin/user/family' + buildQuery(params)),
+    /** 家庭详情 */
+    familyDetail: (id) => get('/api/admin/user/family/' + id),
+    // ---- 订单 ----
+    /** 订单列表（支持筛选） */
+    orderList: (params) => get('/api/admin/user/order' + buildQuery(params)),
+    /** 订单详情 */
+    orderDetail: (id) => get('/api/admin/user/order/' + id),
+    /** 退款 */
+    orderRefund: (id, reason) => post('/api/admin/user/order/' + id + '/refund', { reason }),
+    /** 手动开通/续费 */
+    orderManual: (familyId, planType, paymentMethod) =>
+      post('/api/admin/user/order/manual', { familyId, planType, paymentMethod }),
+  };
+
+  // ============================================================
+  // 管理端 - 绘本内容管理 API
+  // ============================================================
+  const adminBook = {
+    /** 分页查询绘本 */
+    list: (pageNum, pageSize, keyword, status) =>
+      get('/api/admin/book/list' + buildQuery({ pageNum, pageSize, keyword, status })),
+    /** 新增绘本 */
+    add: (book) => post('/api/admin/book', book),
+    /** 修改绘本 */
+    update: (book) => put('/api/admin/book', book),
+    /** 上架/下架 */
+    changeStatus: (id, status) => put('/api/admin/book/' + id + '/status?status=' + status),
+    /** 删除绘本 */
+    remove: (id) => del('/api/admin/book/' + id),
   };
 
   // ============================================================
@@ -529,7 +585,7 @@ const API = (function () {
     apiRequest: apiRequestLegacy, // 兼容旧代码: apiRequest(path, { method, body })
     // API 分组
     auth, home, book, reading, story, chat, file,
-    adminStats, adminConfig, adminAiModel,
+    adminStats, adminConfig, adminAiModel, adminUser, adminBook,
     habit, recommend, ai, voiceClone, coread, order,
     // 工具
     getQueryParam, toast,
