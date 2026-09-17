@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台 · 小芽绘本</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: #f1f5f9; color: #1e293b; }
+  
+  /* ===== 布局 ===== */
+  .app { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: #1e2a3a; color: #e2e8f0; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .sidebar-brand { padding: 20px 18px; border-bottom: 1px solid #334155; }
+  .sidebar-brand-title { font-size: 16px; font-weight: 600; color: #f1f5f9; }
+  .sidebar-brand-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .nav-item { padding: 12px 18px; cursor: pointer; font-size: 14px; color: #cbd5e1; border-left: 3px solid transparent; transition: all 0.15s; display: flex; align-items: center; gap: 10px; }
+  .nav-item:hover { background: rgba(59,130,246,0.1); color: #f1f5f9; }
+  .nav-item.active { background: rgba(59,130,246,0.15); border-left-color: #3b82f6; color: #fff; }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .main { flex: 1; display: flex; flex-direction: column; }
+  .topbar { height: 56px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+  .topbar-title { font-size: 16px; font-weight: 600; color: #1e293b; }
+  .topbar-user { font-size: 13px; color: #64748b; }
+  .topbar-user span { color: #3b82f6; font-weight: 500; }
+  .btn-logout { background: none; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 12px; font-size: 12px; color: #64748b; cursor: pointer; margin-left: 12px; }
+  .btn-logout:hover { border-color: #ef4444; color: #ef4444; }
+  .content { padding: 24px; flex: 1; }
+  
+  /* ===== 通用组件 ===== */
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px; }
+  .card-title { font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 16px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .stat-card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .stat-label { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+  .stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+  .stat-sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+  
+  /* 表格 */
+  .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .table th { text-align: left; padding: 10px 12px; background: #f8fafc; color: #64748b; font-weight: 500; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+  .table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+  .table tr:hover td { background: #f8fafc; }
+  .table-wrap { overflow-x: auto; }
+  
+  /* 按钮 */
+  .btn { padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: #3b82f6; color: #fff; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 4px; }
+  .btn-outline { background: #fff; border: 1px solid #cbd5e1; color: #475569; }
+  .btn-outline:hover { border-color: #3b82f6; color: #3b82f6; }
+  .btn-danger { color: #ef4444; background: #fff; border: 1px solid #fecaca; }
+  .btn-danger:hover { background: #fef2f2; }
+  .btn-success { color: #16a34a; background: #fff; border: 1px solid #bbf7d0; }
+  .btn-success:hover { background: #f0fdf4; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+  .toolbar-left { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .toolbar-right { display: flex; gap: 8px; }
+  
+  /* 筛选 */
+  .filter-input { height: 32px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 13px; outline: none; }
+  .filter-input:focus { border-color: #3b82f6; }
+  .filter-select { height: 32px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 8px; font-size: 13px; background: #fff; outline: none; }
+  
+  /* 状态标签 */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .badge-green { background: #dcfce7; color: #16a34a; }
+  .badge-red { background: #fee2e2; color: #ef4444; }
+  .badge-blue { background: #dbeafe; color: #2563eb; }
+  .badge-gray { background: #f1f5f9; color: #64748b; }
+  .badge-yellow { background: #fef9c3; color: #ca8a04; }
+  
+  /* 弹窗 */
+  .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 1000; }
+  .modal-mask.show { display: flex; }
+  .modal { background: #fff; border-radius: 10px; padding: 24px; width: 460px; max-width: 90vw; max-height: 85vh; overflow-y: auto; }
+  .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; color: #1e293b; }
+  .modal-field { margin-bottom: 14px; }
+  .modal-field label { display: block; font-size: 13px; color: #64748b; margin-bottom: 4px; }
+  .modal-field input, .modal-field select, .modal-field textarea { width: 100%; height: 36px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 13px; outline: none; }
+  .modal-field input:focus, .modal-field select:focus { border-color: #3b82f6; }
+  .modal-field textarea { height: auto; padding: 8px 10px; min-height: 60px; resize: vertical; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  
+  /* 空状态 */
+  .empty { text-align: center; padding: 40px; color: #94a3b8; font-size: 14px; }
+  .loading { text-align: center; padding: 40px; color: #94a3b8; font-size: 14px; }
+  
+  /* 排行列表 */
+  .rank-list { list-style: none; }
+  .rank-item { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+  .rank-num { width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; color: #fff; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; flex-shrink: 0; }
+  .rank-name { flex: 1; font-size: 13px; color: #334155; }
+  .rank-value { font-size: 13px; color: #64748b; }
+  
+  /* 分页 */
+  .pager { display: flex; gap: 4px; justify-content: center; margin-top: 16px; }
+  .pager button { min-width: 32px; height: 32px; border: 1px solid #cbd5e1; background: #fff; border-radius: 4px; font-size: 12px; cursor: pointer; color: #475569; }
+  .pager button.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+  .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+  
+  /* 配置编辑 */
+  .config-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+  .config-key { flex: 1; font-size: 13px; color: #475569; font-family: monospace; }
+  .config-input { width: 200px; height: 30px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 0 8px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- 侧栏 -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-title">🌿 小芽绘本</div>
+      <div class="sidebar-brand-sub">管理后台 v1.0</div>
+    </div>
+    <div class="nav-item active" onclick="switchTab('overview')" data-tab="overview">
+      <span class="nav-icon">📊</span>数据概览
+    </div>
+    <div class="nav-item" onclick="switchTab('admins')" data-tab="admins">
+      <span class="nav-icon">👤</span>管理员账号
+    </div>
+    <div class="nav-item" onclick="switchTab('families')" data-tab="families">
+      <span class="nav-icon">👨‍👩‍👧</span>会员家庭
+    </div>
+    <div class="nav-item" onclick="switchTab('orders')" data-tab="orders">
+      <span class="nav-icon">💳</span>订单管理
+    </div>
+    <div class="nav-item" onclick="switchTab('books')" data-tab="books">
+      <span class="nav-icon">📚</span>绘本管理
+    </div>
+    <div class="nav-item" onclick="switchTab('aimodels')" data-tab="aimodels">
+      <span class="nav-icon">🤖</span>AI 模型配置
+    </div>
+    <div class="nav-item" onclick="switchTab('config')" data-tab="config">
+      <span class="nav-icon">⚙️</span>系统配置
+    </div>
+  </div>
+
+  <!-- 主区 -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">数据概览</div>
+      <div class="topbar-user">
+        当前管理员: <span id="adminName">admin</span>
+        <button class="btn-logout" onclick="doLogout()">退出</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- ===== 数据概览 ===== -->
+      <div class="panel active" id="panel-overview">
+        <div class="stat-grid" id="statGrid">
+          <div class="loading">加载中...</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+          <div class="card">
+            <div class="card-title">热门绘本 Top 5</div>
+            <ul class="rank-list" id="hotBooks"><div class="loading">加载中...</div></ul>
+          </div>
+          <div class="card">
+            <div class="card-title">热门角色 Top 5</div>
+            <ul class="rank-list" id="hotRoles"><div class="loading">加载中...</div></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 管理员账号 ===== -->
+      <div class="panel" id="panel-admins">
+        <div class="toolbar">
+          <div class="toolbar-left"></div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary" onclick="showAdminModal()">+ 新增管理员</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>ID</th><th>账号</th><th>昵称</th><th>角色</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
+              <tbody id="adminTableBody"><tr><td colspan="7" class="loading">加载中...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 会员家庭 ===== -->
+      <div class="panel" id="panel-families">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <select class="filter-select" id="familyLevel"><option value="">全部等级</option><option value="free">免费</option><option value="basic">基础</option><option value="premium">高级</option></select>
+            <select class="filter-select" id="familyStatus"><option value="">全部状态</option><option value="1">有效</option><option value="0">过期</option></select>
+            <input type="text" class="filter-input" id="familyKeyword" placeholder="搜索用户名/姓名/手机">
+            <button class="btn btn-outline btn-sm" onclick="loadFamilies()">筛选</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>ID</th><th>用户名</th><th>家长姓名</th><th>手机</th><th>会员等级</th><th>会员状态</th><th>到期时间</th></tr></thead>
+              <tbody id="familyTableBody"><tr><td colspan="7" class="loading">加载中...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 订单管理 ===== -->
+      <div class="panel" id="panel-orders">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <input type="text" class="filter-input" id="orderFamilyId" placeholder="家庭ID">
+            <select class="filter-select" id="orderPlan"><option value="">全部套餐</option><option value="monthly">月度</option><option value="quarterly">季度</option><option value="yearly">年度</option></select>
+            <select class="filter-select" id="orderStatus"><option value="">全部状态</option><option value="pending">待支付</option><option value="paid">已支付</option><option value="refunded">已退款</option></select>
+            <button class="btn btn-outline btn-sm" onclick="loadOrders()">筛选</button>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary" onclick="showManualModal()">手动开通</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>订单ID</th><th>家庭ID</th><th>套餐</th><th>金额</th><th>状态</th><th>退款</th><th>创建时间</th><th>操作</th></tr></thead>
+              <tbody id="orderTableBody"><tr><td colspan="8" class="loading">加载中...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 绘本管理 ===== -->
+      <div class="panel" id="panel-books">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <input type="text" class="filter-input" id="bookKeyword" placeholder="搜索绘本标题">
+            <select class="filter-select" id="bookStatus"><option value="">全部状态</option><option value="1">已上架</option><option value="0">已下架</option></select>
+            <button class="btn btn-outline btn-sm" onclick="loadBooks(1)">筛选</button>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary" onclick="showBookModal()">+ 新增绘本</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>ID</th><th>标题</th><th>作者</th><th>分类</th><th>年龄段</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody id="bookTableBody"><tr><td colspan="7" class="loading">加载中...</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pager" id="bookPager"></div>
+        </div>
+      </div>
+
+      <!-- ===== AI 模型配置 ===== -->
+      <div class="panel" id="panel-aimodels">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <select class="filter-select" id="aiCapability"><option value="">全部能力</option><option value="tts">TTS 语音合成</option><option value="asr">ASR 语音识别</option><option value="voice_clone">声音复刻</option><option value="llm">AI 故事生成</option><option value="image">AI 配图</option></select>
+            <select class="filter-select" id="aiProvider"><option value="">全部供应商</option></select>
+            <button class="btn btn-outline btn-sm" onclick="loadAiModels(1)">筛选</button>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary" onclick="showAiModelModal()">+ 新增配置</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>ID</th><th>能力类型</th><th>供应商</th><th>模型名</th><th>API Key</th><th>API URL</th><th>启用</th><th>操作</th></tr></thead>
+              <tbody id="aiModelTableBody"><tr><td colspan="8" class="loading">加载中...</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pager" id="aiModelPager"></div>
+        </div>
+      </div>
+
+      <!-- ===== 系统配置 ===== -->
+      <div class="panel" id="panel-config">
+        <div class="card">
+          <div class="card-title">防沉迷配置</div>
+          <div id="antiAddictionArea"><div class="loading">加载中...</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">产品基础配置</div>
+          <div id="productConfigArea"><div class="loading">加载中...</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">全部配置项</div>
+          <div id="allConfigArea"><div class="loading">加载中...</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 通用弹窗 -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script src="api.js?v=21"></script>
+<script>
+// ===== 鉴权 =====
+if (!API.isAdmin()) {
+  window.location.href = 'admin-login.html';
+}
+document.getElementById('adminName').textContent = API.getUser().username || 'admin';
+
+// ===== Tab 切换 =====
+var tabLoaded = {};
+function switchTab(tab) {
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  var titles = { overview: '数据概览', admins: '管理员账号', families: '会员家庭', orders: '订单管理', books: '绘本管理', aimodels: 'AI 模型配置', config: '系统配置' };
+  document.getElementById('topbarTitle').textContent = titles[tab] || '';
+  if (!tabLoaded[tab]) {
+    tabLoaded[tab] = true;
+    if (tab === 'overview') loadOverview();
+    else if (tab === 'admins') loadAdmins();
+    else if (tab === 'families') loadFamilies();
+    else if (tab === 'orders') loadOrders();
+    else if (tab === 'books') loadBooks(1);
+    else if (tab === 'aimodels') loadAiModels(1);
+    else if (tab === 'config') loadConfig();
+  }
+}
+
+function doLogout() {
+  API.auth.logout().then(function() {
+    window.location.href = 'admin-login.html';
+  });
+}
+
+// ===== 数据概览 =====
+async function loadOverview() {
+  try {
+    var res = await API.adminStats.overview();
+    var d = res.data || {};
+    var items = [
+      { label: '家庭总数', value: d.familyCount || d.families || 0, sub: '注册家长账号' },
+      { label: '孩子总数', value: d.childCount || d.children || 0, sub: '孩子档案' },
+      { label: '绘本总数', value: d.bookCount || d.books || 0, sub: '已上架绘本' },
+      { label: '订单总数', value: d.orderCount || d.orders || 0, sub: '全部订单' },
+      { label: '今日阅读', value: d.todayReadings || 0, sub: '阅读任务' },
+      { label: '活跃用户', value: d.activeUsers || 0, sub: '近 7 天' }
+    ];
+    document.getElementById('statGrid').innerHTML = items.map(function(i) {
+      return '<div class="stat-card"><div class="stat-label">' + i.label + '</div><div class="stat-value">' + i.value + '</div><div class="stat-sub">' + i.sub + '</div></div>';
+    }).join('');
+  } catch (e) { document.getElementById('statGrid').innerHTML = '<div class="empty">加载失败</div>'; }
+  // 热门绘本
+  try {
+    var hb = await API.adminStats.hotBooks(5);
+    var hbData = hb.data || [];
+    document.getElementById('hotBooks').innerHTML = hbData.length ? hbData.map(function(b, i) {
+      return '<li class="rank-item"><span class="rank-num">' + (i+1) + '</span><span class="rank-name">' + (b.title || b.name || '-') + '</span><span class="rank-value">' + (b.readCount || b.count || 0) + ' 次阅读</span></li>';
+    }).join('') : '<div class="empty">暂无数据</div>';
+  } catch (e) { document.getElementById('hotBooks').innerHTML = '<div class="empty">加载失败</div>'; }
+  // 热门角色
+  try {
+    var hr = await API.adminStats.hotRoles(5);
+    var hrData = hr.data || [];
+    document.getElementById('hotRoles').innerHTML = hrData.length ? hrData.map(function(r, i) {
+      return '<li class="rank-item"><span class="rank-num">' + (i+1) + '</span><span class="rank-name">' + (r.roleName || r.name || '-') + '</span><span class="rank-value">' + (r.chatCount || r.count || 0) + ' 次对话</span></li>';
+    }).join('') : '<div class="empty">暂无数据</div>';
+  } catch (e) { document.getElementById('hotRoles').innerHTML = '<div class="empty">加载失败</div>'; }
+}
+
+// ===== 管理员账号 =====
+async function loadAdmins() {
+  try {
+    var res = await API.adminUser.adminList();
+    var list = res.data || [];
+    if (!list.length) { document.getElementById('adminTableBody').innerHTML = '<tr><td colspan="7" class="empty">暂无管理员</td></tr>'; return; }
+    document.getElementById('adminTableBody').innerHTML = list.map(function(a) {
+      var roleBadge = a.role === 'admin' ? '<span class="badge badge-blue">超级管理员</span>' : (a.role === 'super' ? '<span class="badge badge-blue">超级</span>' : '<span class="badge badge-gray">操作员</span>');
+      var statusBadge = a.status === 1 || a.status === '1' ? '<span class="badge badge-green">启用</span>' : '<span class="badge badge-red">禁用</span>';
+      var isSuper = a.role === 'admin' || a.role === 'super';
+      var actions = '<button class="btn btn-outline btn-sm" onclick="showAdminModal(' + a.adminId + ')">编辑</button> ';
+      actions += '<button class="btn btn-outline btn-sm" onclick="showPwdModal(' + a.adminId + ')">改密</button> ';
+      if (!isSuper) {
+        actions += '<button class="btn ' + (a.status === 1 || a.status === '1' ? 'btn-danger' : 'btn-success') + ' btn-sm" onclick="toggleAdminStatus(' + a.adminId + ',' + (a.status === 1 || a.status === '1' ? 0 : 1) + ')">' + (a.status === 1 || a.status === '1' ? '禁用' : '启用') + '</button> ';
+        actions += '<button class="btn btn-danger btn-sm" onclick="deleteAdmin(' + a.adminId + ')">删除</button>';
+      }
+      return '<tr><td>' + a.adminId + '</td><td>' + (a.username||'-') + '</td><td>' + (a.nickname||'-') + '</td><td>' + roleBadge + '</td><td>' + statusBadge + '</td><td>' + (a.createTime||'-') + '</td><td>' + actions + '</td></tr>';
+    }).join('');
+  } catch (e) { document.getElementById('adminTableBody').innerHTML = '<tr><td colspan="7" class="empty">加载失败</td></tr>'; }
+}
+
+function showAdminModal(id) {
+  var isEdit = !!id;
+  var html = '<div class="modal-title">' + (isEdit ? '编辑管理员' : '新增管理员') + '</div>';
+  html += '<div class="modal-field"><label>账号</label><input id="m_adminUsername" ' + (isEdit ? 'disabled' : '') + '></div>';
+  html += '<div class="modal-field"><label>昵称</label><input id="m_adminNickname"></div>';
+  if (!isEdit) {
+    html += '<div class="modal-field"><label>密码（至少8位）</label><input type="password" id="m_adminPassword"></div>';
+  }
+  html += '<div class="modal-field"><label>角色</label><select id="m_adminRole"><option value="operator">操作员</option><option value="super">超级</option></select></div>';
+  html += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveAdmin(' + (id||0) + ')">保存</button></div>';
+  showModal(html);
+  if (isEdit) {
+    API.adminUser.adminList().then(function(res) {
+      var admin = (res.data || []).find(function(a) { return a.adminId === id; });
+      if (admin) {
+        document.getElementById('m_adminUsername').value = admin.username || '';
+        document.getElementById('m_adminNickname').value = admin.nickname || '';
+        document.getElementById('m_adminRole').value = admin.role === 'super' ? 'super' : 'operator';
+      }
+    });
+  }
+}
+
+async function saveAdmin(id) {
+  var username = document.getElementById('m_adminUsername').value.trim();
+  var nickname = document.getElementById('m_adminNickname').value.trim();
+  var role = document.getElementById('m_adminRole').value;
+  if (!username || !nickname) { API.toast('请填写账号和昵称'); return; }
+  if (!id && !document.getElementById('m_adminPassword').value) { API.toast('请输入密码'); return; }
+  if (id) {
+    var res = await API.adminUser.adminUpdate({ adminId: id, nickname: nickname, role: role });
+  } else {
+    var res = await API.adminUser.adminAdd({ username: username, nickname: nickname, password: document.getElementById('m_adminPassword').value, role: role });
+  }
+  if (res.code === 200) { API.toast('保存成功'); closeModal(); loadAdmins(); }
+  else API.toast(res.msg || '保存失败');
+}
+
+function showPwdModal(id) {
+  var html = '<div class="modal-title">修改密码</div>';
+  html += '<div class="modal-field"><label>新密码（至少8位）</label><input type="password" id="m_newPassword"></div>';
+  html += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="savePwd(' + id + ')">保存</button></div>';
+  showModal(html);
+}
+
+async function savePwd(id) {
+  var pwd = document.getElementById('m_newPassword').value;
+  if (!pwd || pwd.length < 8) { API.toast('密码至少8位'); return; }
+  var res = await API.adminUser.adminChangePwd(id, pwd);
+  if (res.code === 200) { API.toast('密码已更新'); closeModal(); }
+  else API.toast(res.msg || '失败');
+}
+
+async function toggleAdminStatus(id, status) {
+  var res = await API.adminUser.adminToggleStatus(id, status);
+  if (res.code === 200) { API.toast('已更新'); loadAdmins(); }
+  else API.toast(res.msg || '失败');
+}
+
+async function deleteAdmin(id) {
+  if (!confirm('确认删除该管理员？')) return;
+  var res = await API.adminUser.adminRemove(id);
+  if (res.code === 200) { API.toast('已删除'); loadAdmins(); }
+  else API.toast(res.msg || '失败');
+}
+
+// ===== 会员家庭 =====
+async function loadFamilies() {
+  var params = {};
+  var level = document.getElementById('familyLevel').value;
+  var status = document.getElementById('familyStatus').value;
+  var keyword = document.getElementById('familyKeyword').value.trim();
+  if (level) params.memberLevel = level;
+  if (status) params.memberStatus = status;
+  if (keyword) params.keyword = keyword;
+  try {
+    var res = await API.adminUser.familyList(params);
+    var list = res.data || [];
+    if (!list.length) { document.getElementById('familyTableBody').innerHTML = '<tr><td colspan="7" class="empty">暂无数据</td></tr>'; return; }
+    document.getElementById('familyTableBody').innerHTML = list.map(function(f) {
+      var levelBadge = f.memberLevel === 'premium' ? '<span class="badge badge-blue">高级</span>' : (f.memberLevel === 'basic' ? '<span class="badge badge-yellow">基础</span>' : '<span class="badge badge-gray">免费</span>');
+      var statusBadge = f.memberStatus === 1 || f.memberStatus === '1' ? '<span class="badge badge-green">有效</span>' : '<span class="badge badge-red">过期</span>';
+      return '<tr><td>' + f.familyId + '</td><td>' + (f.username||'-') + '</td><td>' + (f.parentName||'-') + '</td><td>' + (f.phone||'-') + '</td><td>' + levelBadge + '</td><td>' + statusBadge + '</td><td>' + (f.memberEndAt||'-') + '</td></tr>';
+    }).join('');
+  } catch (e) { document.getElementById('familyTableBody').innerHTML = '<tr><td colspan="7" class="empty">加载失败</td></tr>'; }
+}
+
+// ===== 订单管理 =====
+async function loadOrders() {
+  var params = {};
+  var fid = document.getElementById('orderFamilyId').value.trim();
+  var plan = document.getElementById('orderPlan').value;
+  var status = document.getElementById('orderStatus').value;
+  if (fid) params.familyId = fid;
+  if (plan) params.planType = plan;
+  if (status) params.status = status;
+  try {
+    var res = await API.adminUser.orderList(params);
+    var list = res.data || [];
+    if (!list.length) { document.getElementById('orderTableBody').innerHTML = '<tr><td colspan="8" class="empty">暂无订单</td></tr>'; return; }
+    document.getElementById('orderTableBody').innerHTML = list.map(function(o) {
+      var statusBadge = o.status === 'paid' ? '<span class="badge badge-green">已支付</span>' : (o.status === 'pending' ? '<span class="badge badge-yellow">待支付</span>' : (o.status === 'refunded' ? '<span class="badge badge-red">已退款</span>' : '<span class="badge badge-gray">' + (o.status||'-') + '</span>'));
+      var refundBadge = o.refundStatus ? '<span class="badge badge-red">' + o.refundStatus + '</span>' : '<span class="badge badge-gray">无</span>';
+      var actions = o.status === 'paid' ? '<button class="btn btn-danger btn-sm" onclick="refundOrder(' + o.orderId + ')">退款</button>' : '-';
+      return '<tr><td>' + o.orderId + '</td><td>' + (o.familyId||'-') + '</td><td>' + (o.planType||'-') + '</td><td>¥' + (o.amount||0) + '</td><td>' + statusBadge + '</td><td>' + refundBadge + '</td><td>' + (o.createTime||'-') + '</td><td>' + actions + '</td></tr>';
+    }).join('');
+  } catch (e) { document.getElementById('orderTableBody').innerHTML = '<tr><td colspan="8" class="empty">加载失败</td></tr>'; }
+}
+
+async function refundOrder(id) {
+  var reason = prompt('请输入退款原因：');
+  if (!reason) return;
+  var res = await API.adminUser.orderRefund(id, reason);
+  if (res.code === 200) { API.toast('退款成功'); loadOrders(); }
+  else API.toast(res.msg || '退款失败');
+}
+
+function showManualModal() {
+  var html = '<div class="modal-title">手动开通/续费</div>';
+  html += '<div class="modal-field"><label>家庭 ID</label><input id="m_manualFamilyId" type="number"></div>';
+  html += '<div class="modal-field"><label>套餐</label><select id="m_manualPlan"><option value="yearly">年度</option><option value="quarterly">季度</option><option value="monthly">月度</option></select></div>';
+  html += '<div class="modal-field"><label>支付方式</label><select id="m_manualPay"><option value="manual">手动</option><option value="alipay">支付宝</option><option value="wxpay">微信</option></select></div>';
+  html += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveManual()">开通</button></div>';
+  showModal(html);
+}
+
+async function saveManual() {
+  var fid = document.getElementById('m_manualFamilyId').value;
+  var plan = document.getElementById('m_manualPlan').value;
+  var pay = document.getElementById('m_manualPay').value;
+  if (!fid) { API.toast('请输入家庭 ID'); return; }
+  var res = await API.adminUser.orderManual(fid, plan, pay);
+  if (res.code === 200) { API.toast('开通成功'); closeModal(); loadOrders(); }
+  else API.toast(res.msg || '开通失败');
+}
+
+// ===== 绘本管理 =====
+var bookPage = 1;
+async function loadBooks(pageNum) {
+  bookPage = pageNum || 1;
+  var params = { pageNum: bookPage, pageSize: 10 };
+  var keyword = document.getElementById('bookKeyword').value.trim();
+  var status = document.getElementById('bookStatus').value;
+  if (keyword) params.keyword = keyword;
+  if (status !== '') params.status = status;
+  try {
+    var res = await API.adminBook.list(params.pageNum, params.pageSize, params.keyword, params.status);
+    var pr = res.data || {};
+    var list = pr.records || pr.list || pr || [];
+    if (!Array.isArray(list)) list = [];
+    if (!list.length) { document.getElementById('bookTableBody').innerHTML = '<tr><td colspan="7" class="empty">暂无绘本</td></tr>'; document.getElementById('bookPager').innerHTML=''; return; }
+    document.getElementById('bookTableBody').innerHTML = list.map(function(b) {
+      var statusBadge = b.status === 1 ? '<span class="badge badge-green">已上架</span>' : '<span class="badge badge-gray">已下架</span>';
+      var actions = '<button class="btn btn-outline btn-sm" onclick="showBookModal(' + b.bookId + ')">编辑</button> ';
+      actions += '<button class="btn ' + (b.status === 1 ? 'btn-danger' : 'btn-success') + ' btn-sm" onclick="toggleBookStatus(' + b.bookId + ',' + (b.status === 1 ? 0 : 1) + ')">' + (b.status === 1 ? '下架' : '上架') + '</button> ';
+      actions += '<button class="btn btn-danger btn-sm" onclick="deleteBook(' + b.bookId + ')">删除</button>';
+      return '<tr><td>' + b.bookId + '</td><td>' + (b.title||'-') + '</td><td>' + (b.author||'-') + '</td><td>' + (b.category||b.theme||'-') + '</td><td>' + (b.ageGroup||'-') + '</td><td>' + statusBadge + '</td><td>' + actions + '</td></tr>';
+    }).join('');
+    // 分页
+    var total = pr.total || list.length;
+    var pages = Math.ceil(total / 10);
+    var pagerHtml = '';
+    for (var i = 1; i <= pages; i++) {
+      pagerHtml += '<button class="' + (i === bookPage ? 'active' : '') + '" onclick="loadBooks(' + i + ')" ' + (i === bookPage ? 'disabled' : '') + '>' + i + '</button>';
+    }
+    document.getElementById('bookPager').innerHTML = pagerHtml;
+  } catch (e) { document.getElementById('bookTableBody').innerHTML = '<tr><td colspan="7" class="empty">加载失败</td></tr>'; }
+}
+
+function showBookModal(id) {
+  var isEdit = !!id;
+  var html = '<div class="modal-title">' + (isEdit ? '编辑绘本' : '新增绘本') + '</div>';
+  html += '<div class="modal-field"><label>标题</label><input id="m_bookTitle"></div>';
+  html += '<div class="modal-field"><label>作者</label><input id="m_bookAuthor"></div>';
+  html += '<div class="modal-field"><label>分类/主题</label><input id="m_bookCategory"></div>';
+  html += '<div class="modal-field"><label>年龄段</label><input id="m_bookAge" placeholder="如 3-6"></div>';
+  html += '<div class="modal-field"><label>简介</label><textarea id="m_bookDesc"></textarea></div>';
+  html += '<div class="modal-field"><label>封面图 URL</label><input id="m_bookCover"></div>';
+  html += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveBook(' + (id||0) + ')">保存</button></div>';
+  showModal(html);
+  if (isEdit) {
+    API.adminBook.list(1, 100).then(function(res) {
+      var pr = res.data || {};
+      var list = pr.records || pr.list || pr || [];
+      if (!Array.isArray(list)) list = [];
+      var book = list.find(function(b) { return b.bookId === id; });
+      if (book) {
+        document.getElementById('m_bookTitle').value = book.title || '';
+        document.getElementById('m_bookAuthor').value = book.author || '';
+        document.getElementById('m_bookCategory').value = book.category || book.theme || '';
+        document.getElementById('m_bookAge').value = book.ageGroup || '';
+        document.getElementById('m_bookDesc').value = book.description || '';
+        document.getElementById('m_bookCover').value = book.coverUrl || '';
+      }
+    });
+  }
+}
+
+async function saveBook(id) {
+  var book = {
+    title: document.getElementById('m_bookTitle').value.trim(),
+    author: document.getElementById('m_bookAuthor').value.trim(),
+    category: document.getElementById('m_bookCategory').value.trim(),
+    ageGroup: document.getElementById('m_bookAge').value.trim(),
+    description: document.getElementById('m_bookDesc').value.trim(),
+    coverUrl: document.getElementById('m_bookCover').value.trim()
+  };
+  if (!book.title) { API.toast('请输入标题'); return; }
+  if (id) book.bookId = id;
+  var res = id ? await API.adminBook.update(book) : await API.adminBook.add(book);
+  if (res.code === 200) { API.toast('保存成功'); closeModal(); loadBooks(bookPage); }
+  else API.toast(res.msg || '保存失败');
+}
+
+async function toggleBookStatus(id, status) {
+  var res = await API.adminBook.changeStatus(id, status);
+  if (res.code === 200) { API.toast('已更新'); loadBooks(bookPage); }
+  else API.toast(res.msg || '失败');
+}
+
+async function deleteBook(id) {
+  if (!confirm('确认删除该绘本？')) return;
+  var res = await API.adminBook.remove(id);
+  if (res.code === 200) { API.toast('已删除'); loadBooks(bookPage); }
+  else API.toast(res.msg || '失败');
+}
+
+// ===== AI 模型配置 =====
+var aiPage = 1;
+async function loadAiModels(pageNum) {
+  aiPage = pageNum || 1;
+  var cap = document.getElementById('aiCapability').value;
+  var provider = document.getElementById('aiProvider').value;
+  try {
+    var res = await API.adminAiModel.list(aiPage, 10, cap, provider);
+    var page = res.data || {};
+    var list = page.records || page.list || [];
+    if (!list.length) { document.getElementById('aiModelTableBody').innerHTML = '<tr><td colspan="8" class="empty">暂无配置</td></tr>'; document.getElementById('aiModelPager').innerHTML=''; return; }
+    document.getElementById('aiModelTableBody').innerHTML = list.map(function(m) {
+      var capLabel = { tts: 'TTS 语音合成', asr: 'ASR 语音识别', voice_clone: '声音复刻', llm: 'AI 故事生成', image: 'AI 配图' }[m.capabilityType] || m.capabilityType || '-';
+      var enabledBadge = m.enabled ? '<span class="badge badge-green">启用</span>' : '<span class="badge badge-gray">禁用</span>';
+      var apiKeyShort = m.apiKey ? (m.apiKey.substring(0,8) + '...') : '-';
+      var actions = '<button class="btn btn-outline btn-sm" onclick="showAiModelModal(' + m.id + ')">编辑</button> ';
+      actions += '<button class="btn ' + (m.enabled ? 'btn-danger' : 'btn-success') + ' btn-sm" onclick="toggleAiModel(' + m.id + ')">' + (m.enabled ? '禁用' : '启用') + '</button> ';
+      actions += '<button class="btn btn-danger btn-sm" onclick="deleteAiModel(' + m.id + ')">删除</button>';
+      return '<tr><td>' + m.id + '</td><td>' + capLabel + '</td><td>' + (m.provider||'-') + '</td><td>' + (m.modelName||'-') + '</td><td>' + apiKeyShort + '</td><td>' + (m.apiUrl||'-') + '</td><td>' + enabledBadge + '</td><td>' + actions + '</td></tr>';
+    }).join('');
+    // 分页
+    var total = page.total || list.length;
+    var pages = Math.ceil(total / 10);
+    var pagerHtml = '';
+    for (var i = 1; i <= pages; i++) {
+      pagerHtml += '<button class="' + (i === aiPage ? 'active' : '') + '" onclick="loadAiModels(' + i + ')" ' + (i === aiPage ? 'disabled' : '') + '>' + i + '</button>';
+    }
+    document.getElementById('aiModelPager').innerHTML = pagerHtml;
+  } catch (e) { document.getElementById('aiModelTableBody').innerHTML = '<tr><td colspan="8" class="empty">加载失败</td></tr>'; }
+}
+
+function showAiModelModal(id) {
+  var isEdit = !!id;
+  var html = '<div class="modal-title">' + (isEdit ? '编辑 AI 模型' : '新增 AI 模型') + '</div>';
+  html += '<div class="modal-field"><label>能力类型</label><select id="m_aiCap"><option value="tts">TTS 语音合成</option><option value="asr">ASR 语音识别</option><option value="voice_clone">声音复刻</option><option value="llm">AI 故事生成</option><option value="image">AI 配图</option></select></div>';
+  html += '<div class="modal-field"><label>供应商</label><input id="m_aiProvider" placeholder="如 volcano / azure / aliyun / openai"></div>';
+  html += '<div class="modal-field"><label>模型名</label><input id="m_aiModelName" placeholder="如 zh-Best-dessert"></div>';
+  html += '<div class="modal-field"><label>API Key</label><input id="m_aiApiKey"></div>';
+  html += '<div class="modal-field"><label>API URL</label><input id="m_aiApiUrl" placeholder="接口地址（可选）"></div>';
+  html += '<div class="modal-field"><label>额外参数（JSON）</label><textarea id="m_aiExtra" placeholder="{}"></textarea></div>';
+  html += '<div class="modal-field"><label>启用</label><select id="m_aiEnabled"><option value="1">启用</option><option value="0">禁用</option></select></div>';
+  html += '<div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveAiModel(' + (id||0) + ')">保存</button></div>';
+  showModal(html);
+  if (isEdit) {
+    API.adminAiModel.list(1, 100).then(function(res) {
+      var page = res.data || {};
+      var list = page.records || page.list || [];
+      var model = list.find(function(m) { return m.id === id; });
+      if (model) {
+        document.getElementById('m_aiCap').value = model.capabilityType || '';
+        document.getElementById('m_aiProvider').value = model.provider || '';
+        document.getElementById('m_aiModelName').value = model.modelName || '';
+        document.getElementById('m_aiApiKey').value = model.apiKey || '';
+        document.getElementById('m_aiApiUrl').value = model.apiUrl || '';
+        document.getElementById('m_aiExtra').value = model.extraParams || '{}';
+        document.getElementById('m_aiEnabled').value = model.enabled ? '1' : '0';
+      }
+    });
+  }
+}
+
+async function saveAiModel(id) {
+  var model = {
+    capabilityType: document.getElementById('m_aiCap').value,
+    provider: document.getElementById('m_aiProvider').value.trim(),
+    modelName: document.getElementById('m_aiModelName').value.trim(),
+    apiKey: document.getElementById('m_aiApiKey').value.trim(),
+    apiUrl: document.getElementById('m_aiApiUrl').value.trim(),
+    extraParams: document.getElementById('m_aiExtra').value.trim() || '{}',
+    enabled: document.getElementById('m_aiEnabled').value === '1'
+  };
+  if (!model.provider || !model.modelName) { API.toast('请填写供应商和模型名'); return; }
+  if (id) model.id = id;
+  var res = id ? await API.adminAiModel.update(model) : await API.adminAiModel.add(model);
+  if (res.code === 200) { API.toast('保存成功'); closeModal(); loadAiModels(aiPage); }
+  else API.toast(res.msg || '保存失败');
+}
+
+async function toggleAiModel(id) {
+  var res = await API.adminAiModel.toggle(id);
+  if (res.code === 200) { API.toast('已切换'); loadAiModels(aiPage); }
+  else API.toast(res.msg || '失败');
+}
+
+async function deleteAiModel(id) {
+  if (!confirm('确认删除该模型配置？')) return;
+  var res = await API.adminAiModel.remove(id);
+  if (res.code === 200) { API.toast('已删除'); loadAiModels(aiPage); }
+  else API.toast(res.msg || '失败');
+}
+
+// ===== 系统配置 =====
+async function loadConfig() {
+  // 防沉迷
+  try {
+    var res = await API.adminConfig.antiAddiction();
+    var d = res.data || {};
+    var html = '<div class="config-row"><span class="config-key">每日时长限制（分钟）</span><input class="config-input" value="' + (d.dailyLimitMinutes || d.dailyMinutes || 30) + '"></div>';
+    html += '<div class="config-row"><span class="config-key">每日次数限制</span><input class="config-input" value="' + (d.dailyLimitCount || d.dailyCount || 10) + '"></div>';
+    html += '<div class="config-row"><span class="config-key">禁用时段</span><input class="config-input" value="' + (d.disabledHours || '') + '"></div>';
+    document.getElementById('antiAddictionArea').innerHTML = html;
+  } catch (e) { document.getElementById('antiAddictionArea').innerHTML = '<div class="empty">加载失败</div>'; }
+  // 产品配置
+  try {
+    var res2 = await API.adminConfig.product();
+    var d2 = res2.data || {};
+    var html2 = '';
+    Object.keys(d2).forEach(function(k) {
+      html2 += '<div class="config-row"><span class="config-key">' + k + '</span><input class="config-input" value="' + (d2[k]||'') + '"></div>';
+    });
+    document.getElementById('productConfigArea').innerHTML = html2 || '<div class="empty">暂无配置</div>';
+  } catch (e) { document.getElementById('productConfigArea').innerHTML = '<div class="empty">加载失败</div>'; }
+  // 全部配置
+  try {
+    var res3 = await API.adminConfig.list();
+    var list = res3.data || [];
+    var html3 = list.length ? list.map(function(c) {
+      return '<div class="config-row"><span class="config-key">' + (c.configKey||'-') + '</span><input class="config-input" value="' + (c.configValue||'') + '" onchange="saveConfig(\'' + (c.configKey||'') + '\', this.value)"></div>';
+    }).join('') : '<div class="empty">暂无配置</div>';
+    document.getElementById('allConfigArea').innerHTML = html3;
+  } catch (e) { document.getElementById('allConfigArea').innerHTML = '<div class="empty">加载失败</div>'; }
+}
+
+async function saveConfig(key, value) {
+  var res = await API.adminConfig.save(key, value);
+  if (res.code === 200) API.toast('已保存: ' + key);
+  else API.toast(res.msg || '保存失败');
+}
+
+// ===== 弹窗工具 =====
+function showModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalMask').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modalMask').classList.remove('show');
+}
+document.getElementById('modalMask').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// 初始加载第一个 tab
+loadOverview();
+</script>
+</body>
+</html>
