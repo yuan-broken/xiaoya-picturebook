@@ -332,6 +332,14 @@ const API = (function () {
     familyList: (params) => get('/api/admin/user/family' + buildQuery(params)),
     /** 家庭详情 */
     familyDetail: (id) => get('/api/admin/user/family/' + id),
+    /** 删除家庭账号 */
+    familyRemove: (id) => del('/api/admin/user/family/' + id),
+    /** 修改家长密码 */
+    familyChangePwd: (id, newPassword) => put('/api/admin/user/family/' + id + '/password', { newPassword }),
+    /** 修改会员状态（0=未开通 1=已开通 2=已过期） */
+    familyChangeStatus: (id, memberStatus) => put('/api/admin/user/family/' + id + '/member-status', { memberStatus }),
+    /** 修改会员到期时间（memberEndAt: yyyy-MM-dd） */
+    familyChangeExpire: (id, memberEndAt) => put('/api/admin/user/family/' + id + '/member-expire', { memberEndAt }),
     // ---- 订单 ----
     /** 订单列表（支持筛选） */
     orderList: (params) => get('/api/admin/user/order' + buildQuery(params)),
