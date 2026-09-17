@@ -7,7 +7,7 @@
 <title>小芽绘本 · AI伴读</title>
 <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
 <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
-<script src="api.js?v=18"></script>
+<script src="api.js?v=22"></script>
 </head>
 <body class="m-0 min-h-screen bg-[#f7f3ec] text-[#24312e]">
 <div class="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden bg-[#fbfaf7] shadow-[0_12px_60px_rgba(61,48,29,.08)]">
@@ -92,10 +92,13 @@ async function doLogout() {
   try {
     await API.post('/api/auth/logout', {});
   } catch (e) { /* ignore */ }
+  // 获取用户角色，决定跳转页面
+  var user = API.getUser();
+  var isChild = user.role === 'child';
   // 清理本地 token 和用户信息
   API.clearAuth();
-  // 跳转到登录页
-  window.location.href = 'login.html';
+  // 跳转到登录页（孩子跳孩子登录页，家长跳家长登录页）
+  window.location.href = isChild ? 'child-login.html' : 'login.html';
 }
 async function doStartTrial(){
   const btn = document.getElementById('btnStartTrial');
@@ -249,9 +252,9 @@ function applyRoleUI(){
   if (isChild) {
     // 孩子模式：隐藏家长专属功能
     if (upgradeBtn) upgradeBtn.style.display = 'none';
-    // 隐藏退出登录按钮
+    // 孩子也显示退出登录按钮
     var childLogoutBtn = document.getElementById('logoutBtn');
-    if (childLogoutBtn) childLogoutBtn.style.display = 'none';
+    if (childLogoutBtn) childLogoutBtn.style.display = 'flex';
     // 隐藏老师工作台模块
     document.querySelectorAll('button').forEach(function(btn) {
       if (btn.textContent.indexOf('了解班级版') > -1) {
